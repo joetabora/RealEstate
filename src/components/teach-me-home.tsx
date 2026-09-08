@@ -41,9 +41,11 @@ export function TeachMeHome({ data }: { data: TeachMeHomeData }) {
             <div>
               <h2 className="font-display text-2xl text-ink">No session yet</h2>
               <p className="mt-2 max-w-lg text-sm leading-6 text-muted">
-                Course content has not been ingested. There is no mastery or
-                readiness data — this is a new learner on{" "}
-                <span className="text-ink">{data.edition.name}</span>.
+                Course content has not been turned into Teach Me sessions yet.
+                There is no mastery or readiness data — this is a new learner on{" "}
+                <span className="text-ink">{data.edition.name}</span>. After
+                local ingest, cited sections appear in Library. Teaching starts
+                in a later phase.
               </p>
               {!data.databaseConnected ? (
                 <p className="mt-3 text-sm text-ink/80">

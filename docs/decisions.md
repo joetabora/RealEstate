@@ -1,6 +1,6 @@
 # Architecture decisions
 
-Phase: 1 — Foundation  
+Phase: 2 — Ingestion  
 Status: locked unless a concrete technical contradiction appears.
 
 This file records the Architecture Lock. It is binding for implementation.
@@ -18,7 +18,7 @@ This file records the Architecture Lock. It is binding for implementation.
 - **KnowledgeState and PerformanceState stay separate** (entities in a later phase). Understanding a concept is not the same as surviving exam conditions. Do not collapse them into a single mastery percentage.
 - **ConfusionPair is an entity** (later). Seeded pairs plus evidence from misses.
 - **LearningAsset is the content model** (later). Extensible types: explanation, simple language, analogy, scenario, comparison, visual, recall, teach-back, application, calculation, form-line, trap, exam recognition, remediation. Do not freeze `Lesson.mode` as the schema.
-- **VisualAnchor** will reference page images, forms, diagrams, tables, and WB form lines. Schema later; OCR and rasterization are not Phase 1.
+- **VisualAnchor** stores page-number placeholders now. OCR, bounding boxes, and rasterized page images are Phase 10.
 - **Confidence 1–5** is a learning signal. Overconfident errors get repair priority.
 - **Remediation = why missed + core distinction + immediate retest.**
 - **No XP, levels, achievements, or leaderboards.** Progress is exam-weighted readiness and concept state. Volume of easy questions must not look like advancement.
@@ -41,8 +41,14 @@ This file records the Architecture Lock. It is binding for implementation.
 - **No reconstructed course in git.** Extracted text lives in the local database.
 - **Citation or label.** No confident Wisconsin fact (statute, fee, deadline, form line, protected class) without a source page. Otherwise `general_explanation` or `needs_verification`.
 - **Source layers are dated**, not a single overwrite chain: course book, chapter notes, dated updates, exam blueprint, pedagogy. Updates may supersede a book section by link; both records remain.
-- **Video transcription and OCR are deferred** (Phase 10).
+- **Canonical book is PUB725.** Chapter-folder PDFs are aligned notes with different pagination.
+- **Practice-exam stems stay in the local DB** and are not rendered in Library or committed to git.
+- **Video transcription and OCR are deferred** (Phase 10). Image-heavy form pages are stored as `needsOcr` placeholders.
 
-## Phase 1 boundaries (still in force)
+## Phase 2 complete
 
-Do not ingest PDFs, create embeddings, install an OpenAI client, build RAG, quizzes, the tutor, the math engine, the exam simulator, SRS, or adaptive mastery.
+Ingest PUB725 + Chapter 1 notes into `SourceDocument` / `SourceSection` with page citations. Chapters 12–14 are visible as book sections. Visual anchors are page-number placeholders.
+
+## Phase 2 boundaries (still in force)
+
+Do not create embeddings, install an OpenAI client, build RAG, quizzes, the tutor, the math engine, the exam simulator, SRS, or adaptive mastery. Do not upload PDFs to a vendor. Do not OCR forms or transcribe video.

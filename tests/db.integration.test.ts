@@ -40,6 +40,11 @@ describe("database seed (integration)", () => {
         "Learner",
         "LearningSession",
         "SessionItem",
+        "SourceDocument",
+        "SourceSection",
+        "SourceAsset",
+        "VisualAnchor",
+        "SourceSupersession",
       ]),
     );
   });

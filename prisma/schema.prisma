@@ -20,12 +20,13 @@ model CourseEdition {
 
   examCategories   ExamCategory[]
   learningSessions LearningSession[]
+  sourceDocuments  SourceDocument[]
 }
 
 /// Official Wisconsin salesperson exam weighting structure (Pearson outline).
 /// This is not course content. It classifies and weights exam readiness.
 model ExamCategory {
-  id        String  @id @default(cuid())
+  id        String        @id @default(cuid())
   editionId String
   edition   CourseEdition @relation(fields: [editionId], references: [id], onDelete: Cascade)
 
@@ -61,11 +62,11 @@ model Learner {
 
 /// A Teach Me (or future) study session. Planner fills items in later phases.
 model LearningSession {
-  id             String    @id @default(cuid())
-  learnerId      String
-  learner        Learner   @relation(fields: [learnerId], references: [id], onDelete: Cascade)
-  editionId      String?
-  edition        CourseEdition? @relation(fields: [editionId], references: [id], onDelete: SetNull)
+  id        String         @id @default(cuid())
+  learnerId String
+  learner   Learner        @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+  editionId String?
+  edition   CourseEdition? @relation(fields: [editionId], references: [id], onDelete: SetNull)
 
   objective      String?
   targetMinutes  Int?
@@ -93,7 +94,7 @@ model SessionItem {
   sortOrder   Int
   /// Extensible kind string: review | repair | learn | teachback | practice | recall
   kind        String
-  reasonCodes String[] @default([])
+  reasonCodes String[]      @default([])
 
   /// Future foreign keys — stored as ids until Concept/LearningAsset/Question exist.
   conceptId  String?
@@ -105,4 +106,154 @@ model SessionItem {
   updatedAt   DateTime  @updatedAt
 
   @@index([sessionId, sortOrder])
+}
+
+/// A layered source work (course book, chapter notes, forms, glossary, …).
+/// Extracted text lives here in the local database, never in git.
+model SourceDocument {
+  id        String        @id @default(cuid())
+  editionId String
+  edition   CourseEdition @relation(fields: [editionId], references: [id], onDelete: Cascade)
+
+  slug  String
+  title String
+  /// course_book | chapter_notes | dated_update | exam_blueprint | glossary | forms | math_appendix | story_problem | practice_exam | pedagogy
+  layer String
+  /// educational | regulatory_exam | pedagogical
+  authority    String
+  jurisdiction String @default("WI")
+
+  /// Path relative to SOURCE_MATERIAL_PATH. Empty when there is no local file.
+  relativePath   String  @default("")
+  fileName       String  @default("")
+  checksumSha256 String?
+
+  publishedAt DateTime?
+  effectiveAt DateTime?
+
+  pageCount    Int @default(0)
+  firstPdfPage Int @default(1)
+  lastPdfPage  Int @default(1)
+
+  /// Practice-exam stems stay in the DB but are not reconstructed in Library.
+  hideBodyInUi Boolean @default(false)
+
+  ingestedAt    DateTime @default(now())
+  ingestVersion String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sections           SourceSection[]
+  assets             SourceAsset[]
+  superseding        SourceSupersession[] @relation("SupersedingDocument")
+  superseded         SourceSupersession[] @relation("SupersededDocument")
+
+  @@unique([editionId, slug])
+  @@index([editionId, layer])
+}
+
+/// A cited slice of a source document (heading, chapter, or page).
+model SourceSection {
+  id         String         @id @default(cuid())
+  documentId String
+  document   SourceDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  sortOrder   Int
+  heading     String
+  headingPath String[] @default([])
+  /// chapter | heading | page | part
+  kind        String   @default("heading")
+
+  chapterNumber Int?
+  chapterTitle  String?
+
+  pdfPageStart     Int
+  pdfPageEnd       Int
+  printedPageStart Int?
+  printedPageEnd   Int?
+
+  body          String @db.Text
+  charCount     Int
+  tokenEstimate Int
+
+  /// Image-heavy pages with no usable extractable text. OCR is Phase 10.
+  needsOcr Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  anchors VisualAnchor[]
+
+  @@index([documentId, sortOrder])
+  @@index([documentId, chapterNumber])
+}
+
+/// An update may qualify or supersede a book section; both records remain.
+model SourceSupersession {
+  id String @id @default(cuid())
+
+  supersedingDocumentId String
+  supersedingDocument   SourceDocument @relation("SupersedingDocument", fields: [supersedingDocumentId], references: [id], onDelete: Cascade)
+  supersedingSectionId  String?
+
+  supersededDocumentId String
+  supersededDocument   SourceDocument @relation("SupersededDocument", fields: [supersededDocumentId], references: [id], onDelete: Cascade)
+  supersededSectionId  String?
+
+  note String?
+
+  createdAt DateTime @default(now())
+
+  @@index([supersededDocumentId])
+  @@index([supersedingDocumentId])
+}
+
+/// Local binary/render placeholder. filePath is never committed.
+model SourceAsset {
+  id         String         @id @default(cuid())
+  documentId String
+  document   SourceDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  /// pdf | page_render | form_pdf_page | table | diagram
+  kind        String
+  pdfPage     Int?
+  printedPage Int?
+  filePath    String?
+  mimeType    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  anchors VisualAnchor[]
+
+  @@index([documentId, pdfPage])
+}
+
+/// Page-number placeholder until OCR / page images exist.
+model VisualAnchor {
+  id String @id @default(cuid())
+
+  assetId   String?
+  asset     SourceAsset?   @relation(fields: [assetId], references: [id], onDelete: SetNull)
+  sectionId String?
+  section   SourceSection? @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  pdfPage     Int
+  printedPage Int?
+
+  formNumber String?
+  lineRange  String?
+  bboxX      Float?
+  bboxY      Float?
+  bboxWidth  Float?
+  bboxHeight Float?
+
+  label String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([pdfPage])
+  @@index([sectionId])
 }

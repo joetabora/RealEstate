@@ -10,10 +10,17 @@ const HEADING_MAX_FONT = 26;
 const HEADING_MIN_CHARS = 3;
 const HEADING_MAX_CHARS = 90;
 
+type PdfDocument = Awaited<ReturnType<typeof getDocumentProxy>>;
+
 type OutlineNode = {
   title?: string;
   dest?: unknown;
   items?: OutlineNode[];
+};
+
+type PdfRef = {
+  num: number;
+  gen: number;
 };
 
 export async function readPdfBuffer(filePath: string): Promise<Uint8Array> {
@@ -90,7 +97,7 @@ function outlineIsUseful(outline: unknown): outline is OutlineNode[] {
 }
 
 async function headingsFromOutline(
-  pdf: { getDestination: (name: string) => Promise<unknown>; getPageIndex: (ref: unknown) => Promise<number> },
+  pdf: PdfDocument,
   outline: OutlineNode[],
   pages: ParsedPage[],
 ): Promise<DetectedHeading[]> {
@@ -119,10 +126,7 @@ async function headingsFromOutline(
   return headings;
 }
 
-async function resolveOutlinePage(
-  pdf: { getDestination: (name: string) => Promise<unknown>; getPageIndex: (ref: unknown) => Promise<number> },
-  dest: unknown,
-): Promise<number | null> {
+async function resolveOutlinePage(pdf: PdfDocument, dest: unknown): Promise<number | null> {
   try {
     let resolved = dest;
     if (typeof dest === "string") {
@@ -131,11 +135,26 @@ async function resolveOutlinePage(
     if (!Array.isArray(resolved) || resolved.length === 0) {
       return null;
     }
-    const index = await pdf.getPageIndex(resolved[0]);
+    const ref = resolved[0];
+    if (!isPdfRef(ref)) {
+      return null;
+    }
+    const index = await pdf.getPageIndex(ref);
     return index + 1;
   } catch {
     return null;
   }
+}
+
+function isPdfRef(value: unknown): value is PdfRef {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "num" in value &&
+    "gen" in value &&
+    typeof value.num === "number" &&
+    typeof value.gen === "number"
+  );
 }
 
 function headingsFromFontSizes(

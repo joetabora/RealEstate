@@ -6,3 +6,4 @@ export {
   seedExamBlueprint,
   seedPhase1,
 } from "./seed";
+export { seedPhase3 } from "../knowledge/seed";

@@ -12,6 +12,7 @@ export default async function LibraryPage() {
       <LibraryHome
         databaseConnected={data.databaseConnected}
         ingested={data.ingested}
+        conceptCount={data.conceptCount}
         documents={data.documents}
       />
     </AppShell>

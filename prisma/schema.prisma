@@ -21,6 +21,8 @@ model CourseEdition {
   examCategories   ExamCategory[]
   learningSessions LearningSession[]
   sourceDocuments  SourceDocument[]
+  concepts         Concept[]
+  confusionPairs   ConfusionPair[]
 }
 
 /// Official Wisconsin salesperson exam weighting structure (Pearson outline).
@@ -44,6 +46,8 @@ model ExamCategory {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  concepts ConceptExamCategory[]
 
   @@unique([editionId, code])
   @@index([editionId, sortOrder])
@@ -183,7 +187,8 @@ model SourceSection {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  anchors VisualAnchor[]
+  anchors   VisualAnchor[]
+  citations ConceptCitation[]
 
   @@index([documentId, sortOrder])
   @@index([documentId, chapterNumber])
@@ -256,4 +261,115 @@ model VisualAnchor {
 
   @@index([pdfPage])
   @@index([sectionId])
+}
+
+/// A teachable idea in one course edition. Labels and citations only — not a reconstructed chapter.
+model Concept {
+  id        String        @id @default(cuid())
+  editionId String
+  edition   CourseEdition @relation(fields: [editionId], references: [id], onDelete: Cascade)
+
+  slug          String
+  name          String
+  chapterNumber Int
+  /// roles | models | duties | disclosure | office | broker-definition
+  group       String
+  /// wi | general | both
+  jurisdictionScope String
+  sortOrder         Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  citations      ConceptCitation[]
+  examCategories ConceptExamCategory[]
+  outgoing       ConceptRelationship[] @relation("RelationshipFrom")
+  incoming       ConceptRelationship[] @relation("RelationshipTo")
+  confusionA     ConfusionPair[]       @relation("ConfusionConceptA")
+  confusionB     ConfusionPair[]       @relation("ConfusionConceptB")
+
+  @@unique([editionId, slug])
+  @@index([editionId, chapterNumber, sortOrder])
+}
+
+model ConceptCitation {
+  id         String        @id @default(cuid())
+  conceptId  String
+  concept    Concept       @relation(fields: [conceptId], references: [id], onDelete: Cascade)
+  sectionId  String?
+  section    SourceSection? @relation(fields: [sectionId], references: [id], onDelete: SetNull)
+
+  documentSlug String
+  heading      String
+  pdfPage      Int
+  printedPage  Int?
+  /// course_book | chapter_notes
+  layer String
+
+  createdAt DateTime @default(now())
+
+  @@index([conceptId])
+  @@index([sectionId])
+}
+
+model ConceptExamCategory {
+  conceptId      String
+  concept        Concept      @relation(fields: [conceptId], references: [id], onDelete: Cascade)
+  examCategoryId String
+  examCategory   ExamCategory @relation(fields: [examCategoryId], references: [id], onDelete: Cascade)
+
+  @@id([conceptId, examCategoryId])
+}
+
+model ConceptRelationship {
+  id           String  @id @default(cuid())
+  fromConceptId String
+  fromConcept   Concept @relation("RelationshipFrom", fields: [fromConceptId], references: [id], onDelete: Cascade)
+  toConceptId   String
+  toConcept     Concept @relation("RelationshipTo", fields: [toConceptId], references: [id], onDelete: Cascade)
+  /// prerequisite | part_of | related
+  kind String
+
+  createdAt DateTime @default(now())
+
+  @@unique([fromConceptId, toConceptId, kind])
+  @@index([toConceptId])
+}
+
+model ConfusionPair {
+  id        String        @id @default(cuid())
+  editionId String
+  edition   CourseEdition @relation(fields: [editionId], references: [id], onDelete: Cascade)
+
+  conceptAId String
+  conceptA   Concept @relation("ConfusionConceptA", fields: [conceptAId], references: [id], onDelete: Cascade)
+  conceptBId String
+  conceptB   Concept @relation("ConfusionConceptB", fields: [conceptBId], references: [id], onDelete: Cascade)
+
+  /// Unordered pair key: sorted slugs joined by "|".
+  canonicalKey String
+  reason       String
+  source       String  @default("seed")
+  active       Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  evidence ConfusionEvidence[]
+
+  @@unique([editionId, canonicalKey])
+  @@index([editionId, active])
+}
+
+model ConfusionEvidence {
+  id     String        @id @default(cuid())
+  pairId String
+  pair   ConfusionPair @relation(fields: [pairId], references: [id], onDelete: Cascade)
+  /// seed | distractor | repeated_miss | teachback
+  kind String
+  note String?
+
+  createdAt DateTime @default(now())
+
+  @@index([pairId])
 }

@@ -6,6 +6,7 @@ import {
   examCategoryWeightTotal,
 } from "@/lib/blueprint";
 import { ensureLocalLearner, seedPhase1 } from "@/lib/db/seed";
+import { CHAPTER_1_CONCEPTS, CHAPTER_1_CONFUSION_PAIRS, canonicalPairKey, seedPhase3 } from "@/lib/knowledge";
 
 const prisma = new PrismaClient();
 
@@ -45,6 +46,12 @@ describe("database seed (integration)", () => {
         "SourceAsset",
         "VisualAnchor",
         "SourceSupersession",
+        "Concept",
+        "ConceptCitation",
+        "ConceptExamCategory",
+        "ConceptRelationship",
+        "ConfusionPair",
+        "ConfusionEvidence",
       ]),
     );
   });
@@ -83,5 +90,40 @@ describe("database seed (integration)", () => {
       where: { key: LOCAL_LEARNER_KEY },
     });
     expect(count).toBe(1);
+  });
+
+  it("seeds Chapter 1 concepts and active confusion pairs idempotently", async ({ skip }) => {
+    if (!(await databaseIsReachable())) {
+      skip();
+      return;
+    }
+
+    const { edition } = await seedPhase1(prisma);
+    const first = await seedPhase3(prisma, edition.id);
+    const second = await seedPhase3(prisma, edition.id);
+
+    expect(first.conceptCount).toBe(CHAPTER_1_CONCEPTS.length);
+    expect(second.conceptCount).toBe(first.conceptCount);
+    expect(first.pairCount).toBe(CHAPTER_1_CONFUSION_PAIRS.length);
+    expect(second.pairCount).toBe(first.pairCount);
+
+    const conceptCount = await prisma.concept.count({
+      where: { editionId: edition.id, chapterNumber: 1 },
+    });
+    expect(conceptCount).toBe(CHAPTER_1_CONCEPTS.length);
+
+    const pairs = await prisma.confusionPair.findMany({
+      where: { editionId: edition.id, active: true },
+      include: { conceptA: true, conceptB: true },
+    });
+    const slugs = new Set(CHAPTER_1_CONCEPTS.map((concept) => concept.slug));
+    expect(pairs.every((pair) => slugs.has(pair.conceptA.slug) && slugs.has(pair.conceptB.slug))).toBe(
+      true,
+    );
+    expect(
+      pairs.some(
+        (pair) => pair.canonicalKey === canonicalPairKey("client", "customer"),
+      ),
+    ).toBe(true);
   });
 });

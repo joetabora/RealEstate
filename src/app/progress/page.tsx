@@ -1,14 +1,15 @@
 import { AppShell } from "@/components/app-shell";
-import { PlaceholderPage } from "@/components/placeholder-page";
+import { ProgressHome } from "@/components/progress-home";
+import { getProgressData } from "@/lib/knowledge";
 
-export default function ProgressPage() {
+export const dynamic = "force-dynamic";
+
+export default async function ProgressPage() {
+  const data = await getProgressData();
+
   return (
     <AppShell>
-      <PlaceholderPage
-        title="Progress"
-        summary="Readiness will be aggregated by concept, chapter, exam category, Wisconsin vs general, and question type. There is no learner data yet, so nothing is scored."
-        next="This page will not show 0% mastery bars that look like failure. It will stay empty until you have actually studied."
-      />
+      <ProgressHome data={data} />
     </AppShell>
   );
 }

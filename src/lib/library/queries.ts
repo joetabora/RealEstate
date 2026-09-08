@@ -16,6 +16,7 @@ import {
 export type LibraryHomeData = {
   databaseConnected: boolean;
   ingested: boolean;
+  conceptCount: number;
   documents: LibraryDocumentCard[];
 };
 
@@ -33,10 +34,14 @@ export async function getLibraryHome(): Promise<LibraryHomeData> {
       where: { edition: { slug: COURSE_EDITION_SEED.slug } },
       include: { _count: { select: { sections: true } } },
     });
+    const conceptCount = await prisma.concept.count({
+      where: { edition: { slug: COURSE_EDITION_SEED.slug } },
+    });
 
     return {
       databaseConnected: true,
       ingested: documents.length > 0,
+      conceptCount,
       documents: sortDocuments(
         documents.map((document) => ({
           slug: document.slug,
@@ -56,7 +61,7 @@ export async function getLibraryHome(): Promise<LibraryHomeData> {
       ),
     };
   } catch {
-    return { databaseConnected: false, ingested: false, documents: [] };
+    return { databaseConnected: false, ingested: false, conceptCount: 0, documents: [] };
   }
 }
 

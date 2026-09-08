@@ -3,6 +3,7 @@ import path from "node:path";
 import type { PrismaClient } from "@prisma/client";
 import { SALESPERSON_EXAM_CATEGORIES } from "@/lib/blueprint";
 import { seedPhase1 } from "@/lib/db/seed";
+import { seedPhase3 } from "@/lib/knowledge/seed";
 import {
   BLUEPRINT_SOURCE_PART,
   CHAPTER_1_NOTES_PART,
@@ -35,7 +36,9 @@ export async function ingestPhase2(
   documents.push(...(await ingestPub725(sourceRoot, edition.jurisdiction)));
   documents.push(await ingestChapter1Notes(sourceRoot, edition.jurisdiction));
 
-  return persistDocuments(prisma, edition.id, documents);
+  const summary = await persistDocuments(prisma, edition.id, documents);
+  await seedPhase3(prisma, edition.id);
+  return summary;
 }
 
 async function ingestPub725(sourceRoot: string, jurisdiction: string): Promise<BuiltDocument[]> {

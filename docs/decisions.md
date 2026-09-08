@@ -1,6 +1,6 @@
 # Architecture decisions
 
-Phase: 2 — Ingestion  
+Phase: 3 — Knowledge + blueprint mapping  
 Status: locked unless a concrete technical contradiction appears.
 
 This file records the Architecture Lock. It is binding for implementation.
@@ -16,7 +16,7 @@ This file records the Architecture Lock. It is binding for implementation.
 - **CourseEdition versioning.** Current edition slug: `wra-sales-2024`, jurisdiction `WI`. A later 2027 edition must not destroy 2024.
 - **Exam blueprint is first-class data**, not course content. Pearson salesperson outline I–X is seeded with weights summing to 140. Concepts and questions will join to it later.
 - **KnowledgeState and PerformanceState stay separate** (entities in a later phase). Understanding a concept is not the same as surviving exam conditions. Do not collapse them into a single mastery percentage.
-- **ConfusionPair is an entity** (later). Seeded pairs plus evidence from misses.
+- **ConfusionPair is an entity.** Seeded pairs are active only when both concept slugs exist. Evidence starts as `seed`; later misses can add more.
 - **LearningAsset is the content model** (later). Extensible types: explanation, simple language, analogy, scenario, comparison, visual, recall, teach-back, application, calculation, form-line, trap, exam recognition, remediation. Do not freeze `Lesson.mode` as the schema.
 - **VisualAnchor** stores page-number placeholders now. OCR, bounding boxes, and rasterized page images are Phase 10.
 - **Confidence 1–5** is a learning signal. Overconfident errors get repair priority.
@@ -44,6 +44,14 @@ This file records the Architecture Lock. It is binding for implementation.
 - **Canonical book is PUB725.** Chapter-folder PDFs are aligned notes with different pagination.
 - **Practice-exam stems stay in the local DB** and are not rendered in Library or committed to git.
 - **Video transcription and OCR are deferred** (Phase 10). Image-heavy form pages are stored as `needsOcr` placeholders.
+
+## Phase 3 complete
+
+Hand-seeded Chapter 1 Agency concepts from ingested PUB725 / notes headings. Each concept has a page citation, exam-category IV, and a WI flag only where the cited heading had Wisconsin markers. Progress lists them as not started. Confusion pairs activate only when both sides exist in the catalog.
+
+## Phase 3 boundaries (still in force)
+
+Do not invent Wisconsin facts or concepts. Do not auto-extract remaining chapters yet. Do not build quizzes, the Teach Me session runner, the tutor, embeddings, or an OpenAI client. Start session stays disabled. Do not show fake 0% mastery bars.
 
 ## Phase 2 complete
 

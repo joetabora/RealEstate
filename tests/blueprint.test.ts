@@ -8,7 +8,7 @@ import {
   examCategoryWeightTotal,
   selectStartingExamCategory,
 } from "@/lib/blueprint";
-import { buildTeachMeHomeFallback } from "@/lib/teach-me/home";
+import { buildTeachMeHomeFallback } from "@/lib/teach-me/home-data";
 
 describe("salesperson exam blueprint", () => {
   it("weights sum to exactly 140", () => {

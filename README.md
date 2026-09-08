@@ -56,19 +56,23 @@ Course files live in `source-material/` on this machine. That directory is gitig
 ## Deploy on Vercel
 
 1. Import this GitHub repository in Vercel.
-2. Add a hosted Postgres database (Vercel Postgres or [Neon](https://neon.tech)).
-3. Set environment variables:
-   - `DATABASE_URL` — the pooled or direct Postgres URL from that host
-4. After the first successful deploy, run migrations and seed against that database:
+2. Set **Framework Preset** to **Next.js**. Leave **Output Directory** blank (do not set it to `public`).
+3. Use a lowercase project name such as `wisconsin-exam-coach`.
+4. `DATABASE_URL` is optional for Phase 1. If you set it, use a real `postgresql://...` connection string (`sslmode=require` for Neon/Vercel Postgres).
+5. Open the **Deployment** `.vercel.app` URL from the Deployments tab — not a Storage/database page.
+
+If you see Vercel's `404: NOT_FOUND` page with a `Code: NOT_FOUND` id, the CDN never reached Next.js. Check that the Framework Preset is Next.js, Output Directory is empty, the latest deployment is Ready, and you are opening the app URL.
+
+`/api/health` should return `{"ok":true}` when the app is actually deployed.
+
+After a successful deploy, you can migrate a hosted database with:
 
 ```bash
 npx prisma migrate deploy
 npx prisma db seed
 ```
 
-Course PDFs are not in this repo and are not needed for Phase 1. Teach Me will still render the exam blueprint if the database is unset; learner persistence requires `DATABASE_URL`.
-
-Do not add `source-material/`, `.env`, or API keys in Vercel.
+Do not add `source-material/` or `.env` in Vercel.
 
 ## Tests
 

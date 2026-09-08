@@ -1,6 +1,6 @@
 import { AppShell } from "@/components/app-shell";
 import { SALESPERSON_EXAM_ITEM_TOTAL } from "@/lib/blueprint";
-import type { TeachMeHomeData } from "@/lib/teach-me/home";
+import type { TeachMeHomeData } from "@/lib/teach-me/home-data";
 
 const LEARNING_LOOP = [
   "Learn",

@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+:root {
+  --paper: #f3eee6;
+  --paper-raised: #fbf8f2;
+  --ink: #1c1915;
+  --muted: #6d655a;
+  --line: #e4dcd0;
+  --accent: #1f4f47;
+  --accent-soft: #dce8e4;
+  --white: #fffdf8;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-paper-raised: var(--paper-raised);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-white: var(--white);
+  --font-sans: var(--font-geist-sans);
+  --font-display: var(--font-source-serif);
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-display), ui-serif, Georgia, serif;
+}
+
+.card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  box-shadow: 0 1px 0 rgba(28, 25, 21, 0.03);
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--accent);
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.7rem 1.15rem;
+}
+
+.btn-primary:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}

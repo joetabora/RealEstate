@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// A versioned offering of the course (e.g. WRA Sales 2024).
+/// Future editions (2027) can coexist without destroying older material.
+model CourseEdition {
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  name         String
+  jurisdiction String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  examCategories   ExamCategory[]
+  learningSessions LearningSession[]
+}
+
+/// Official Wisconsin salesperson exam weighting structure (Pearson outline).
+/// This is not course content. It classifies and weights exam readiness.
+model ExamCategory {
+  id        String  @id @default(cuid())
+  editionId String
+  edition   CourseEdition @relation(fields: [editionId], references: [id], onDelete: Cascade)
+
+  /// Roman code from the public outline, e.g. "I" … "X".
+  code      String
+  name      String
+  /// Number of scored items on the salesperson exam.
+  weight    Int
+  sortOrder Int
+
+  /// Reserved for sub-weights (e.g. III.A Valuation) without requiring them in Phase 1.
+  parentId String?
+  parent   ExamCategory?  @relation("CategoryTree", fields: [parentId], references: [id])
+  children ExamCategory[] @relation("CategoryTree")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([editionId, code])
+  @@index([editionId, sortOrder])
+}
+
+/// Personal product: a single local learner. Keep userId-shaped keying for later.
+model Learner {
+  id        String   @id @default(cuid())
+  /// Stable application key. The Phase 1 singleton is "local".
+  key       String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sessions LearningSession[]
+}
+
+/// A Teach Me (or future) study session. Planner fills items in later phases.
+model LearningSession {
+  id             String    @id @default(cuid())
+  learnerId      String
+  learner        Learner   @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+  editionId      String?
+  edition        CourseEdition? @relation(fields: [editionId], references: [id], onDelete: SetNull)
+
+  objective      String?
+  targetMinutes  Int?
+  plannerVersion String?
+  startedAt      DateTime  @default(now())
+  completedAt    DateTime?
+
+  /// Snapshots of knowledge/performance/review state. Unused until Phase 4+.
+  stateBefore     Json?
+  stateAfter      Json?
+  recommendedNext String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  items SessionItem[]
+}
+
+/// One step inside a session (review, repair, learn, teach-back, practice, recall).
+model SessionItem {
+  id        String          @id @default(cuid())
+  sessionId String
+  session   LearningSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  sortOrder   Int
+  /// Extensible kind string: review | repair | learn | teachback | practice | recall
+  kind        String
+  reasonCodes String[] @default([])
+
+  /// Future foreign keys — stored as ids until Concept/LearningAsset/Question exist.
+  conceptId  String?
+  assetId    String?
+  questionId String?
+
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([sessionId, sortOrder])
+}

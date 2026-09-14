@@ -46,6 +46,12 @@ export const CONCEPT_GROUPS = [
   "offer-process",
   "approved-offers",
   "wb11-provisions",
+  "financing-basics",
+  "foreclosure",
+  "loan-types",
+  "mortgage-markets",
+  "mortgage-math",
+  "financing-law",
 ] as const;
 
 export type ConceptGroup = (typeof CONCEPT_GROUPS)[number];
@@ -68,7 +74,8 @@ export type ConceptCitationSeed = {
     | "chapter-7-ownership-notes"
     | "chapter-8-title-notes"
     | "chapter-9-land-use-notes"
-    | "chapter-10-offers-notes";
+    | "chapter-10-offers-notes"
+    | "chapter-11-financing-notes";
   heading: string;
   pdfPage: number;
   printedPage?: number;
@@ -153,6 +160,12 @@ export const CONCEPT_GROUP_LABELS: Record<ConceptGroup, string> = {
   "offer-process": "Working with offers",
   "approved-offers": "Approved offer forms",
   "wb11-provisions": "WB-11 provisions",
+  "financing-basics": "Mortgage basics",
+  foreclosure: "Foreclosure",
+  "loan-types": "Loan types and sources",
+  "mortgage-markets": "Primary and secondary markets",
+  "mortgage-math": "Mortgage payment calculations",
+  "financing-law": "Financing legislation",
 };
 
 export const COURSE_CHAPTER_TITLES: Record<number, string> = {

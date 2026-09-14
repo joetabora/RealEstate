@@ -9,6 +9,7 @@ import { PHASE4_CH6_ASSETS } from "./chapter6-assets";
 import { PHASE4_CH7_ASSETS } from "./chapter7-assets";
 import { PHASE4_CH8_ASSETS } from "./chapter8-assets";
 import { PHASE4_CH9_ASSETS } from "./chapter9-assets";
+import { PHASE4_CH10_ASSETS } from "./chapter10-assets";
 import type { AssetSeed } from "./assets";
 
 const ALL_TEACH_ME_ASSETS: readonly AssetSeed[] = [
@@ -21,6 +22,7 @@ const ALL_TEACH_ME_ASSETS: readonly AssetSeed[] = [
   ...PHASE4_CH7_ASSETS,
   ...PHASE4_CH8_ASSETS,
   ...PHASE4_CH9_ASSETS,
+  ...PHASE4_CH10_ASSETS,
 ];
 
 export async function seedPhase4(prisma: PrismaClient, editionId: string) {

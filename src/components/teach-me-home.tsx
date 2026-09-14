@@ -31,8 +31,8 @@ export function TeachMeHome({ data }: { data: TeachMeHomeData }) {
           </h1>
           <p className="mt-4 max-w-xl text-base leading-7 text-muted">
             You should not have to pick a chapter. Teach Me runs sequential
-            sittings through the 14-chapter course — Chapters 1–9 now
-            (Agency through Land Use), then the rest.
+            sittings through the 14-chapter course — Chapters 1–10 now
+            (Agency through Offers to Purchase), then the rest.
             Wisconsin facts stay cited.
           </p>
         </header>
@@ -73,7 +73,7 @@ export function TeachMeHome({ data }: { data: TeachMeHomeData }) {
               scored items. {plannedStart.name} is the largest official category
               at {plannedStart.weight} items
               {plannedStart.code ? ` (section ${plannedStart.code})` : ""}.
-              Progress lists Chapters 1–9 concepts. Start session finishes each
+              Progress lists Chapters 1–10 concepts. Start session finishes each
               sitting in order before opening the next chapter.
             </p>
             <p className="mt-4 text-sm text-ink">

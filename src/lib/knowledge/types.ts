@@ -42,6 +42,10 @@ export const CONCEPT_GROUPS = [
   "zoning",
   "water-land-use",
   "private-controls",
+  "offers-basics",
+  "offer-process",
+  "approved-offers",
+  "wb11-provisions",
 ] as const;
 
 export type ConceptGroup = (typeof CONCEPT_GROUPS)[number];
@@ -63,7 +67,8 @@ export type ConceptCitationSeed = {
     | "chapter-6-valuation-notes"
     | "chapter-7-ownership-notes"
     | "chapter-8-title-notes"
-    | "chapter-9-land-use-notes";
+    | "chapter-9-land-use-notes"
+    | "chapter-10-offers-notes";
   heading: string;
   pdfPage: number;
   printedPage?: number;
@@ -144,6 +149,10 @@ export const CONCEPT_GROUP_LABELS: Record<ConceptGroup, string> = {
   zoning: "Zoning",
   "water-land-use": "Water rights and wetlands",
   "private-controls": "Private land use controls",
+  "offers-basics": "Offer basics",
+  "offer-process": "Working with offers",
+  "approved-offers": "Approved offer forms",
+  "wb11-provisions": "WB-11 provisions",
 };
 
 export const COURSE_CHAPTER_TITLES: Record<number, string> = {

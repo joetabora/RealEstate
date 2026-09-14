@@ -1,6 +1,6 @@
 # Architecture decisions
 
-Phase: 4 — Teach Me through all 14 chapters  
+Phase: 5 — Questions (Chapter 1 practice first)  
 Status: locked unless a concrete technical contradiction appears.
 
 This file records the Architecture Lock. It is binding for implementation.
@@ -18,7 +18,8 @@ This file records the Architecture Lock. It is binding for implementation.
 - **Exam blueprint is first-class data**, not course content. Pearson salesperson outline I–X is seeded with weights summing to 140. Concepts and questions will join to it later.
 - **KnowledgeState and PerformanceState stay separate** (entities in a later phase). Understanding a concept is not the same as surviving exam conditions. Do not collapse them into a single mastery percentage.
 - **ConfusionPair is an entity.** Seeded pairs are active only when both concept slugs exist. Evidence starts as `seed`; later misses can add more.
-- **LearningAsset is the content model.** Extensible types: explanation, simple language, analogy, scenario, comparison, visual, recall, teach-back, application, calculation, form-line, trap, exam recognition, remediation. Do not freeze `Lesson.mode` as the schema. Phase 4 seeds explanation, simple language, scenario, comparison, teach-back, and recall for Chapter 1–10 sittings.
+- **LearningAsset is the content model.** Extensible types: explanation, simple language, analogy, scenario, comparison, visual, recall, teach-back, application, calculation, form-line, trap, exam recognition, remediation. Do not freeze `Lesson.mode` as the schema. Phase 4 seeds explanation, simple language, scenario, comparison, teach-back, and recall for Chapters 1–14.
+- **Question is a separate scored-item model.** Stem, options, citations, remediation. Phase 5 seeds Chapter 1 MCQs from confusion-pair distinctions. Do not import the 140-item course practice exam into git.
 - **VisualAnchor** stores page-number placeholders now. OCR, bounding boxes, and rasterized page images are Phase 10.
 - **Confidence 1–5** is a learning signal. Overconfident errors get repair priority.
 - **Remediation = why missed + core distinction + immediate retest.**
@@ -47,13 +48,21 @@ This file records the Architecture Lock. It is binding for implementation.
 - **Practice-exam stems stay in the local DB** and are not rendered in Library or committed to git.
 - **Video transcription and OCR are deferred** (Phase 10). Image-heavy form pages are stored as `needsOcr` placeholders.
 
+## Phase 5 in progress (Chapter 1 questions)
+
+Hand-authored Chapter 1 MCQs with heading citations, confidence prompts, why-missed + distinction remediation, immediate retest queue, `QuestionAttempt`, and separate knowledge vs performance state rows. Mistakes lists open/resolved misses. No generated items, no practice-exam import, no class-miss photos yet.
+
+## Phase 5 boundaries (still in force)
+
+Do not invent Wisconsin facts. Do not activate unvalidated generated MCQs. Do not import the 140-item practice exam into git. Do not add photo miss intake, the live tutor, embeddings, or SRS yet.
+
 ## Phase 4 complete (Chapters 1–14)
 
-Hand-authored learning assets with heading citations for all 14 chapters. Rule-based planners build sequential ~20 minute sittings. Start session resumes an open sitting; otherwise advances Chapter 1 → 14. Progress lists those chapters. No quizzes, no 0% bars, no OpenAI client. `/` stays static for Vercel. Chapters 12–14 are book-sourced (no chapter-folder notes PDFs).
+Hand-authored learning assets with heading citations for all 14 chapters. Rule-based planners build sequential ~20 minute sittings. Start session resumes an open sitting; otherwise advances Chapter 1 → 14. Progress lists those chapters. No OpenAI client. `/` stays static for Vercel. Chapters 12–14 are book-sourced (no chapter-folder notes PDFs).
 
 ## Phase 4 boundaries (still in force)
 
-Do not invent Wisconsin facts. Do not extract Chapter 1–14 review into scored questions yet (Phase 5). Do not add photo miss intake, the live tutor, embeddings, or SRS. Do not import the 140-item practice exam into git.
+Do not invent Wisconsin facts. Teach Me chapter sittings stay citation-bound. Do not add photo miss intake, the live tutor, embeddings, or SRS as Phase 4 work.
 
 ## Phase 3 complete
 

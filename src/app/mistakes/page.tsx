@@ -1,14 +1,15 @@
 import { AppShell } from "@/components/app-shell";
-import { PlaceholderPage } from "@/components/placeholder-page";
+import { MistakesHome } from "@/components/mistakes-home";
+import { getMistakeList } from "@/lib/questions/queries";
 
-export default function MistakesPage() {
+export const dynamic = "force-dynamic";
+
+export default async function MistakesPage() {
+  const data = await getMistakeList();
+
   return (
     <AppShell>
-      <PlaceholderPage
-        title="Mistakes"
-        summary="Every meaningful miss will be stored with the concept, the confusion pair if any, confidence, and why it happened — then repaired and retested."
-        next="There are no attempts yet."
-      />
+      <MistakesHome databaseConnected={data.databaseConnected} items={data.items} />
     </AppShell>
   );
 }

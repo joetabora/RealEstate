@@ -24,6 +24,7 @@ model CourseEdition {
   concepts         Concept[]
   confusionPairs   ConfusionPair[]
   learningAssets   LearningAsset[]
+  questions        Question[]
 }
 
 /// Official Wisconsin salesperson exam weighting structure (Pearson outline).
@@ -49,6 +50,7 @@ model ExamCategory {
   updatedAt DateTime @updatedAt
 
   concepts ConceptExamCategory[]
+  questions QuestionExamCategory[]
 
   @@unique([editionId, code])
   @@index([editionId, sortOrder])
@@ -63,6 +65,10 @@ model Learner {
   updatedAt DateTime @updatedAt
 
   sessions LearningSession[]
+  attempts QuestionAttempt[]
+  knowledgeStates KnowledgeState[]
+  performanceStates PerformanceState[]
+  mistakes Mistake[]
 }
 
 /// A Teach Me (or future) study session. Planner fills items in later phases.
@@ -106,14 +112,18 @@ model SessionItem {
   assetId   String?
   asset     LearningAsset? @relation(fields: [assetId], references: [id], onDelete: SetNull)
   questionId String?
+  question   Question?     @relation(fields: [questionId], references: [id], onDelete: SetNull)
 
   completedAt DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
+  attempts QuestionAttempt[]
+
   @@index([sessionId, sortOrder])
   @@index([conceptId])
   @@index([assetId])
+  @@index([questionId])
 }
 
 /// A layered source work (course book, chapter notes, forms, glossary, …).
@@ -194,6 +204,7 @@ model SourceSection {
   anchors        VisualAnchor[]
   citations      ConceptCitation[]
   assetCitations AssetCitation[]
+  questionCitations QuestionCitation[]
 
   @@index([documentId, sortOrder])
   @@index([documentId, chapterNumber])
@@ -294,6 +305,10 @@ model Concept {
   confusionB     ConfusionPair[]       @relation("ConfusionConceptB")
   assets         LearningAsset[]
   sessionItems   SessionItem[]
+  questions      Question[]
+  knowledgeStates KnowledgeState[]
+  performanceStates PerformanceState[]
+  mistakes       Mistake[]
 
   @@unique([editionId, slug])
   @@index([editionId, chapterNumber, sortOrder])
@@ -364,6 +379,8 @@ model ConfusionPair {
 
   evidence ConfusionEvidence[]
   assets   LearningAsset[]
+  questions Question[]
+  mistakes Mistake[]
 
   @@unique([editionId, canonicalKey])
   @@index([editionId, active])
@@ -434,4 +451,188 @@ model AssetCitation {
 
   @@index([assetId])
   @@index([sectionId])
+}
+
+/// Hand-authored scored item. Stem + options + citations — not a reconstructed exam.
+model Question {
+  id        String        @id @default(cuid())
+  editionId String
+  edition   CourseEdition @relation(fields: [editionId], references: [id], onDelete: Cascade)
+
+  slug String
+  /// mcq | true_false | short — Phase 5 seeds mcq
+  kind String @default("mcq")
+  /// course_sourced | general_explanation | needs_verification
+  informationClass String
+  /// generated | extracted | active | rejected — Phase 5 seed is active
+  lifecycle String @default("active")
+
+  chapterNumber Int
+  stem          String @db.Text
+  /// Shown after a miss: why the choice was wrong at a high level.
+  remediationWhyMissed String @db.Text
+  /// Shown after a miss: the core distinction to remember.
+  remediationDistinction String @db.Text
+
+  conceptId String?
+  concept   Concept?       @relation(fields: [conceptId], references: [id], onDelete: SetNull)
+  pairId    String?
+  pair      ConfusionPair? @relation(fields: [pairId], references: [id], onDelete: SetNull)
+
+  sortOrder Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  options        QuestionOption[]
+  citations      QuestionCitation[]
+  examCategories QuestionExamCategory[]
+  sessionItems   SessionItem[]
+  attempts       QuestionAttempt[]
+  mistakes       Mistake[]
+
+  @@unique([editionId, slug])
+  @@index([editionId, lifecycle, chapterNumber, sortOrder])
+  @@index([conceptId])
+  @@index([pairId])
+}
+
+model QuestionOption {
+  id         String   @id @default(cuid())
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  /// A | B | C | D
+  key       String
+  body      String @db.Text
+  isCorrect Boolean
+  sortOrder Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  attempts QuestionAttempt[]
+
+  @@unique([questionId, key])
+  @@index([questionId, sortOrder])
+}
+
+model QuestionCitation {
+  id         String         @id @default(cuid())
+  questionId String
+  question   Question       @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  sectionId  String?
+  section    SourceSection? @relation(fields: [sectionId], references: [id], onDelete: SetNull)
+
+  documentSlug String
+  heading      String
+  pdfPage      Int
+  printedPage  Int?
+  layer        String
+
+  createdAt DateTime @default(now())
+
+  @@index([questionId])
+  @@index([sectionId])
+}
+
+model QuestionExamCategory {
+  questionId     String
+  question       Question     @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  examCategoryId String
+  examCategory   ExamCategory @relation(fields: [examCategoryId], references: [id], onDelete: Cascade)
+
+  @@id([questionId, examCategoryId])
+}
+
+/// One learner answer. Knowledge vs performance are updated from these rows.
+model QuestionAttempt {
+  id         String   @id @default(cuid())
+  learnerId  String
+  learner    Learner  @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  sessionItemId String?
+  sessionItem   SessionItem? @relation(fields: [sessionItemId], references: [id], onDelete: SetNull)
+
+  selectedOptionId String?
+  selectedOption   QuestionOption? @relation(fields: [selectedOptionId], references: [id], onDelete: SetNull)
+
+  correct    Boolean
+  /// Optional 1–5. Overconfident misses get repair priority later.
+  confidence Int?
+  latencyMs  Int?
+  /// confusion | knowledge_gap | overconfidence | other
+  errorCategory String?
+
+  createdAt DateTime @default(now())
+
+  mistake Mistake?
+
+  @@index([learnerId, createdAt])
+  @@index([questionId])
+  @@index([sessionItemId])
+}
+
+/// Understanding signal for a concept (not exam survival).
+model KnowledgeState {
+  id         String  @id @default(cuid())
+  learnerId  String
+  learner    Learner @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+  conceptId  String
+  concept    Concept @relation(fields: [conceptId], references: [id], onDelete: Cascade)
+
+  /// not_started | learning | familiar
+  status    String   @default("not_started")
+  timesSeen Int      @default(0)
+  lastSeenAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([learnerId, conceptId])
+  @@index([learnerId, status])
+}
+
+/// Exam-condition signal for a concept (attempts, not a single mastery %).
+model PerformanceState {
+  id        String  @id @default(cuid())
+  learnerId String
+  learner   Learner @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+  conceptId String
+  concept   Concept @relation(fields: [conceptId], references: [id], onDelete: Cascade)
+
+  attempts      Int       @default(0)
+  correctCount  Int       @default(0)
+  lastAttemptAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([learnerId, conceptId])
+  @@index([learnerId])
+}
+
+/// A miss retained for repair. Photo miss intake still comes later.
+model Mistake {
+  id         String   @id @default(cuid())
+  learnerId  String
+  learner    Learner  @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  attemptId  String   @unique
+  attempt    QuestionAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+
+  conceptId String?
+  concept   Concept?       @relation(fields: [conceptId], references: [id], onDelete: SetNull)
+  pairId    String?
+  pair      ConfusionPair? @relation(fields: [pairId], references: [id], onDelete: SetNull)
+
+  resolvedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([learnerId, resolvedAt, createdAt])
+  @@index([questionId])
 }

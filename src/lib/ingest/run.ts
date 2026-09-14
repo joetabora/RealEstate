@@ -14,6 +14,7 @@ import { SALESPERSON_EXAM_CATEGORIES } from "@/lib/blueprint";
 import { seedPhase1 } from "@/lib/db/seed";
 import { seedPhase3 } from "@/lib/knowledge/seed";
 import { seedPhase4 } from "@/lib/teach-me/seed";
+import { seedPhase5 } from "@/lib/questions/seed";
 import { extractPdfPages, resolveSourceFile, sha256Hex } from "./pdf-text";
 import { persistDocuments } from "./persist";
 import { buildSections } from "./sections";
@@ -44,6 +45,7 @@ export async function ingestPhase2(
   const summary = await persistDocuments(prisma, edition.id, documents);
   await seedPhase3(prisma, edition.id);
   await seedPhase4(prisma, edition.id);
+  await seedPhase5(prisma, edition.id);
   return summary;
 }
 

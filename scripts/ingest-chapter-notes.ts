@@ -9,6 +9,7 @@ import { getSourceMaterialPath } from "../src/lib/db/env";
 import { seedPhase1 } from "../src/lib/db/seed";
 import { seedPhase3 } from "../src/lib/knowledge/seed";
 import { seedPhase4 } from "../src/lib/teach-me/seed";
+import { seedPhase5 } from "../src/lib/questions/seed";
 import { CHAPTER_NOTES_PARTS, PUB725_EFFECTIVE_AT } from "../src/lib/ingest/catalog";
 import { extractPdfPages, resolveSourceFile, sha256Hex } from "../src/lib/ingest/pdf-text";
 import { buildSections } from "../src/lib/ingest/sections";
@@ -62,6 +63,7 @@ async function main() {
   const summary = await persistDocuments(prisma, edition.id, documents);
   const knowledge = await seedPhase3(prisma, edition.id);
   const assets = await seedPhase4(prisma, edition.id);
+  const questions = await seedPhase5(prisma, edition.id);
   const notesCounts: Record<string, number> = {};
   for (const part of CHAPTER_NOTES_PARTS) {
     const doc = await prisma.sourceDocument.findFirst({ where: { slug: part.slug } });
@@ -77,6 +79,7 @@ async function main() {
         conceptCount: knowledge.conceptCount,
         pairCount: knowledge.pairCount,
         assetCount: assets.assetCount,
+        questionCount: questions.questionCount,
         notesCounts,
       },
       null,

@@ -48,6 +48,8 @@ import {
   seedPhase4,
 } from "@/lib/teach-me";
 import { startOrResumeTeachMeSession } from "@/lib/teach-me/session";
+import { PHASE5_CH1_QUESTIONS, seedPhase5, startOrResumeChapter1Practice } from "@/lib/questions";
+import { submitPracticeAnswer } from "@/lib/questions/session";
 
 const prisma = new PrismaClient();
 
@@ -199,5 +201,72 @@ describe("database seed (integration)", () => {
         );
       }
     }
+  });
+
+  it("seeds Chapter 1 practice questions and records attempts with knowledge vs performance", async ({
+    skip,
+  }) => {
+    if (!(await databaseIsReachable())) {
+      skip();
+      return;
+    }
+    const { edition } = await seedPhase1(prisma);
+    await seedPhase3(prisma, edition.id);
+    await seedPhase4(prisma, edition.id);
+    const seeded = await seedPhase5(prisma, edition.id);
+    expect(seeded.questionCount).toBe(PHASE5_CH1_QUESTIONS.length);
+    expect(
+      await prisma.question.count({
+        where: { editionId: edition.id, chapterNumber: 1, lifecycle: "active" },
+      }),
+    ).toBe(PHASE5_CH1_QUESTIONS.length);
+
+    await prisma.sessionItem.deleteMany({});
+    await prisma.learningSession.deleteMany({});
+    await prisma.mistake.deleteMany({});
+    await prisma.questionAttempt.deleteMany({});
+    await prisma.knowledgeState.deleteMany({});
+    await prisma.performanceState.deleteMany({});
+
+    const session = await startOrResumeChapter1Practice();
+    const item = await prisma.sessionItem.findFirst({
+      where: { sessionId: session.id, completedAt: null },
+      include: { question: { include: { options: true } } },
+      orderBy: { sortOrder: "asc" },
+    });
+    expect(item?.question).toBeTruthy();
+    const wrong = item!.question!.options.find((option) => !option.isCorrect);
+    const right = item!.question!.options.find((option) => option.isCorrect);
+    expect(wrong && right).toBeTruthy();
+
+    const miss = await submitPracticeAnswer({
+      sessionId: session.id,
+      itemId: item!.id,
+      optionId: wrong!.id,
+      confidence: 5,
+    });
+    expect(miss.correct).toBe(false);
+    expect(await prisma.mistake.count({ where: { resolvedAt: null } })).toBeGreaterThan(0);
+    expect(await prisma.questionAttempt.count()).toBe(1);
+
+    const retest = await prisma.sessionItem.findFirst({
+      where: {
+        sessionId: session.id,
+        questionId: item!.questionId!,
+        completedAt: null,
+      },
+      include: { question: { include: { options: true } } },
+      orderBy: { sortOrder: "asc" },
+    });
+    expect(retest).toBeTruthy();
+    const hit = await submitPracticeAnswer({
+      sessionId: session.id,
+      itemId: retest!.id,
+      optionId: retest!.question!.options.find((option) => option.isCorrect)!.id,
+      confidence: 3,
+    });
+    expect(hit.correct).toBe(true);
+    expect(await prisma.performanceState.count()).toBeGreaterThan(0);
+    expect(await prisma.knowledgeState.count()).toBeGreaterThan(0);
   });
 });

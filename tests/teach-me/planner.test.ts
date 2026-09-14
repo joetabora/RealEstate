@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
   planAgencySession,
-  planChapter13Session,
+  planChapter14Session,
   planTeachMeSitting,
   selectTeachMeSitting,
 } from "@/lib/teach-me/planner";
 import { PHASE4_SESSION_STEPS } from "@/lib/teach-me/assets";
-import { PHASE4_CH13_SESSION_STEPS } from "@/lib/teach-me/chapter13-assets";
+import { PHASE4_CH14_SESSION_STEPS } from "@/lib/teach-me/chapter14-assets";
 import {
   PLANNER_VERSION_CH1,
   PLANNER_VERSION_CH2,
@@ -21,6 +21,7 @@ import {
   PLANNER_VERSION_CH11,
   PLANNER_VERSION_CH12,
   PLANNER_VERSION_CH13,
+  PLANNER_VERSION_CH14,
 } from "@/lib/teach-me/types";
 
 describe("Teach Me sequential planner", () => {
@@ -51,12 +52,13 @@ describe("Teach Me sequential planner", () => {
           PLANNER_VERSION_CH10,
           PLANNER_VERSION_CH11,
           PLANNER_VERSION_CH12,
+          PLANNER_VERSION_CH13,
         ]),
       }),
-    ).toBe("chapter13");
+    ).toBe("chapter14");
   });
 
-  it("does not open Chapter 13 while Chapter 12 is incomplete", () => {
+  it("does not open Chapter 14 while Chapter 13 is incomplete", () => {
     expect(
       selectTeachMeSitting({
         completedPlannerVersions: new Set([
@@ -71,19 +73,20 @@ describe("Teach Me sequential planner", () => {
           PLANNER_VERSION_CH9,
           PLANNER_VERSION_CH10,
           PLANNER_VERSION_CH11,
+          PLANNER_VERSION_CH12,
         ]),
       }),
-    ).toBe("chapter12");
+    ).toBe("chapter13");
   });
 
-  it("starts Chapter 13 after Chapters 1–12 are complete", () => {
-    const assets = PHASE4_CH13_SESSION_STEPS.map((step, index) => ({
+  it("starts Chapter 14 after Chapters 1–13 are complete", () => {
+    const assets = PHASE4_CH14_SESSION_STEPS.map((step, index) => ({
       slug: step.assetSlug,
-      id: `ch13-${index}`,
+      id: `ch14-${index}`,
       conceptId: null,
       pairId: null,
     }));
-    expect(planChapter13Session(assets).plannerVersion).toBe(PLANNER_VERSION_CH13);
+    expect(planChapter14Session(assets).plannerVersion).toBe(PLANNER_VERSION_CH14);
     expect(
       planTeachMeSitting(assets, {
         completedPlannerVersions: new Set([
@@ -99,10 +102,11 @@ describe("Teach Me sequential planner", () => {
           PLANNER_VERSION_CH10,
           PLANNER_VERSION_CH11,
           PLANNER_VERSION_CH12,
+          PLANNER_VERSION_CH13,
         ]),
       }).plannerVersion,
-    ).toBe(PLANNER_VERSION_CH13);
-    expect(planChapter13Session(assets).items).toHaveLength(PHASE4_CH13_SESSION_STEPS.length);
+    ).toBe(PLANNER_VERSION_CH14);
+    expect(planChapter14Session(assets).items).toHaveLength(PHASE4_CH14_SESSION_STEPS.length);
   });
 
   it("throws when a required Chapter 1 asset was not seeded", () => {

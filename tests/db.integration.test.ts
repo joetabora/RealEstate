@@ -10,7 +10,7 @@ import { prisma as appPrisma } from "@/lib/db/prisma";
 import {
   ALL_CONCEPT_CATALOGS,
   ALL_CONFUSION_PAIR_CATALOGS,
-  CHAPTER_13_CONCEPTS,
+  CHAPTER_14_CONCEPTS,
   activateConfusionPairs,
   canonicalPairKey,
   seedPhase3,
@@ -29,6 +29,7 @@ import {
   PHASE4_CH11_ASSETS,
   PHASE4_CH12_ASSETS,
   PHASE4_CH13_ASSETS,
+  PHASE4_CH14_ASSETS,
   PLANNER_VERSION_CH1,
   PLANNER_VERSION_CH2,
   PLANNER_VERSION_CH3,
@@ -42,6 +43,7 @@ import {
   PLANNER_VERSION_CH11,
   PLANNER_VERSION_CH12,
   PLANNER_VERSION_CH13,
+  PLANNER_VERSION_CH14,
   TEACH_ME_PLANNER_VERSIONS,
   seedPhase4,
 } from "@/lib/teach-me";
@@ -109,7 +111,7 @@ describe("database seed (integration)", () => {
     expect(b.id).toBe(a.id);
   });
 
-  it("seeds Chapter 1–13 concepts and active confusion pairs idempotently", async ({ skip }) => {
+  it("seeds Chapter 1–14 concepts and active confusion pairs idempotently", async ({ skip }) => {
     if (!(await databaseIsReachable())) {
       skip();
       return;
@@ -125,21 +127,20 @@ describe("database seed (integration)", () => {
     expect(second.conceptCount).toBe(first.conceptCount);
     expect(first.pairCount).toBe(expectedPairs.length);
     expect(
-      await prisma.concept.count({ where: { editionId: edition.id, chapterNumber: 13 } }),
-    ).toBe(CHAPTER_13_CONCEPTS.length);
+      await prisma.concept.count({ where: { editionId: edition.id, chapterNumber: 14 } }),
+    ).toBe(CHAPTER_14_CONCEPTS.length);
     const pairs = await prisma.confusionPair.findMany({
       where: { editionId: edition.id, active: true },
     });
     expect(
       pairs.some(
         (pair) =>
-          pair.canonicalKey ===
-          canonicalPairKey("validity-of-contracts", "status-of-contracts"),
+          pair.canonicalKey === canonicalPairKey("client-funds", "non-client-funds"),
       ),
     ).toBe(true);
   });
 
-  it("seeds Ch1–Ch13 assets and advances sittings only after prior chapters complete", async ({
+  it("seeds Ch1–Ch14 assets and advances sittings only after prior chapters complete", async ({
     skip,
   }) => {
     if (!(await databaseIsReachable())) {
@@ -162,7 +163,8 @@ describe("database seed (integration)", () => {
         PHASE4_CH10_ASSETS.length +
         PHASE4_CH11_ASSETS.length +
         PHASE4_CH12_ASSETS.length +
-        PHASE4_CH13_ASSETS.length,
+        PHASE4_CH13_ASSETS.length +
+        PHASE4_CH14_ASSETS.length,
     );
 
     await prisma.sessionItem.deleteMany({});
@@ -182,6 +184,7 @@ describe("database seed (integration)", () => {
       PLANNER_VERSION_CH11,
       PLANNER_VERSION_CH12,
       PLANNER_VERSION_CH13,
+      PLANNER_VERSION_CH14,
     ];
     expect(TEACH_ME_PLANNER_VERSIONS).toEqual(expected);
 
@@ -192,7 +195,7 @@ describe("database seed (integration)", () => {
         await completeSession(session.id);
       } else {
         expect(await prisma.sessionItem.count({ where: { sessionId: session.id } })).toBe(
-          PHASE4_CH13_ASSETS.length,
+          PHASE4_CH14_ASSETS.length,
         );
       }
     }

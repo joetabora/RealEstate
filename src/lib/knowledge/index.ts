@@ -65,6 +65,11 @@ export {
   WI_SCOPED_CHAPTER_13_SLUGS,
 } from "./chapter13";
 export {
+  CHAPTER_14_CONCEPTS,
+  CHAPTER_14_CONFUSION_PAIRS,
+  WI_SCOPED_CHAPTER_14_SLUGS,
+} from "./chapter14";
+export {
   ALL_CONCEPT_CATALOGS,
   ALL_CONFUSION_PAIR_CATALOGS,
   seedPhase3,

@@ -13,6 +13,7 @@ import {
   CHAPTER_11_CONFUSION_PAIRS,
   CHAPTER_12_CONFUSION_PAIRS,
   CHAPTER_13_CONFUSION_PAIRS,
+  CHAPTER_14_CONFUSION_PAIRS,
   DEFERRED_CONFUSION_PAIRS,
 } from "@/lib/knowledge";
 import { canonicalPairKey } from "@/lib/knowledge/types";
@@ -70,6 +71,10 @@ import {
   PHASE4_CH13_ASSETS,
   PHASE4_CH13_SESSION_STEPS,
 } from "@/lib/teach-me/chapter13-assets";
+import {
+  PHASE4_CH14_ASSETS,
+  PHASE4_CH14_SESSION_STEPS,
+} from "@/lib/teach-me/chapter14-assets";
 
 describe("Phase 4 Agency assets", () => {
   it("gives every asset a PDF page citation", () => {
@@ -455,6 +460,34 @@ describe("Chapter 13 Contract Law assets", () => {
       CHAPTER_13_CONFUSION_PAIRS.map((pair) => canonicalPairKey(pair.a, pair.b)),
     );
     for (const asset of PHASE4_CH13_ASSETS) {
+      const key = pairKeyForAsset(asset);
+      if (!key) continue;
+      expect(activeKeys.has(key)).toBe(true);
+    }
+  });
+});
+
+describe("Chapter 14 Trust Accounts assets", () => {
+  it("gives every Chapter 14 asset a PDF page citation", () => {
+    expect(PHASE4_CH14_ASSETS).toHaveLength(PHASE4_CH14_SESSION_STEPS.length);
+    for (const asset of PHASE4_CH14_ASSETS) {
+      const citations = citationsForAsset(asset);
+      expect(citations.length).toBeGreaterThan(0);
+      expect(citations.every((citation) => citation.chapterNumber === 14)).toBe(true);
+    }
+  });
+
+  it("does not invent Wisconsin statute numbers or dollar fees", () => {
+    const bodies = PHASE4_CH14_ASSETS.map((asset) => asset.body).join(" ");
+    expect(bodies).not.toMatch(/wis\.?\s*stat/i);
+    expect(bodies).not.toMatch(/\$\d/);
+  });
+
+  it("only uses confusion pairs that exist in Chapter 14", () => {
+    const activeKeys = new Set(
+      CHAPTER_14_CONFUSION_PAIRS.map((pair) => canonicalPairKey(pair.a, pair.b)),
+    );
+    for (const asset of PHASE4_CH14_ASSETS) {
       const key = pairKeyForAsset(asset);
       if (!key) continue;
       expect(activeKeys.has(key)).toBe(true);

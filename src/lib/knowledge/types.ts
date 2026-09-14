@@ -61,6 +61,9 @@ export const CONCEPT_GROUPS = [
   "contract-validity",
   "contract-status",
   "wi-contract-practice",
+  "trust-basics",
+  "trust-funds",
+  "trust-depositing",
 ] as const;
 
 export type ConceptGroup = (typeof CONCEPT_GROUPS)[number];
@@ -184,6 +187,9 @@ export const CONCEPT_GROUP_LABELS: Record<ConceptGroup, string> = {
   "contract-validity": "Validity and conveyance",
   "contract-status": "Status and termination",
   "wi-contract-practice": "Wisconsin contract practice",
+  "trust-basics": "Trust account basics",
+  "trust-funds": "Client and non-client funds",
+  "trust-depositing": "Depositing funds",
 };
 
 export const COURSE_CHAPTER_TITLES: Record<number, string> = {

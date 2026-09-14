@@ -2,7 +2,7 @@
 
 Personal learning system for the Wisconsin real estate **salesperson** exam. Teach Me is the home loop.
 
-This repository is **Phase 4**: sourced Teach Me sittings for **Chapters 1–13**, on top of ingestion and the concept graph. The product goal is all **14 chapters**. Quizzes and class-miss photos are not in yet.
+This repository is **Phase 4**: sourced Teach Me sittings for **all 14 chapters**, on top of ingestion and the concept graph. Quizzes and class-miss photos are not in yet.
 
 ## Requirements
 
@@ -26,7 +26,7 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000). Library is at [http://localhost:3000/library](http://localhost:3000/library). Progress is at [http://localhost:3000/progress](http://localhost:3000/progress).
 
-The second `npx prisma db seed` attaches Chapter 1–13 concepts and Teach Me assets to ingested section IDs. `npm run ingest` also re-seeds those after writing sections (PUB725 + Chapter 1–11 notes; Chapters 12–14 are book-sourced).
+The second `npx prisma db seed` attaches Chapter 1–14 concepts and Teach Me assets to ingested section IDs. `npm run ingest` also re-seeds those after writing sections (PUB725 + Chapter 1–11 notes; Chapters 12–14 are book-sourced).
 
 The database listens on **localhost:5433** so it does not collide with a local Postgres on 5432.
 
@@ -35,15 +35,15 @@ If Docker Desktop is not running, the Teach Me shell still renders from the in-c
 ## What Phase 4 includes
 
 - Everything in Phase 1–3
-- Hand-authored Chapter 1–13 learning assets (explanation, simple language, scenario, comparison, teach-back, recall) with heading citations
-- Sequential Teach Me planners through Chapter 13 Contract Law (`phase4-ch13-v1`)
+- Hand-authored Chapter 1–14 learning assets (explanation, simple language, scenario, comparison, teach-back, recall) with heading citations
+- Sequential Teach Me planners through Chapter 14 Trust Accounts (`phase4-ch14-v1`)
 - Start session / Resume on the local database (`/` stays static for Vercel)
-- Progress lists Chapters 1–13 and may mark taught concepts as learning — still no 0% bars
+- Progress lists Chapters 1–14 and may mark taught concepts as learning — still no 0% bars
 - Architecture lock in [docs/decisions.md](docs/decisions.md)
 
 ## What Phase 4 does not include
 
-Quizzes, class-miss photo intake, tutor, math solver, exam simulator, embeddings, OpenAI, OCR, video, XP, authentication, Teach Me sitting for chapter 14 (same loop comes next).
+Quizzes, class-miss photo intake, tutor, math solver, exam simulator, embeddings, OpenAI, OCR, video, XP, authentication.
 
 ## What Phase 3 includes
 

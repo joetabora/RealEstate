@@ -1,6 +1,6 @@
 # Architecture decisions
 
-Phase: 4 — Teach Me through Chapter 13 (full 14-chapter course is the goal)  
+Phase: 4 — Teach Me through all 14 chapters  
 Status: locked unless a concrete technical contradiction appears.
 
 This file records the Architecture Lock. It is binding for implementation.
@@ -8,7 +8,7 @@ This file records the Architecture Lock. It is binding for implementation.
 ## Product
 
 - **Teach Me is the home loop.** `/` is Today's Plan. Library, Practice, Math, Exam, and Tutor are secondary.
-- **Full course is the goal.** Teach Me sittings cover Chapters 1–14 sequentially. Today: Chapters 1–13. Chapter 14 reuses the same loop.
+- **Full course is the goal.** Teach Me sittings cover Chapters 1–14 sequentially. All 14 chapter sittings are built.
 - **One local learner.** Stable key `local`. No authentication, billing, or social features.
 - **Personal now, platform later.** Tables are keyed so a future `userId` can exist; Phase 1 does not build multi-user infrastructure.
 
@@ -28,7 +28,7 @@ This file records the Architecture Lock. It is binding for implementation.
 
 - **LearningSession snapshots before/after** learner state.
 - **Planner and spaced repetition are deterministic.** An LLM may explain a plan; it does not invent one.
-- **Sequential chapter sittings.** Ordered planner versions (`phase4-agency-v1` … `phase4-ch13-v1`). Each chapter sitting opens only after prior sittings are complete. Resume any open sitting first. Later chapters follow the same rule.
+- **Sequential chapter sittings.** Ordered planner versions (`phase4-agency-v1` … `phase4-ch14-v1`). Each chapter sitting opens only after prior sittings are complete. Resume any open sitting first.
 - **Adaptive difficulty** is a policy over knowledge, performance, confidence, latency, and confusion — not accuracy percentage alone.
 
 ## Math, generation, offline
@@ -47,13 +47,13 @@ This file records the Architecture Lock. It is binding for implementation.
 - **Practice-exam stems stay in the local DB** and are not rendered in Library or committed to git.
 - **Video transcription and OCR are deferred** (Phase 10). Image-heavy form pages are stored as `needsOcr` placeholders.
 
-## Phase 4 complete (Chapters 1–13)
+## Phase 4 complete (Chapters 1–14)
 
-Hand-authored learning assets with heading citations for Chapters 1–13. Rule-based planners build sequential ~20 minute sittings. Start session resumes an open sitting; otherwise advances Chapter 1 → 13. Progress lists those chapters. No quizzes, no 0% bars, no OpenAI client. `/` stays static for Vercel. Chapters 12–13 are book-sourced (no chapter-folder notes PDFs).
+Hand-authored learning assets with heading citations for all 14 chapters. Rule-based planners build sequential ~20 minute sittings. Start session resumes an open sitting; otherwise advances Chapter 1 → 14. Progress lists those chapters. No quizzes, no 0% bars, no OpenAI client. `/` stays static for Vercel. Chapters 12–14 are book-sourced (no chapter-folder notes PDFs).
 
 ## Phase 4 boundaries (still in force)
 
-Do not invent Wisconsin facts. Do not extract Chapter 1–13 review into scored questions yet (Phase 5). Do not add photo miss intake, the live tutor, embeddings, or SRS. Do not import the 140-item practice exam into git. Chapter 14 sitting is not built yet.
+Do not invent Wisconsin facts. Do not extract Chapter 1–14 review into scored questions yet (Phase 5). Do not add photo miss intake, the live tutor, embeddings, or SRS. Do not import the 140-item practice exam into git.
 
 ## Phase 3 complete
 

@@ -12,9 +12,9 @@ async function main() {
   console.log(`Seeded edition ${result.edition.slug}`);
   console.log(`Seeded ${result.examCategories.length} exam categories`);
   console.log(`Ensured learner ${result.learner.key}`);
-  console.log(`Seeded ${knowledge.conceptCount} concepts (Chapters 1–13)`);
+  console.log(`Seeded ${knowledge.conceptCount} concepts (Chapters 1–14)`);
   console.log(`Seeded ${knowledge.pairCount} active confusion pairs`);
-  console.log(`Seeded ${assets.assetCount} Teach Me assets (Ch1–Ch13 sittings)`);
+  console.log(`Seeded ${assets.assetCount} Teach Me assets (Ch1–Ch14 sittings)`);
 }
 
 main()

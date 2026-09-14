@@ -56,6 +56,9 @@ export const PLANNER_VERSION_CH12 = "phase4-ch12-v1";
 /** Chapter 13 Contract Law sitting. */
 export const PLANNER_VERSION_CH13 = "phase4-ch13-v1";
 
+/** Chapter 14 Trust Accounts sitting. */
+export const PLANNER_VERSION_CH14 = "phase4-ch14-v1";
+
 export const TEACH_ME_SITTINGS = [
   {
     id: "chapter1" as const,
@@ -135,6 +138,12 @@ export const TEACH_ME_SITTINGS = [
     label: "Chapter 13 — Contract Law",
     shortNext: "Contract Law",
   },
+  {
+    id: "chapter14" as const,
+    plannerVersion: PLANNER_VERSION_CH14,
+    label: "Chapter 14 — Trust Accounts",
+    shortNext: "Trust Accounts",
+  },
 ] as const;
 
 export type TeachMeSittingId = (typeof TEACH_ME_SITTINGS)[number]["id"];
@@ -174,7 +183,7 @@ export function recommendedNextForPlanner(plannerVersion: string | null | undefi
   const current = TEACH_ME_SITTINGS[Math.max(index, 0)];
   const next = index >= 0 ? TEACH_ME_SITTINGS[index + 1] : undefined;
   if (!next) {
-    return `${current.label} sitting complete. Review on Progress. Chapter 14 comes next.`;
+    return `${current.label} sitting complete. All 14 chapter sittings are done. Review on Progress.`;
   }
   return `${current.label} sitting complete. Start session again for ${next.label}.`;
 }

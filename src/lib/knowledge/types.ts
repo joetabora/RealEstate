@@ -11,6 +11,10 @@ export const CONCEPT_GROUPS = [
   "remedies",
   "compensation",
   "antitrust",
+  "transaction",
+  "agency-agreements",
+  "listing-forms",
+  "buyer-agency-forms",
 ] as const;
 
 export type ConceptGroup = (typeof CONCEPT_GROUPS)[number];
@@ -25,7 +29,8 @@ export type ConceptCitationSeed = {
   documentSlug:
     | "pub725-course-book"
     | "chapter-1-agency-notes"
-    | "chapter-2-agency-issues-notes";
+    | "chapter-2-agency-issues-notes"
+    | "chapter-3-agency-agreements-notes";
   heading: string;
   pdfPage: number;
   printedPage?: number;
@@ -75,6 +80,10 @@ export const CONCEPT_GROUP_LABELS: Record<ConceptGroup, string> = {
   remedies: "Breach and remedies",
   compensation: "Commission and payment",
   antitrust: "Antitrust",
+  transaction: "The real estate transaction",
+  "agency-agreements": "Agency agreements (approved forms)",
+  "listing-forms": "Listing form provisions",
+  "buyer-agency-forms": "Buyer agency form provisions",
 };
 
 export const COURSE_CHAPTER_TITLES: Record<number, string> = {

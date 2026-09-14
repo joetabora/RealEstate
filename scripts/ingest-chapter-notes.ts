@@ -11,6 +11,7 @@ import { seedPhase3 } from "../src/lib/knowledge/seed";
 import { seedPhase4 } from "../src/lib/teach-me/seed";
 import {
   CHAPTER_2_NOTES_PART,
+  CHAPTER_3_NOTES_PART,
   CHAPTER_NOTES_PARTS,
   PUB725_EFFECTIVE_AT,
 } from "../src/lib/ingest/catalog";
@@ -72,6 +73,12 @@ async function main() {
   const ch2Sections = ch2Doc
     ? await prisma.sourceSection.count({ where: { documentId: ch2Doc.id } })
     : 0;
+  const ch3Doc = await prisma.sourceDocument.findFirst({
+    where: { slug: CHAPTER_3_NOTES_PART.slug },
+  });
+  const ch3Sections = ch3Doc
+    ? await prisma.sourceSection.count({ where: { documentId: ch3Doc.id } })
+    : 0;
   console.log(
     JSON.stringify(
       {
@@ -81,6 +88,7 @@ async function main() {
         pairCount: knowledge.pairCount,
         assetCount: assets.assetCount,
         ch2NotesSections: ch2Sections,
+        ch3NotesSections: ch3Sections,
       },
       null,
       2,

@@ -1,17 +1,20 @@
 import type { PrismaClient } from "@prisma/client";
 import { CHAPTER_1_CONCEPTS, CHAPTER_1_CONFUSION_PAIRS } from "./chapter1";
 import { CHAPTER_2_CONCEPTS, CHAPTER_2_CONFUSION_PAIRS } from "./chapter2";
+import { CHAPTER_3_CONCEPTS, CHAPTER_3_CONFUSION_PAIRS } from "./chapter3";
 import { activateConfusionPairs, canonicalPairKey } from "./types";
 import type { ConceptSeed, ConfusionPairSeed } from "./types";
 
 export const ALL_CONCEPT_CATALOGS: readonly ConceptSeed[] = [
   ...CHAPTER_1_CONCEPTS,
   ...CHAPTER_2_CONCEPTS,
+  ...CHAPTER_3_CONCEPTS,
 ];
 
 export const ALL_CONFUSION_PAIR_CATALOGS: readonly ConfusionPairSeed[] = [
   ...CHAPTER_1_CONFUSION_PAIRS,
   ...CHAPTER_2_CONFUSION_PAIRS,
+  ...CHAPTER_3_CONFUSION_PAIRS,
 ];
 
 const CHAPTER_CATALOGS: ReadonlyArray<{
@@ -20,6 +23,7 @@ const CHAPTER_CATALOGS: ReadonlyArray<{
 }> = [
   { chapterNumber: 1, concepts: CHAPTER_1_CONCEPTS },
   { chapterNumber: 2, concepts: CHAPTER_2_CONCEPTS },
+  { chapterNumber: 3, concepts: CHAPTER_3_CONCEPTS },
 ];
 
 export async function seedPhase3(prisma: PrismaClient, editionId: string) {

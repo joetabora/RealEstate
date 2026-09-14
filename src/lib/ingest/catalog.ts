@@ -10,6 +10,8 @@ export const CHAPTER_1_NOTES_RELATIVE_PATH =
   "Course/Chapter1/Chapter 1 Agency relationships.pdf";
 export const CHAPTER_2_NOTES_RELATIVE_PATH =
   "Course/Chapter2/Chapter 2 Agency Issues.pdf";
+export const CHAPTER_3_NOTES_RELATIVE_PATH =
+  "Course/Chapter3/Chapter 3 Agency Agreements.pdf";
 
 /** Inspected: printed page 1 is PDF page 5; the offset holds through the math appendix. */
 export const PUB725_PRINTED_PAGE_OFFSET = 4;
@@ -112,7 +114,21 @@ export const CHAPTER_2_NOTES_PART = {
   chapterTitle: "Agency Issues",
 } as const;
 
-export const CHAPTER_NOTES_PARTS = [CHAPTER_1_NOTES_PART, CHAPTER_2_NOTES_PART] as const;
+export const CHAPTER_3_NOTES_PART = {
+  slug: "chapter-3-agency-agreements-notes",
+  title: "Chapter 3 notes — Agency agreements",
+  layer: "chapter_notes" as SourceLayer,
+  relativePath: CHAPTER_3_NOTES_RELATIVE_PATH,
+  hideBodyInUi: false,
+  chapterNumber: 3,
+  chapterTitle: "Agency Agreements",
+} as const;
+
+export const CHAPTER_NOTES_PARTS = [
+  CHAPTER_1_NOTES_PART,
+  CHAPTER_2_NOTES_PART,
+  CHAPTER_3_NOTES_PART,
+] as const;
 
 export const BLUEPRINT_SOURCE_PART = {
   slug: "pearson-salesperson-outline",
@@ -174,5 +190,6 @@ export function requiredSourceFiles(): string[] {
     PUB725_RELATIVE_PATH,
     CHAPTER_1_NOTES_RELATIVE_PATH,
     CHAPTER_2_NOTES_RELATIVE_PATH,
+    CHAPTER_3_NOTES_RELATIVE_PATH,
   ];
 }

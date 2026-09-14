@@ -6,12 +6,13 @@ import {
   PLANNER_VERSION_CH1,
   PLANNER_VERSION_CH2,
   TEACH_ME_PLANNER_VERSIONS,
+  recommendedNextForPlanner,
   sittingLabelForPlanner,
 } from "./types";
 
 /**
- * Resume any open Teach Me sitting. Otherwise start Chapter 1 until that
- * sitting is complete, then start Chapter 2.
+ * Resume any open Teach Me sitting. Otherwise advance Chapter 1 → 2 → 3
+ * only after each prior sitting is complete.
  */
 export async function startOrResumeTeachMeSession() {
   const edition = await prisma.courseEdition.findUnique({
@@ -35,27 +36,34 @@ export async function startOrResumeTeachMeSession() {
     return open;
   }
 
-  const chapter1Complete = await prisma.learningSession.findFirst({
-    where: {
-      learnerId: learner.id,
-      editionId: edition.id,
-      plannerVersion: PLANNER_VERSION_CH1,
-      completedAt: { not: null },
-    },
-    orderBy: { completedAt: "desc" },
-  });
+  const [chapter1Complete, chapter2Complete] = await Promise.all([
+    prisma.learningSession.findFirst({
+      where: {
+        learnerId: learner.id,
+        editionId: edition.id,
+        plannerVersion: PLANNER_VERSION_CH1,
+        completedAt: { not: null },
+      },
+    }),
+    prisma.learningSession.findFirst({
+      where: {
+        learnerId: learner.id,
+        editionId: edition.id,
+        plannerVersion: PLANNER_VERSION_CH2,
+        completedAt: { not: null },
+      },
+    }),
+  ]);
 
   const assets = await prisma.learningAsset.findMany({
     where: { editionId: edition.id, lifecycle: "active" },
     select: { id: true, slug: true, conceptId: true, pairId: true },
   });
 
-  const draft = planTeachMeSitting(assets, Boolean(chapter1Complete));
-
-  const recommendedOnComplete =
-    draft.plannerVersion === PLANNER_VERSION_CH2
-      ? "Chapter 2 sitting complete. Review Agency Issues on Progress. Chapters 3–14 come next."
-      : "Chapter 1 sitting complete. Start session again for Chapter 2 — Agency Issues.";
+  const draft = planTeachMeSitting(assets, {
+    chapter1Complete: Boolean(chapter1Complete),
+    chapter2Complete: Boolean(chapter2Complete),
+  });
 
   return prisma.learningSession.create({
     data: {
@@ -78,7 +86,7 @@ export async function startOrResumeTeachMeSession() {
           assetId: item.assetId ?? null,
         })),
       },
-      recommendedNext: recommendedOnComplete,
+      recommendedNext: recommendedNextForPlanner(draft.plannerVersion),
     },
   });
 }
@@ -105,16 +113,11 @@ export async function completeSessionItem(sessionId: string, itemId: string) {
   });
   if (remaining === 0) {
     const session = await prisma.learningSession.findUnique({ where: { id: sessionId } });
-    const recommendedNext =
-      session?.plannerVersion === PLANNER_VERSION_CH2
-        ? "Chapter 2 sitting complete. Review Agency Issues on Progress. Chapters 3–14 come next."
-        : "Chapter 1 sitting complete. Start session again for Chapter 2 — Agency Issues.";
-
     await prisma.learningSession.update({
       where: { id: sessionId },
       data: {
         completedAt: new Date(),
-        recommendedNext,
+        recommendedNext: recommendedNextForPlanner(session?.plannerVersion),
         stateAfter: {
           plannerVersion: session?.plannerVersion ?? PLANNER_VERSION_CH1,
           completed: true,

@@ -1,10 +1,13 @@
 import type { SessionDraft, SessionItemDraft } from "@/lib/session";
 import { PHASE4_ASSETS, PHASE4_SESSION_STEPS } from "./assets";
 import { PHASE4_CH2_ASSETS, PHASE4_CH2_SESSION_STEPS } from "./chapter2-assets";
+import { PHASE4_CH3_ASSETS, PHASE4_CH3_SESSION_STEPS } from "./chapter3-assets";
 import {
   PLANNER_VERSION_CH1,
   PLANNER_VERSION_CH2,
+  PLANNER_VERSION_CH3,
   SESSION_TARGET_MINUTES,
+  type TeachMeSittingId,
 } from "./types";
 
 export type PlannedAsset = {
@@ -14,9 +17,14 @@ export type PlannedAsset = {
   pairId: string | null;
 };
 
+type SessionSteps =
+  | typeof PHASE4_SESSION_STEPS
+  | typeof PHASE4_CH2_SESSION_STEPS
+  | typeof PHASE4_CH3_SESSION_STEPS;
+
 function planFromSteps(
   assets: PlannedAsset[],
-  steps: typeof PHASE4_SESSION_STEPS | typeof PHASE4_CH2_SESSION_STEPS,
+  steps: SessionSteps,
   catalogLength: number,
   objective: string,
   plannerVersion: string,
@@ -72,19 +80,38 @@ export function planChapter2Session(assets: PlannedAsset[]): SessionDraft {
   );
 }
 
+/** Chapter 3 Agency Agreements sitting (`phase4-ch3-v1`). */
+export function planChapter3Session(assets: PlannedAsset[]): SessionDraft {
+  return planFromSteps(
+    assets,
+    PHASE4_CH3_SESSION_STEPS,
+    PHASE4_CH3_ASSETS.length,
+    "Agency Agreements: WB-1, WB-4, WB-36, protected buyer vs protected property",
+    PLANNER_VERSION_CH3,
+  );
+}
+
+export type TeachMeProgress = {
+  chapter1Complete: boolean;
+  chapter2Complete: boolean;
+};
+
 /**
- * Sequential sittings: Chapter 2 only after a completed Chapter 1 sitting.
+ * Sequential sittings: Chapter N only after prior sittings are complete.
  * Open-session resume is handled in session.ts before this runs.
  */
-export function selectTeachMeSitting(chapter1Complete: boolean): "chapter1" | "chapter2" {
-  return chapter1Complete ? "chapter2" : "chapter1";
+export function selectTeachMeSitting(progress: TeachMeProgress): TeachMeSittingId {
+  if (!progress.chapter1Complete) return "chapter1";
+  if (!progress.chapter2Complete) return "chapter2";
+  return "chapter3";
 }
 
 export function planTeachMeSitting(
   assets: PlannedAsset[],
-  chapter1Complete: boolean,
+  progress: TeachMeProgress,
 ): SessionDraft {
-  return selectTeachMeSitting(chapter1Complete) === "chapter2"
-    ? planChapter2Session(assets)
-    : planAgencySession(assets);
+  const sitting = selectTeachMeSitting(progress);
+  if (sitting === "chapter3") return planChapter3Session(assets);
+  if (sitting === "chapter2") return planChapter2Session(assets);
+  return planAgencySession(assets);
 }

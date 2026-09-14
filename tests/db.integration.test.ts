@@ -12,6 +12,7 @@ import {
   ALL_CONFUSION_PAIR_CATALOGS,
   CHAPTER_1_CONCEPTS,
   CHAPTER_2_CONCEPTS,
+  CHAPTER_3_CONCEPTS,
   activateConfusionPairs,
   canonicalPairKey,
   seedPhase3,
@@ -19,8 +20,10 @@ import {
 import {
   PHASE4_ASSETS,
   PHASE4_CH2_ASSETS,
+  PHASE4_CH3_ASSETS,
   PLANNER_VERSION_CH1,
   PLANNER_VERSION_CH2,
+  PLANNER_VERSION_CH3,
   seedPhase4,
 } from "@/lib/teach-me";
 import { startOrResumeTeachMeSession } from "@/lib/teach-me/session";
@@ -112,7 +115,7 @@ describe("database seed (integration)", () => {
     expect(count).toBe(1);
   });
 
-  it("seeds Chapter 1–2 concepts and active confusion pairs idempotently", async ({ skip }) => {
+  it("seeds Chapter 1–3 concepts and active confusion pairs idempotently", async ({ skip }) => {
     if (!(await databaseIsReachable())) {
       skip();
       return;
@@ -137,8 +140,12 @@ describe("database seed (integration)", () => {
     const chapter2Count = await prisma.concept.count({
       where: { editionId: edition.id, chapterNumber: 2 },
     });
+    const chapter3Count = await prisma.concept.count({
+      where: { editionId: edition.id, chapterNumber: 3 },
+    });
     expect(chapter1Count).toBe(CHAPTER_1_CONCEPTS.length);
     expect(chapter2Count).toBe(CHAPTER_2_CONCEPTS.length);
+    expect(chapter3Count).toBe(CHAPTER_3_CONCEPTS.length);
 
     const pairs = await prisma.confusionPair.findMany({
       where: { editionId: edition.id, active: true },
@@ -157,12 +164,12 @@ describe("database seed (integration)", () => {
       pairs.some(
         (pair) =>
           pair.canonicalKey ===
-          canonicalPairKey("exclusive-agency-listing", "exclusive-right-to-sell-listing"),
+          canonicalPairKey("wb-1-residential-listing", "wb-36-buyer-agency"),
       ),
     ).toBe(true);
   });
 
-  it("seeds Ch1+Ch2 assets and keeps Chapter 2 closed until Chapter 1 completes", async ({
+  it("seeds Ch1–Ch3 assets and advances sittings only after prior chapters complete", async ({
     skip,
   }) => {
     if (!(await databaseIsReachable())) {
@@ -174,32 +181,43 @@ describe("database seed (integration)", () => {
     await seedPhase3(prisma, edition.id);
     const first = await seedPhase4(prisma, edition.id);
     const second = await seedPhase4(prisma, edition.id);
-    expect(first.assetCount).toBe(PHASE4_ASSETS.length + PHASE4_CH2_ASSETS.length);
+    expect(first.assetCount).toBe(
+      PHASE4_ASSETS.length + PHASE4_CH2_ASSETS.length + PHASE4_CH3_ASSETS.length,
+    );
     expect(second.assetCount).toBe(first.assetCount);
 
     await prisma.sessionItem.deleteMany({});
     await prisma.learningSession.deleteMany({});
 
-    const created = await startOrResumeTeachMeSession();
-    expect(created.plannerVersion).toBe(PLANNER_VERSION_CH1);
-    const resumed = await startOrResumeTeachMeSession();
-    expect(resumed.id).toBe(created.id);
-    const itemCount = await prisma.sessionItem.count({ where: { sessionId: created.id } });
-    expect(itemCount).toBe(PHASE4_ASSETS.length);
+    const chapter1 = await startOrResumeTeachMeSession();
+    expect(chapter1.plannerVersion).toBe(PLANNER_VERSION_CH1);
+    expect((await startOrResumeTeachMeSession()).id).toBe(chapter1.id);
 
     await prisma.sessionItem.updateMany({
-      where: { sessionId: created.id },
+      where: { sessionId: chapter1.id },
       data: { completedAt: new Date() },
     });
     await prisma.learningSession.update({
-      where: { id: created.id },
+      where: { id: chapter1.id },
       data: { completedAt: new Date() },
     });
 
     const chapter2 = await startOrResumeTeachMeSession();
     expect(chapter2.plannerVersion).toBe(PLANNER_VERSION_CH2);
-    expect(chapter2.id).not.toBe(created.id);
-    const ch2Items = await prisma.sessionItem.count({ where: { sessionId: chapter2.id } });
-    expect(ch2Items).toBe(PHASE4_CH2_ASSETS.length);
+    expect(chapter2.id).not.toBe(chapter1.id);
+
+    await prisma.sessionItem.updateMany({
+      where: { sessionId: chapter2.id },
+      data: { completedAt: new Date() },
+    });
+    await prisma.learningSession.update({
+      where: { id: chapter2.id },
+      data: { completedAt: new Date() },
+    });
+
+    const chapter3 = await startOrResumeTeachMeSession();
+    expect(chapter3.plannerVersion).toBe(PLANNER_VERSION_CH3);
+    const ch3Items = await prisma.sessionItem.count({ where: { sessionId: chapter3.id } });
+    expect(ch3Items).toBe(PHASE4_CH3_ASSETS.length);
   });
 });

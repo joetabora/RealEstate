@@ -2,9 +2,11 @@ import { prisma } from "@/lib/db/prisma";
 import { COURSE_EDITION_SEED } from "@/lib/blueprint";
 import { formatPageCitation } from "@/lib/ingest/citation";
 import { getLocalLearner } from "@/lib/learner";
+import { selectTeachMeSitting } from "./planner";
 import {
   PLANNER_VERSION_CH1,
   PLANNER_VERSION_CH2,
+  PLANNER_VERSION_CH3,
   TEACH_ME_PLANNER_VERSIONS,
   sittingLabelForPlanner,
   type ConceptStudyState,
@@ -17,6 +19,7 @@ export type TeachMeLiveStatus = {
   completedSessionCount: number;
   assetCount: number;
   chapter1Complete: boolean;
+  chapter2Complete: boolean;
   nextSittingLabel: string;
   nextSittingHint: string;
 };
@@ -79,22 +82,43 @@ export async function getTeachMeLiveStatus(): Promise<TeachMeLiveStatus> {
         completedAt: { not: null },
       },
     });
-    const chapter1Complete = Boolean(
-      await prisma.learningSession.findFirst({
-        where: {
-          learnerId: learner.id,
-          editionId: edition.id,
-          plannerVersion: PLANNER_VERSION_CH1,
-          completedAt: { not: null },
-        },
-      }),
-    );
+    const [chapter1Complete, chapter2Complete] = await Promise.all([
+      Boolean(
+        await prisma.learningSession.findFirst({
+          where: {
+            learnerId: learner.id,
+            editionId: edition.id,
+            plannerVersion: PLANNER_VERSION_CH1,
+            completedAt: { not: null },
+          },
+        }),
+      ),
+      Boolean(
+        await prisma.learningSession.findFirst({
+          where: {
+            learnerId: learner.id,
+            editionId: edition.id,
+            plannerVersion: PLANNER_VERSION_CH2,
+            completedAt: { not: null },
+          },
+        }),
+      ),
+    ]);
 
-    const nextVersion = open?.plannerVersion
-      ? open.plannerVersion
-      : chapter1Complete
-        ? PLANNER_VERSION_CH2
-        : PLANNER_VERSION_CH1;
+    const nextSitting = open?.plannerVersion
+      ? open.plannerVersion === PLANNER_VERSION_CH3
+        ? "chapter3"
+        : open.plannerVersion === PLANNER_VERSION_CH2
+          ? "chapter2"
+          : "chapter1"
+      : selectTeachMeSitting({ chapter1Complete, chapter2Complete });
+
+    const nextVersion =
+      nextSitting === "chapter3"
+        ? PLANNER_VERSION_CH3
+        : nextSitting === "chapter2"
+          ? PLANNER_VERSION_CH2
+          : PLANNER_VERSION_CH1;
 
     return {
       databaseConnected: true,
@@ -103,14 +127,9 @@ export async function getTeachMeLiveStatus(): Promise<TeachMeLiveStatus> {
       completedSessionCount,
       assetCount,
       chapter1Complete,
+      chapter2Complete,
       nextSittingLabel: sittingLabelForPlanner(nextVersion),
-      nextSittingHint: chapter1Complete
-        ? open
-          ? "Resume Chapter 2 — Agency Issues."
-          : "Next: Agency Issues."
-        : open
-          ? "Resume Chapter 1 — Agency Relationships."
-          : "Start with Chapter 1 — Agency Relationships.",
+      nextSittingHint: hintFor(nextSitting, Boolean(open)),
     };
   } catch {
     return emptyStatus(false);
@@ -194,6 +213,22 @@ export function studyStateFor(conceptId: string, learningIds: Set<string>): Conc
   return learningIds.has(conceptId) ? "learning" : "not_started";
 }
 
+function hintFor(sitting: "chapter1" | "chapter2" | "chapter3", isOpen: boolean): string {
+  if (sitting === "chapter3") {
+    return isOpen
+      ? "Resume Chapter 3 — Agency Agreements."
+      : "Next: Agency Agreements.";
+  }
+  if (sitting === "chapter2") {
+    return isOpen
+      ? "Resume Chapter 2 — Agency Issues."
+      : "Next: Agency Issues.";
+  }
+  return isOpen
+    ? "Resume Chapter 1 — Agency Relationships."
+    : "Start with Chapter 1 — Agency Relationships.";
+}
+
 function emptyStatus(databaseConnected: boolean): TeachMeLiveStatus {
   return {
     databaseConnected,
@@ -202,6 +237,7 @@ function emptyStatus(databaseConnected: boolean): TeachMeLiveStatus {
     completedSessionCount: 0,
     assetCount: 0,
     chapter1Complete: false,
+    chapter2Complete: false,
     nextSittingLabel: sittingLabelForPlanner(PLANNER_VERSION_CH1),
     nextSittingHint: "Start with Chapter 1 — Agency Relationships.",
   };

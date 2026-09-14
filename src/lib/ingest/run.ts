@@ -1,6 +1,4 @@
 import {
-  CHAPTER_1_NOTES_PART,
-  CHAPTER_2_NOTES_PART,
   CHAPTER_NOTES_PARTS,
   BLUEPRINT_SOURCE_PART,
   editionDefaults,
@@ -93,7 +91,7 @@ async function ingestPub725(sourceRoot: string, jurisdiction: string): Promise<B
 async function ingestChapterNotes(
   sourceRoot: string,
   jurisdiction: string,
-  part: typeof CHAPTER_1_NOTES_PART | typeof CHAPTER_2_NOTES_PART,
+  part: (typeof CHAPTER_NOTES_PARTS)[number],
 ): Promise<BuiltDocument> {
   const relativePath = part.relativePath;
   const filePath = resolveSourceFile(sourceRoot, relativePath);

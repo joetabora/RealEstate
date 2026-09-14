@@ -31,8 +31,8 @@ export function TeachMeHome({ data }: { data: TeachMeHomeData }) {
           </h1>
           <p className="mt-4 max-w-xl text-base leading-7 text-muted">
             You should not have to pick a chapter. Teach Me runs sequential
-            sittings through the 14-chapter course — Chapter 1, Chapter 2
-            (Agency Issues), Chapter 3 (Agency Agreements), then the rest.
+            sittings through the 14-chapter course — Chapters 1–4 now
+            (Agency through Disclosure Obligations), then the rest.
             Wisconsin facts stay cited.
           </p>
         </header>
@@ -73,8 +73,8 @@ export function TeachMeHome({ data }: { data: TeachMeHomeData }) {
               scored items. {plannedStart.name} is the largest official category
               at {plannedStart.weight} items
               {plannedStart.code ? ` (section ${plannedStart.code})` : ""}.
-              Progress lists Chapters 1–3 concepts. Start session finishes each
-              Agency sitting in order before opening the next chapter.
+              Progress lists Chapters 1–4 concepts. Start session finishes each
+              sitting in order before opening the next chapter.
             </p>
             <p className="mt-4 text-sm text-ink">
               This is an exam-blueprint recommendation, not a readiness score.

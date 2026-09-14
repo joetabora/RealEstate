@@ -15,6 +15,11 @@ export const CONCEPT_GROUPS = [
   "agency-agreements",
   "listing-forms",
   "buyer-agency-forms",
+  "property-disclosure",
+  "owner-disclosure",
+  "licensee-property-disclosure",
+  "condominium-disclosure",
+  "environmental",
 ] as const;
 
 export type ConceptGroup = (typeof CONCEPT_GROUPS)[number];
@@ -30,7 +35,8 @@ export type ConceptCitationSeed = {
     | "pub725-course-book"
     | "chapter-1-agency-notes"
     | "chapter-2-agency-issues-notes"
-    | "chapter-3-agency-agreements-notes";
+    | "chapter-3-agency-agreements-notes"
+    | "chapter-4-disclosure-obligations-notes";
   heading: string;
   pdfPage: number;
   printedPage?: number;
@@ -84,6 +90,11 @@ export const CONCEPT_GROUP_LABELS: Record<ConceptGroup, string> = {
   "agency-agreements": "Agency agreements (approved forms)",
   "listing-forms": "Listing form provisions",
   "buyer-agency-forms": "Buyer agency form provisions",
+  "property-disclosure": "Disclosure basics",
+  "owner-disclosure": "Owner disclosure / RECR",
+  "licensee-property-disclosure": "Licensee property disclosure",
+  "condominium-disclosure": "Condominium disclosure",
+  environmental: "Environmental concerns",
 };
 
 export const COURSE_CHAPTER_TITLES: Record<number, string> = {

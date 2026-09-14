@@ -1,5 +1,5 @@
 /**
- * Notes-only ingest for Chapter 1–2 (skips full PUB725 re-extract).
+ * Notes-only ingest for chapter notes (skips full PUB725 re-extract).
  * Run: PATH=./node_modules/.bin:$PATH tsx --env-file=.env scripts/ingest-chapter-notes.ts
  */
 import path from "node:path";
@@ -9,12 +9,7 @@ import { getSourceMaterialPath } from "../src/lib/db/env";
 import { seedPhase1 } from "../src/lib/db/seed";
 import { seedPhase3 } from "../src/lib/knowledge/seed";
 import { seedPhase4 } from "../src/lib/teach-me/seed";
-import {
-  CHAPTER_2_NOTES_PART,
-  CHAPTER_3_NOTES_PART,
-  CHAPTER_NOTES_PARTS,
-  PUB725_EFFECTIVE_AT,
-} from "../src/lib/ingest/catalog";
+import { CHAPTER_NOTES_PARTS, PUB725_EFFECTIVE_AT } from "../src/lib/ingest/catalog";
 import { extractPdfPages, resolveSourceFile, sha256Hex } from "../src/lib/ingest/pdf-text";
 import { buildSections } from "../src/lib/ingest/sections";
 import { persistDocuments } from "../src/lib/ingest/persist";
@@ -67,18 +62,13 @@ async function main() {
   const summary = await persistDocuments(prisma, edition.id, documents);
   const knowledge = await seedPhase3(prisma, edition.id);
   const assets = await seedPhase4(prisma, edition.id);
-  const ch2Doc = await prisma.sourceDocument.findFirst({
-    where: { slug: CHAPTER_2_NOTES_PART.slug },
-  });
-  const ch2Sections = ch2Doc
-    ? await prisma.sourceSection.count({ where: { documentId: ch2Doc.id } })
-    : 0;
-  const ch3Doc = await prisma.sourceDocument.findFirst({
-    where: { slug: CHAPTER_3_NOTES_PART.slug },
-  });
-  const ch3Sections = ch3Doc
-    ? await prisma.sourceSection.count({ where: { documentId: ch3Doc.id } })
-    : 0;
+  const notesCounts: Record<string, number> = {};
+  for (const part of CHAPTER_NOTES_PARTS) {
+    const doc = await prisma.sourceDocument.findFirst({ where: { slug: part.slug } });
+    notesCounts[part.slug] = doc
+      ? await prisma.sourceSection.count({ where: { documentId: doc.id } })
+      : 0;
+  }
   console.log(
     JSON.stringify(
       {
@@ -87,8 +77,7 @@ async function main() {
         conceptCount: knowledge.conceptCount,
         pairCount: knowledge.pairCount,
         assetCount: assets.assetCount,
-        ch2NotesSections: ch2Sections,
-        ch3NotesSections: ch3Sections,
+        notesCounts,
       },
       null,
       2,

@@ -1,18 +1,17 @@
 import { describe, expect, it } from "vitest";
 import {
   planAgencySession,
-  planChapter2Session,
-  planChapter3Session,
+  planChapter4Session,
   planTeachMeSitting,
   selectTeachMeSitting,
 } from "@/lib/teach-me/planner";
 import { PHASE4_SESSION_STEPS } from "@/lib/teach-me/assets";
-import { PHASE4_CH2_SESSION_STEPS } from "@/lib/teach-me/chapter2-assets";
-import { PHASE4_CH3_SESSION_STEPS } from "@/lib/teach-me/chapter3-assets";
+import { PHASE4_CH4_SESSION_STEPS } from "@/lib/teach-me/chapter4-assets";
 import {
   PLANNER_VERSION_CH1,
   PLANNER_VERSION_CH2,
   PLANNER_VERSION_CH3,
+  PLANNER_VERSION_CH4,
 } from "@/lib/teach-me/types";
 
 describe("Teach Me sequential planner", () => {
@@ -25,70 +24,56 @@ describe("Teach Me sequential planner", () => {
     }));
     const draft = planAgencySession(assets);
     expect(draft.plannerVersion).toBe(PLANNER_VERSION_CH1);
-    expect(draft.items).toHaveLength(PHASE4_SESSION_STEPS.length);
   });
 
-  it("does not open Chapter 2 or 3 while Chapter 1 is incomplete", () => {
+  it("advances only after prior planner versions are complete", () => {
+    expect(selectTeachMeSitting({ completedPlannerVersions: new Set() })).toBe("chapter1");
     expect(
-      selectTeachMeSitting({ chapter1Complete: false, chapter2Complete: false }),
-    ).toBe("chapter1");
-    const assets = [
-      ...PHASE4_SESSION_STEPS.map((step, index) => ({
-        slug: step.assetSlug,
-        id: `ch1-${index}`,
-        conceptId: null,
-        pairId: null,
-      })),
-      ...PHASE4_CH2_SESSION_STEPS.map((step, index) => ({
-        slug: step.assetSlug,
-        id: `ch2-${index}`,
-        conceptId: null,
-        pairId: null,
-      })),
-      ...PHASE4_CH3_SESSION_STEPS.map((step, index) => ({
-        slug: step.assetSlug,
-        id: `ch3-${index}`,
-        conceptId: null,
-        pairId: null,
-      })),
-    ];
-    const draft = planTeachMeSitting(assets, {
-      chapter1Complete: false,
-      chapter2Complete: false,
-    });
-    expect(draft.plannerVersion).toBe(PLANNER_VERSION_CH1);
-  });
-
-  it("does not open Chapter 3 while Chapter 2 is incomplete", () => {
-    expect(
-      selectTeachMeSitting({ chapter1Complete: true, chapter2Complete: false }),
+      selectTeachMeSitting({ completedPlannerVersions: new Set([PLANNER_VERSION_CH1]) }),
     ).toBe("chapter2");
-    const assets = PHASE4_CH2_SESSION_STEPS.map((step, index) => ({
-      slug: step.assetSlug,
-      id: `ch2-${index}`,
-      conceptId: null,
-      pairId: null,
-    }));
-    const draft = planTeachMeSitting(assets, {
-      chapter1Complete: true,
-      chapter2Complete: false,
-    });
-    expect(draft.plannerVersion).toBe(PLANNER_VERSION_CH2);
+    expect(
+      selectTeachMeSitting({
+        completedPlannerVersions: new Set([PLANNER_VERSION_CH1, PLANNER_VERSION_CH2]),
+      }),
+    ).toBe("chapter3");
+    expect(
+      selectTeachMeSitting({
+        completedPlannerVersions: new Set([
+          PLANNER_VERSION_CH1,
+          PLANNER_VERSION_CH2,
+          PLANNER_VERSION_CH3,
+        ]),
+      }),
+    ).toBe("chapter4");
   });
 
-  it("starts Chapter 3 only after Chapters 1 and 2 are complete", () => {
+  it("does not open Chapter 4 while Chapter 3 is incomplete", () => {
     expect(
-      selectTeachMeSitting({ chapter1Complete: true, chapter2Complete: true }),
+      selectTeachMeSitting({
+        completedPlannerVersions: new Set([PLANNER_VERSION_CH1, PLANNER_VERSION_CH2]),
+      }),
     ).toBe("chapter3");
-    const assets = PHASE4_CH3_SESSION_STEPS.map((step, index) => ({
+  });
+
+  it("starts Chapter 4 after Chapters 1–3 are complete", () => {
+    const assets = PHASE4_CH4_SESSION_STEPS.map((step, index) => ({
       slug: step.assetSlug,
-      id: `ch3-${index}`,
+      id: `ch4-${index}`,
       conceptId: null,
       pairId: null,
     }));
-    const draft = planChapter3Session(assets);
-    expect(draft.plannerVersion).toBe(PLANNER_VERSION_CH3);
-    expect(draft.items).toHaveLength(PHASE4_CH3_SESSION_STEPS.length);
+    const draft = planChapter4Session(assets);
+    expect(draft.plannerVersion).toBe(PLANNER_VERSION_CH4);
+    expect(draft.items).toHaveLength(PHASE4_CH4_SESSION_STEPS.length);
+    expect(
+      planTeachMeSitting(assets, {
+        completedPlannerVersions: new Set([
+          PLANNER_VERSION_CH1,
+          PLANNER_VERSION_CH2,
+          PLANNER_VERSION_CH3,
+        ]),
+      }).plannerVersion,
+    ).toBe(PLANNER_VERSION_CH4);
   });
 
   it("throws when a required Chapter 1 asset was not seeded", () => {

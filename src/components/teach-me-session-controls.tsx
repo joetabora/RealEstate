@@ -23,9 +23,9 @@ export function TeachMeSessionControls() {
             openSessionId: null,
             completedSessionCount: 0,
             assetCount: 0,
-            chapter1Complete: false,
-            chapter2Complete: false,
+            completedPlannerVersions: [],
             nextSittingLabel: "Chapter 1 — Agency Relationships",
+            nextSittingShort: "Agency Relationships",
             nextSittingHint: "Start with Chapter 1 — Agency Relationships.",
           });
         }
@@ -39,14 +39,12 @@ export function TeachMeSessionControls() {
   const resumeHref = status?.openSessionId ? `/session/${status.openSessionId}` : null;
   const title = resumeHref
     ? "Session in progress"
-    : status?.chapter2Complete
-      ? "Next: Agency Agreements"
-      : status?.chapter1Complete
-        ? "Next: Agency Issues"
-        : "Agency Relationships";
+    : status?.nextSittingShort
+      ? `Next: ${status.nextSittingShort}`
+      : "Agency Relationships";
   const hint =
     status?.nextSittingHint ??
-    "Start with Chapter 1 — Agency Relationships. After each sitting is complete, Teach Me opens the next chapter.";
+    "Start with Chapter 1. After each sitting is complete, Teach Me opens the next chapter.";
 
   return (
     <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">

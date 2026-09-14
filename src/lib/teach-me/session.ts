@@ -4,15 +4,14 @@ import { getLocalLearner } from "@/lib/learner";
 import { planTeachMeSitting } from "./planner";
 import {
   PLANNER_VERSION_CH1,
-  PLANNER_VERSION_CH2,
   TEACH_ME_PLANNER_VERSIONS,
   recommendedNextForPlanner,
   sittingLabelForPlanner,
 } from "./types";
 
 /**
- * Resume any open Teach Me sitting. Otherwise advance Chapter 1 → 2 → 3
- * only after each prior sitting is complete.
+ * Resume any open Teach Me sitting. Otherwise advance through ordered
+ * chapter sittings only after each prior sitting is complete.
  */
 export async function startOrResumeTeachMeSession() {
   const edition = await prisma.courseEdition.findUnique({
@@ -36,34 +35,28 @@ export async function startOrResumeTeachMeSession() {
     return open;
   }
 
-  const [chapter1Complete, chapter2Complete] = await Promise.all([
-    prisma.learningSession.findFirst({
-      where: {
-        learnerId: learner.id,
-        editionId: edition.id,
-        plannerVersion: PLANNER_VERSION_CH1,
-        completedAt: { not: null },
-      },
-    }),
-    prisma.learningSession.findFirst({
-      where: {
-        learnerId: learner.id,
-        editionId: edition.id,
-        plannerVersion: PLANNER_VERSION_CH2,
-        completedAt: { not: null },
-      },
-    }),
-  ]);
+  const completed = await prisma.learningSession.findMany({
+    where: {
+      learnerId: learner.id,
+      editionId: edition.id,
+      plannerVersion: { in: [...TEACH_ME_PLANNER_VERSIONS] },
+      completedAt: { not: null },
+    },
+    select: { plannerVersion: true },
+    distinct: ["plannerVersion"],
+  });
+  const completedPlannerVersions = new Set(
+    completed
+      .map((row) => row.plannerVersion)
+      .filter((version): version is string => Boolean(version)),
+  );
 
   const assets = await prisma.learningAsset.findMany({
     where: { editionId: edition.id, lifecycle: "active" },
     select: { id: true, slug: true, conceptId: true, pairId: true },
   });
 
-  const draft = planTeachMeSitting(assets, {
-    chapter1Complete: Boolean(chapter1Complete),
-    chapter2Complete: Boolean(chapter2Complete),
-  });
+  const draft = planTeachMeSitting(assets, { completedPlannerVersions });
 
   return prisma.learningSession.create({
     data: {

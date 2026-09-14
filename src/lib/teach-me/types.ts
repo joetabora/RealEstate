@@ -26,14 +26,42 @@ export const PLANNER_VERSION_CH2 = "phase4-ch2-v1";
 /** Chapter 3 Agency Agreements sitting. */
 export const PLANNER_VERSION_CH3 = "phase4-ch3-v1";
 
-/** Ordered Teach Me sittings: finish each chapter before the next opens. */
-export const TEACH_ME_PLANNER_VERSIONS = [
-  PLANNER_VERSION_CH1,
-  PLANNER_VERSION_CH2,
-  PLANNER_VERSION_CH3,
+/** Chapter 4 Disclosure Obligations sitting. */
+export const PLANNER_VERSION_CH4 = "phase4-ch4-v1";
+
+export const TEACH_ME_SITTINGS = [
+  {
+    id: "chapter1" as const,
+    plannerVersion: PLANNER_VERSION_CH1,
+    label: "Chapter 1 — Agency Relationships",
+    shortNext: "Agency Relationships",
+  },
+  {
+    id: "chapter2" as const,
+    plannerVersion: PLANNER_VERSION_CH2,
+    label: "Chapter 2 — Agency Issues",
+    shortNext: "Agency Issues",
+  },
+  {
+    id: "chapter3" as const,
+    plannerVersion: PLANNER_VERSION_CH3,
+    label: "Chapter 3 — Agency Agreements",
+    shortNext: "Agency Agreements",
+  },
+  {
+    id: "chapter4" as const,
+    plannerVersion: PLANNER_VERSION_CH4,
+    label: "Chapter 4 — Disclosure Obligations",
+    shortNext: "Disclosure Obligations",
+  },
 ] as const;
 
-export type TeachMeSittingId = "chapter1" | "chapter2" | "chapter3";
+export type TeachMeSittingId = (typeof TEACH_ME_SITTINGS)[number]["id"];
+
+/** Ordered Teach Me sittings: finish each chapter before the next opens. */
+export const TEACH_ME_PLANNER_VERSIONS = TEACH_ME_SITTINGS.map(
+  (sitting) => sitting.plannerVersion,
+);
 
 /** @deprecated Prefer PLANNER_VERSION_CH1 — kept for older imports/tests. */
 export const PLANNER_VERSION = PLANNER_VERSION_CH1;
@@ -42,22 +70,30 @@ export const SESSION_TARGET_MINUTES = 20;
 
 export type ConceptStudyState = "not_started" | "learning";
 
+export function sittingById(id: TeachMeSittingId) {
+  const sitting = TEACH_ME_SITTINGS.find((row) => row.id === id);
+  if (!sitting) {
+    throw new Error(`Unknown Teach Me sitting: ${id}`);
+  }
+  return sitting;
+}
+
+export function sittingByPlannerVersion(plannerVersion: string | null | undefined) {
+  return (
+    TEACH_ME_SITTINGS.find((row) => row.plannerVersion === plannerVersion) ?? TEACH_ME_SITTINGS[0]
+  );
+}
+
 export function sittingLabelForPlanner(plannerVersion: string | null | undefined): string {
-  if (plannerVersion === PLANNER_VERSION_CH3) {
-    return "Chapter 3 — Agency Agreements";
-  }
-  if (plannerVersion === PLANNER_VERSION_CH2) {
-    return "Chapter 2 — Agency Issues";
-  }
-  return "Chapter 1 — Agency Relationships";
+  return sittingByPlannerVersion(plannerVersion).label;
 }
 
 export function recommendedNextForPlanner(plannerVersion: string | null | undefined): string {
-  if (plannerVersion === PLANNER_VERSION_CH3) {
-    return "Chapter 3 sitting complete. Review Agency Agreements on Progress. Chapters 4–14 come next.";
+  const index = TEACH_ME_SITTINGS.findIndex((row) => row.plannerVersion === plannerVersion);
+  const current = TEACH_ME_SITTINGS[Math.max(index, 0)];
+  const next = index >= 0 ? TEACH_ME_SITTINGS[index + 1] : undefined;
+  if (!next) {
+    return `${current.label} sitting complete. Review on Progress. Chapters 5–14 come next.`;
   }
-  if (plannerVersion === PLANNER_VERSION_CH2) {
-    return "Chapter 2 sitting complete. Start session again for Chapter 3 — Agency Agreements.";
-  }
-  return "Chapter 1 sitting complete. Start session again for Chapter 2 — Agency Issues.";
+  return `${current.label} sitting complete. Start session again for ${next.label}.`;
 }

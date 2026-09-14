@@ -3,12 +3,14 @@ import { resolveCitedSectionId } from "@/lib/knowledge/seed";
 import { citationsForAsset, PHASE4_ASSETS, pairKeyForAsset } from "./assets";
 import { PHASE4_CH2_ASSETS } from "./chapter2-assets";
 import { PHASE4_CH3_ASSETS } from "./chapter3-assets";
+import { PHASE4_CH4_ASSETS } from "./chapter4-assets";
 import type { AssetSeed } from "./assets";
 
 const ALL_TEACH_ME_ASSETS: readonly AssetSeed[] = [
   ...PHASE4_ASSETS,
   ...PHASE4_CH2_ASSETS,
   ...PHASE4_CH3_ASSETS,
+  ...PHASE4_CH4_ASSETS,
 ];
 
 export async function seedPhase4(prisma: PrismaClient, editionId: string) {

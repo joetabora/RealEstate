@@ -5,11 +5,13 @@ import { getLocalLearner } from "@/lib/learner";
 import { selectTeachMeSitting } from "./planner";
 import {
   PLANNER_VERSION_CH1,
-  PLANNER_VERSION_CH2,
-  PLANNER_VERSION_CH3,
   TEACH_ME_PLANNER_VERSIONS,
+  TEACH_ME_SITTINGS,
+  sittingById,
+  sittingByPlannerVersion,
   sittingLabelForPlanner,
   type ConceptStudyState,
+  type TeachMeSittingId,
 } from "./types";
 
 export type TeachMeLiveStatus = {
@@ -18,10 +20,10 @@ export type TeachMeLiveStatus = {
   openSessionId: string | null;
   completedSessionCount: number;
   assetCount: number;
-  chapter1Complete: boolean;
-  chapter2Complete: boolean;
+  completedPlannerVersions: string[];
   nextSittingLabel: string;
   nextSittingHint: string;
+  nextSittingShort: string;
 };
 
 export type SessionView = {
@@ -82,43 +84,26 @@ export async function getTeachMeLiveStatus(): Promise<TeachMeLiveStatus> {
         completedAt: { not: null },
       },
     });
-    const [chapter1Complete, chapter2Complete] = await Promise.all([
-      Boolean(
-        await prisma.learningSession.findFirst({
-          where: {
-            learnerId: learner.id,
-            editionId: edition.id,
-            plannerVersion: PLANNER_VERSION_CH1,
-            completedAt: { not: null },
-          },
-        }),
-      ),
-      Boolean(
-        await prisma.learningSession.findFirst({
-          where: {
-            learnerId: learner.id,
-            editionId: edition.id,
-            plannerVersion: PLANNER_VERSION_CH2,
-            completedAt: { not: null },
-          },
-        }),
-      ),
-    ]);
+    const completedRows = await prisma.learningSession.findMany({
+      where: {
+        learnerId: learner.id,
+        editionId: edition.id,
+        plannerVersion: { in: [...TEACH_ME_PLANNER_VERSIONS] },
+        completedAt: { not: null },
+      },
+      select: { plannerVersion: true },
+      distinct: ["plannerVersion"],
+    });
+    const completedPlannerVersions = completedRows
+      .map((row) => row.plannerVersion)
+      .filter((version): version is string => Boolean(version));
 
-    const nextSitting = open?.plannerVersion
-      ? open.plannerVersion === PLANNER_VERSION_CH3
-        ? "chapter3"
-        : open.plannerVersion === PLANNER_VERSION_CH2
-          ? "chapter2"
-          : "chapter1"
-      : selectTeachMeSitting({ chapter1Complete, chapter2Complete });
-
-    const nextVersion =
-      nextSitting === "chapter3"
-        ? PLANNER_VERSION_CH3
-        : nextSitting === "chapter2"
-          ? PLANNER_VERSION_CH2
-          : PLANNER_VERSION_CH1;
+    const nextSitting: TeachMeSittingId = open?.plannerVersion
+      ? sittingByPlannerVersion(open.plannerVersion).id
+      : selectTeachMeSitting({
+          completedPlannerVersions: new Set(completedPlannerVersions),
+        });
+    const nextMeta = sittingById(nextSitting);
 
     return {
       databaseConnected: true,
@@ -126,10 +111,14 @@ export async function getTeachMeLiveStatus(): Promise<TeachMeLiveStatus> {
       openSessionId: open?.id ?? null,
       completedSessionCount,
       assetCount,
-      chapter1Complete,
-      chapter2Complete,
-      nextSittingLabel: sittingLabelForPlanner(nextVersion),
-      nextSittingHint: hintFor(nextSitting, Boolean(open)),
+      completedPlannerVersions,
+      nextSittingLabel: nextMeta.label,
+      nextSittingShort: nextMeta.shortNext,
+      nextSittingHint: open
+        ? `Resume ${nextMeta.label}.`
+        : completedPlannerVersions.length === 0
+          ? `Start with ${nextMeta.label}.`
+          : `Next: ${nextMeta.shortNext}.`,
     };
   } catch {
     return emptyStatus(false);
@@ -213,33 +202,18 @@ export function studyStateFor(conceptId: string, learningIds: Set<string>): Conc
   return learningIds.has(conceptId) ? "learning" : "not_started";
 }
 
-function hintFor(sitting: "chapter1" | "chapter2" | "chapter3", isOpen: boolean): string {
-  if (sitting === "chapter3") {
-    return isOpen
-      ? "Resume Chapter 3 — Agency Agreements."
-      : "Next: Agency Agreements.";
-  }
-  if (sitting === "chapter2") {
-    return isOpen
-      ? "Resume Chapter 2 — Agency Issues."
-      : "Next: Agency Issues.";
-  }
-  return isOpen
-    ? "Resume Chapter 1 — Agency Relationships."
-    : "Start with Chapter 1 — Agency Relationships.";
-}
-
 function emptyStatus(databaseConnected: boolean): TeachMeLiveStatus {
+  const first = TEACH_ME_SITTINGS[0];
   return {
     databaseConnected,
     canStart: false,
     openSessionId: null,
     completedSessionCount: 0,
     assetCount: 0,
-    chapter1Complete: false,
-    chapter2Complete: false,
-    nextSittingLabel: sittingLabelForPlanner(PLANNER_VERSION_CH1),
-    nextSittingHint: "Start with Chapter 1 — Agency Relationships.",
+    completedPlannerVersions: [],
+    nextSittingLabel: first.label,
+    nextSittingShort: first.shortNext,
+    nextSittingHint: `Start with ${first.label}.`,
   };
 }
 

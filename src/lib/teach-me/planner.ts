@@ -2,11 +2,14 @@ import type { SessionDraft, SessionItemDraft } from "@/lib/session";
 import { PHASE4_ASSETS, PHASE4_SESSION_STEPS } from "./assets";
 import { PHASE4_CH2_ASSETS, PHASE4_CH2_SESSION_STEPS } from "./chapter2-assets";
 import { PHASE4_CH3_ASSETS, PHASE4_CH3_SESSION_STEPS } from "./chapter3-assets";
+import { PHASE4_CH4_ASSETS, PHASE4_CH4_SESSION_STEPS } from "./chapter4-assets";
 import {
   PLANNER_VERSION_CH1,
   PLANNER_VERSION_CH2,
   PLANNER_VERSION_CH3,
+  PLANNER_VERSION_CH4,
   SESSION_TARGET_MINUTES,
+  TEACH_ME_SITTINGS,
   type TeachMeSittingId,
 } from "./types";
 
@@ -20,7 +23,8 @@ export type PlannedAsset = {
 type SessionSteps =
   | typeof PHASE4_SESSION_STEPS
   | typeof PHASE4_CH2_SESSION_STEPS
-  | typeof PHASE4_CH3_SESSION_STEPS;
+  | typeof PHASE4_CH3_SESSION_STEPS
+  | typeof PHASE4_CH4_SESSION_STEPS;
 
 function planFromSteps(
   assets: PlannedAsset[],
@@ -91,9 +95,19 @@ export function planChapter3Session(assets: PlannedAsset[]): SessionDraft {
   );
 }
 
+/** Chapter 4 Disclosure Obligations sitting (`phase4-ch4-v1`). */
+export function planChapter4Session(assets: PlannedAsset[]): SessionDraft {
+  return planFromSteps(
+    assets,
+    PHASE4_CH4_SESSION_STEPS,
+    PHASE4_CH4_ASSETS.length,
+    "Disclosure: owner vs licensee duties, RECR, as-is, condo disclosure, environmental headings",
+    PLANNER_VERSION_CH4,
+  );
+}
+
 export type TeachMeProgress = {
-  chapter1Complete: boolean;
-  chapter2Complete: boolean;
+  completedPlannerVersions: ReadonlySet<string>;
 };
 
 /**
@@ -101,9 +115,12 @@ export type TeachMeProgress = {
  * Open-session resume is handled in session.ts before this runs.
  */
 export function selectTeachMeSitting(progress: TeachMeProgress): TeachMeSittingId {
-  if (!progress.chapter1Complete) return "chapter1";
-  if (!progress.chapter2Complete) return "chapter2";
-  return "chapter3";
+  for (const sitting of TEACH_ME_SITTINGS) {
+    if (!progress.completedPlannerVersions.has(sitting.plannerVersion)) {
+      return sitting.id;
+    }
+  }
+  return TEACH_ME_SITTINGS[TEACH_ME_SITTINGS.length - 1].id;
 }
 
 export function planTeachMeSitting(
@@ -111,6 +128,7 @@ export function planTeachMeSitting(
   progress: TeachMeProgress,
 ): SessionDraft {
   const sitting = selectTeachMeSitting(progress);
+  if (sitting === "chapter4") return planChapter4Session(assets);
   if (sitting === "chapter3") return planChapter3Session(assets);
   if (sitting === "chapter2") return planChapter2Session(assets);
   return planAgencySession(assets);

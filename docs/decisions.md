@@ -1,6 +1,6 @@
 # Architecture decisions
 
-Phase: 4 — Teach Me through Chapter 3 (full 14-chapter course is the goal)  
+Phase: 4 — Teach Me through Chapter 4 (full 14-chapter course is the goal)  
 Status: locked unless a concrete technical contradiction appears.
 
 This file records the Architecture Lock. It is binding for implementation.
@@ -8,7 +8,7 @@ This file records the Architecture Lock. It is binding for implementation.
 ## Product
 
 - **Teach Me is the home loop.** `/` is Today's Plan. Library, Practice, Math, Exam, and Tutor are secondary.
-- **Full course is the goal.** Teach Me sittings cover Chapters 1–14 sequentially. Today: Chapters 1–3. Chapters 4–14 reuse the same loop.
+- **Full course is the goal.** Teach Me sittings cover Chapters 1–14 sequentially. Today: Chapters 1–4. Chapters 5–14 reuse the same loop.
 - **One local learner.** Stable key `local`. No authentication, billing, or social features.
 - **Personal now, platform later.** Tables are keyed so a future `userId` can exist; Phase 1 does not build multi-user infrastructure.
 
@@ -18,7 +18,7 @@ This file records the Architecture Lock. It is binding for implementation.
 - **Exam blueprint is first-class data**, not course content. Pearson salesperson outline I–X is seeded with weights summing to 140. Concepts and questions will join to it later.
 - **KnowledgeState and PerformanceState stay separate** (entities in a later phase). Understanding a concept is not the same as surviving exam conditions. Do not collapse them into a single mastery percentage.
 - **ConfusionPair is an entity.** Seeded pairs are active only when both concept slugs exist. Evidence starts as `seed`; later misses can add more.
-- **LearningAsset is the content model.** Extensible types: explanation, simple language, analogy, scenario, comparison, visual, recall, teach-back, application, calculation, form-line, trap, exam recognition, remediation. Do not freeze `Lesson.mode` as the schema. Phase 4 seeds explanation, simple language, scenario, comparison, teach-back, and recall for Chapter 1–3 sittings.
+- **LearningAsset is the content model.** Extensible types: explanation, simple language, analogy, scenario, comparison, visual, recall, teach-back, application, calculation, form-line, trap, exam recognition, remediation. Do not freeze `Lesson.mode` as the schema. Phase 4 seeds explanation, simple language, scenario, comparison, teach-back, and recall for Chapter 1–4 sittings.
 - **VisualAnchor** stores page-number placeholders now. OCR, bounding boxes, and rasterized page images are Phase 10.
 - **Confidence 1–5** is a learning signal. Overconfident errors get repair priority.
 - **Remediation = why missed + core distinction + immediate retest.**
@@ -28,7 +28,7 @@ This file records the Architecture Lock. It is binding for implementation.
 
 - **LearningSession snapshots before/after** learner state.
 - **Planner and spaced repetition are deterministic.** An LLM may explain a plan; it does not invent one.
-- **Sequential chapter sittings.** `phase4-agency-v1` (Chapter 1) must complete before `phase4-ch2-v1` (Chapter 2); Chapter 2 must complete before `phase4-ch3-v1` (Chapter 3). Resume any open sitting first. Later chapters follow the same rule.
+- **Sequential chapter sittings.** Ordered planner versions (`phase4-agency-v1` … `phase4-ch4-v1`). Each chapter sitting opens only after prior sittings are complete. Resume any open sitting first. Later chapters follow the same rule.
 - **Adaptive difficulty** is a policy over knowledge, performance, confidence, latency, and confusion — not accuracy percentage alone.
 
 ## Math, generation, offline
@@ -47,13 +47,13 @@ This file records the Architecture Lock. It is binding for implementation.
 - **Practice-exam stems stay in the local DB** and are not rendered in Library or committed to git.
 - **Video transcription and OCR are deferred** (Phase 10). Image-heavy form pages are stored as `needsOcr` placeholders.
 
-## Phase 4 complete (Chapters 1–3)
+## Phase 4 complete (Chapters 1–4)
 
-Hand-authored Agency learning assets with heading citations for Chapters 1–3. Rule-based planners build sequential ~20 minute sittings. Start session resumes an open sitting; otherwise advances Chapter 1 → 2 → 3. Progress lists those chapters. No quizzes, no 0% bars, no OpenAI client. `/` stays static for Vercel.
+Hand-authored learning assets with heading citations for Chapters 1–4. Rule-based planners build sequential ~20 minute sittings. Start session resumes an open sitting; otherwise advances Chapter 1 → 2 → 3 → 4. Progress lists those chapters. No quizzes, no 0% bars, no OpenAI client. `/` stays static for Vercel.
 
 ## Phase 4 boundaries (still in force)
 
-Do not invent Wisconsin facts. Do not extract Chapter 1–3 review into scored questions yet (Phase 5). Do not add photo miss intake, the live tutor, embeddings, or SRS. Do not import the 140-item practice exam into git. Chapters 4–14 sittings are not built yet.
+Do not invent Wisconsin facts. Do not extract Chapter 1–4 review into scored questions yet (Phase 5). Do not add photo miss intake, the live tutor, embeddings, or SRS. Do not import the 140-item practice exam into git. Chapters 5–14 sittings are not built yet.
 
 ## Phase 3 complete
 
@@ -65,7 +65,7 @@ Do not invent Wisconsin facts or concepts. Do not auto-extract remaining chapter
 
 ## Phase 2 complete
 
-Ingest PUB725 + Chapter 1–3 notes into `SourceDocument` / `SourceSection` with page citations. Chapters 12–14 are visible as book sections. Visual anchors are page-number placeholders.
+Ingest PUB725 + Chapter 1–4 notes into `SourceDocument` / `SourceSection` with page citations. Chapters 12–14 are visible as book sections. Visual anchors are page-number placeholders.
 
 ## Phase 2 boundaries (still in force)
 

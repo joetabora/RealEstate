@@ -149,6 +149,7 @@ export async function getSessionView(sessionId: string): Promise<SessionView | n
     const currentIndex = current
       ? session.items.findIndex((item) => item.id === current.id)
       : session.items.length;
+    const currentAsset = current?.asset ?? null;
 
     return {
       id: session.id,
@@ -160,7 +161,16 @@ export async function getSessionView(sessionId: string): Promise<SessionView | n
       recommendedNext: session.recommendedNext,
       currentIndex,
       total: session.items.length,
-      item: current && current.asset ? toItemView(current) : null,
+      item:
+        current && currentAsset
+          ? toItemView({
+              id: current.id,
+              kind: current.kind,
+              reasonCodes: current.reasonCodes,
+              concept: current.concept,
+              asset: currentAsset,
+            })
+          : null,
     };
   } catch {
     return null;

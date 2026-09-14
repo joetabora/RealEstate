@@ -10,8 +10,8 @@ export function ProgressHome({ data }: { data: ProgressData }) {
       <h1 className="mt-3 font-display text-4xl tracking-tight text-ink">Progress</h1>
       <p className="mt-4 max-w-2xl text-base leading-7 text-muted">
         Concepts are listed before you study them. Nothing is scored yet — there
-        are no 0% bars. Teach Me covers Chapters 1–12 in order; more chapters
-        follow the same path.
+        are no 0% bars. Teach Me covers Chapters 1–13 in order; Chapter 14
+        follows the same path.
       </p>
 
       {!data.databaseConnected ? (

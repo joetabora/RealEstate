@@ -57,6 +57,10 @@ export const CONCEPT_GROUPS = [
   "amendment-forms",
   "notice-release-forms",
   "option-sale-forms",
+  "contract-law-basics",
+  "contract-validity",
+  "contract-status",
+  "wi-contract-practice",
 ] as const;
 
 export type ConceptGroup = (typeof CONCEPT_GROUPS)[number];
@@ -176,6 +180,10 @@ export const CONCEPT_GROUP_LABELS: Record<ConceptGroup, string> = {
   "amendment-forms": "Amendment forms",
   "notice-release-forms": "Notice and release forms",
   "option-sale-forms": "Option and bill of sale",
+  "contract-law-basics": "Contract law basics",
+  "contract-validity": "Validity and conveyance",
+  "contract-status": "Status and termination",
+  "wi-contract-practice": "Wisconsin contract practice",
 };
 
 export const COURSE_CHAPTER_TITLES: Record<number, string> = {

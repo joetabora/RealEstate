@@ -11,6 +11,7 @@ import { PHASE4_CH9_ASSETS, PHASE4_CH9_SESSION_STEPS } from "./chapter9-assets";
 import { PHASE4_CH10_ASSETS, PHASE4_CH10_SESSION_STEPS } from "./chapter10-assets";
 import { PHASE4_CH11_ASSETS, PHASE4_CH11_SESSION_STEPS } from "./chapter11-assets";
 import { PHASE4_CH12_ASSETS, PHASE4_CH12_SESSION_STEPS } from "./chapter12-assets";
+import { PHASE4_CH13_ASSETS, PHASE4_CH13_SESSION_STEPS } from "./chapter13-assets";
 import {
   PLANNER_VERSION_CH1,
   PLANNER_VERSION_CH2,
@@ -24,6 +25,7 @@ import {
   PLANNER_VERSION_CH10,
   PLANNER_VERSION_CH11,
   PLANNER_VERSION_CH12,
+  PLANNER_VERSION_CH13,
   SESSION_TARGET_MINUTES,
   TEACH_ME_SITTINGS,
   type TeachMeSittingId,
@@ -48,7 +50,8 @@ type SessionSteps =
   | typeof PHASE4_CH9_SESSION_STEPS
   | typeof PHASE4_CH10_SESSION_STEPS
   | typeof PHASE4_CH11_SESSION_STEPS
-  | typeof PHASE4_CH12_SESSION_STEPS;
+  | typeof PHASE4_CH12_SESSION_STEPS
+  | typeof PHASE4_CH13_SESSION_STEPS;
 
 function planFromSteps(
   assets: PlannedAsset[],
@@ -218,6 +221,17 @@ export function planChapter12Session(assets: PlannedAsset[]): SessionDraft {
   );
 }
 
+/** Chapter 13 Contract Law sitting (`phase4-ch13-v1`). */
+export function planChapter13Session(assets: PlannedAsset[]): SessionDraft {
+  return planFromSteps(
+    assets,
+    PHASE4_CH13_SESSION_STEPS,
+    PHASE4_CH13_ASSETS.length,
+    "Contract law: construction, REEB 15, validity vs status, forms vs drafting tools",
+    PLANNER_VERSION_CH13,
+  );
+}
+
 export type TeachMeProgress = {
   completedPlannerVersions: ReadonlySet<string>;
 };
@@ -240,6 +254,7 @@ export function planTeachMeSitting(
   progress: TeachMeProgress,
 ): SessionDraft {
   const sitting = selectTeachMeSitting(progress);
+  if (sitting === "chapter13") return planChapter13Session(assets);
   if (sitting === "chapter12") return planChapter12Session(assets);
   if (sitting === "chapter11") return planChapter11Session(assets);
   if (sitting === "chapter10") return planChapter10Session(assets);

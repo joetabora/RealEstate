@@ -1,4 +1,4 @@
-import { CHAPTER_1_CONCEPTS } from "@/lib/knowledge/chapter1";
+import { ALL_CONCEPT_CATALOGS } from "@/lib/knowledge/seed";
 import { canonicalPairKey } from "@/lib/knowledge/types";
 import type { ConceptCitationSeed } from "@/lib/knowledge/types";
 import type { AssetKind, InformationClass } from "./types";
@@ -14,17 +14,22 @@ export type AssetSeed = {
   citationSlugs: readonly string[];
 };
 
-function citationsFor(slug: string): readonly ConceptCitationSeed[] {
-  const concept = CHAPTER_1_CONCEPTS.find((row) => row.slug === slug);
+export type AssetCitationSeed = ConceptCitationSeed & { chapterNumber: number };
+
+function citationsFor(slug: string): readonly AssetCitationSeed[] {
+  const concept = ALL_CONCEPT_CATALOGS.find((row) => row.slug === slug);
   if (!concept) {
-    throw new Error(`Asset citation slug is missing from Chapter 1: ${slug}`);
+    throw new Error(`Asset citation slug is missing from concept catalogs: ${slug}`);
   }
-  return concept.citations;
+  return concept.citations.map((citation) => ({
+    ...citation,
+    chapterNumber: concept.chapterNumber,
+  }));
 }
 
-export function citationsForAsset(asset: AssetSeed): ConceptCitationSeed[] {
+export function citationsForAsset(asset: AssetSeed): AssetCitationSeed[] {
   const seen = new Set<string>();
-  const citations: ConceptCitationSeed[] = [];
+  const citations: AssetCitationSeed[] = [];
   for (const slug of asset.citationSlugs) {
     for (const citation of citationsFor(slug)) {
       const key = `${citation.documentSlug}|${citation.heading}|${citation.pdfPage}`;

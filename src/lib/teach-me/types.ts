@@ -17,7 +17,25 @@ export const INFORMATION_CLASSES = [
 
 export type InformationClass = (typeof INFORMATION_CLASSES)[number];
 
-export const PLANNER_VERSION = "phase4-agency-v1";
+/** Chapter 1 Agency Relationships sitting. */
+export const PLANNER_VERSION_CH1 = "phase4-agency-v1";
+
+/** Chapter 2 Agency Issues sitting. */
+export const PLANNER_VERSION_CH2 = "phase4-ch2-v1";
+
+/** Ordered Teach Me sittings: finish Chapter 1 before Chapter 2 opens. */
+export const TEACH_ME_PLANNER_VERSIONS = [PLANNER_VERSION_CH1, PLANNER_VERSION_CH2] as const;
+
+/** @deprecated Prefer PLANNER_VERSION_CH1 — kept for older imports/tests. */
+export const PLANNER_VERSION = PLANNER_VERSION_CH1;
+
 export const SESSION_TARGET_MINUTES = 20;
 
 export type ConceptStudyState = "not_started" | "learning";
+
+export function sittingLabelForPlanner(plannerVersion: string | null | undefined): string {
+  if (plannerVersion === PLANNER_VERSION_CH2) {
+    return "Chapter 2 — Agency Issues";
+  }
+  return "Chapter 1 — Agency Relationships";
+}

@@ -5,6 +5,12 @@ export const CONCEPT_GROUPS = [
   "duties",
   "disclosure",
   "office",
+  "agency-creation",
+  "agency-contracts",
+  "termination",
+  "remedies",
+  "compensation",
+  "antitrust",
 ] as const;
 
 export type ConceptGroup = (typeof CONCEPT_GROUPS)[number];
@@ -16,7 +22,10 @@ export const RELATIONSHIP_KINDS = ["prerequisite", "part_of", "related"] as cons
 export type RelationshipKind = (typeof RELATIONSHIP_KINDS)[number];
 
 export type ConceptCitationSeed = {
-  documentSlug: "pub725-course-book" | "chapter-1-agency-notes";
+  documentSlug:
+    | "pub725-course-book"
+    | "chapter-1-agency-notes"
+    | "chapter-2-agency-issues-notes";
   heading: string;
   pdfPage: number;
   printedPage?: number;
@@ -26,7 +35,7 @@ export type ConceptCitationSeed = {
 export type ConceptSeed = {
   slug: string;
   name: string;
-  chapterNumber: 1;
+  chapterNumber: number;
   group: ConceptGroup;
   jurisdictionScope: JurisdictionScope;
   examCategoryCodes: readonly string[];
@@ -60,4 +69,27 @@ export const CONCEPT_GROUP_LABELS: Record<ConceptGroup, string> = {
   duties: "Duties",
   disclosure: "Agency disclosure",
   office: "The real estate office",
+  "agency-creation": "How agency is created",
+  "agency-contracts": "Agency contracts",
+  termination: "Ending agency",
+  remedies: "Breach and remedies",
+  compensation: "Commission and payment",
+  antitrust: "Antitrust",
+};
+
+export const COURSE_CHAPTER_TITLES: Record<number, string> = {
+  1: "Agency Relationships",
+  2: "Agency Issues",
+  3: "Agency Agreements",
+  4: "Disclosure Obligations",
+  5: "Fair Housing",
+  6: "Valuation",
+  7: "Real Property Ownership",
+  8: "Title of Real Estate",
+  9: "Land Use",
+  10: "Offers to Purchase",
+  11: "Financing",
+  12: "Other Approved Forms",
+  13: "Contract Law",
+  14: "Trust Accounts",
 };

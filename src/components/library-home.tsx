@@ -20,8 +20,8 @@ export function LibraryHome({
       <h1 className="mt-3 font-display text-4xl tracking-tight text-ink">Library</h1>
       <p className="mt-4 max-w-2xl text-base leading-7 text-muted">
         Cited course sections live here. Teach Me remains the home loop; this
-        is a source index, not a replacement for the book. Chapter 1 Agency
-        terms are listed on{" "}
+        is a source index, not a replacement for the book. Chapter concepts
+        are listed on{" "}
         <Link href="/progress" className="text-accent underline">
           Progress
         </Link>

@@ -9,11 +9,13 @@ export function SessionRunner({ session }: { session: SessionView }) {
         <p className="text-xs font-medium uppercase tracking-[0.16em] text-accent">
           Session complete
         </p>
-        <h1 className="mt-3 font-display text-4xl tracking-tight text-ink">Agency sitting done</h1>
+        <h1 className="mt-3 font-display text-4xl tracking-tight text-ink">
+          {session.sittingLabel} done
+        </h1>
         <p className="mt-4 text-base leading-7 text-muted">{session.objective}</p>
         <p className="mt-4 text-sm leading-6 text-muted">
           {session.recommendedNext ??
-            "Review Agency concepts on Progress. Sourced questions come in the next phase."}
+            "Review concepts on Progress. The next chapter sitting opens when you Start session again."}
         </p>
         <p className="mt-8 flex gap-4">
           <Link href="/" className="btn-primary">

@@ -2,7 +2,13 @@ import { prisma } from "@/lib/db/prisma";
 import { COURSE_EDITION_SEED } from "@/lib/blueprint";
 import { formatPageCitation } from "@/lib/ingest/citation";
 import { getLocalLearner } from "@/lib/learner";
-import { PLANNER_VERSION, type ConceptStudyState } from "./types";
+import {
+  PLANNER_VERSION_CH1,
+  PLANNER_VERSION_CH2,
+  TEACH_ME_PLANNER_VERSIONS,
+  sittingLabelForPlanner,
+  type ConceptStudyState,
+} from "./types";
 
 export type TeachMeLiveStatus = {
   databaseConnected: boolean;
@@ -10,6 +16,9 @@ export type TeachMeLiveStatus = {
   openSessionId: string | null;
   completedSessionCount: number;
   assetCount: number;
+  chapter1Complete: boolean;
+  nextSittingLabel: string;
+  nextSittingHint: string;
 };
 
 export type SessionView = {
@@ -17,6 +26,7 @@ export type SessionView = {
   objective: string;
   targetMinutes: number;
   plannerVersion: string;
+  sittingLabel: string;
   completed: boolean;
   recommendedNext: string | null;
   currentIndex: number;
@@ -57,7 +67,7 @@ export async function getTeachMeLiveStatus(): Promise<TeachMeLiveStatus> {
       where: {
         learnerId: learner.id,
         editionId: edition.id,
-        plannerVersion: PLANNER_VERSION,
+        plannerVersion: { in: [...TEACH_ME_PLANNER_VERSIONS] },
         completedAt: null,
       },
       orderBy: { startedAt: "desc" },
@@ -69,12 +79,38 @@ export async function getTeachMeLiveStatus(): Promise<TeachMeLiveStatus> {
         completedAt: { not: null },
       },
     });
+    const chapter1Complete = Boolean(
+      await prisma.learningSession.findFirst({
+        where: {
+          learnerId: learner.id,
+          editionId: edition.id,
+          plannerVersion: PLANNER_VERSION_CH1,
+          completedAt: { not: null },
+        },
+      }),
+    );
+
+    const nextVersion = open?.plannerVersion
+      ? open.plannerVersion
+      : chapter1Complete
+        ? PLANNER_VERSION_CH2
+        : PLANNER_VERSION_CH1;
+
     return {
       databaseConnected: true,
       canStart: assetCount > 0,
       openSessionId: open?.id ?? null,
       completedSessionCount,
       assetCount,
+      chapter1Complete,
+      nextSittingLabel: sittingLabelForPlanner(nextVersion),
+      nextSittingHint: chapter1Complete
+        ? open
+          ? "Resume Chapter 2 — Agency Issues."
+          : "Next: Agency Issues."
+        : open
+          ? "Resume Chapter 1 — Agency Relationships."
+          : "Start with Chapter 1 — Agency Relationships.",
     };
   } catch {
     return emptyStatus(false);
@@ -108,9 +144,10 @@ export async function getSessionView(sessionId: string): Promise<SessionView | n
 
     return {
       id: session.id,
-      objective: session.objective ?? "Agency session",
+      objective: session.objective ?? "Teach Me session",
       targetMinutes: session.targetMinutes ?? 20,
-      plannerVersion: session.plannerVersion ?? PLANNER_VERSION,
+      plannerVersion: session.plannerVersion ?? PLANNER_VERSION_CH1,
+      sittingLabel: sittingLabelForPlanner(session.plannerVersion),
       completed: session.completedAt != null,
       recommendedNext: session.recommendedNext,
       currentIndex,
@@ -164,6 +201,9 @@ function emptyStatus(databaseConnected: boolean): TeachMeLiveStatus {
     openSessionId: null,
     completedSessionCount: 0,
     assetCount: 0,
+    chapter1Complete: false,
+    nextSittingLabel: sittingLabelForPlanner(PLANNER_VERSION_CH1),
+    nextSittingHint: "Start with Chapter 1 — Agency Relationships.",
   };
 }
 

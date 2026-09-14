@@ -30,9 +30,9 @@ export function TeachMeHome({ data }: { data: TeachMeHomeData }) {
             Your session will be chosen for you.
           </h1>
           <p className="mt-4 max-w-xl text-base leading-7 text-muted">
-            You should not have to pick a chapter. Teach Me assembles a sourced
-            Agency sitting: overdue repairs later, exam-weighted new material
-            now. Wisconsin facts stay cited.
+            You should not have to pick a chapter. Teach Me runs sequential
+            sittings through the 14-chapter course — Chapter 1, then Chapter 2
+            (Agency Issues), then the rest. Wisconsin facts stay cited.
           </p>
         </header>
 
@@ -72,8 +72,8 @@ export function TeachMeHome({ data }: { data: TeachMeHomeData }) {
               scored items. {plannedStart.name} is the largest official category
               at {plannedStart.weight} items
               {plannedStart.code ? ` (section ${plannedStart.code})` : ""}.
-              Agency concepts from Chapter 1 are on Progress. Start session
-              runs a sourced path through the highest-confusion Agency pairs.
+              Progress lists Chapter 1 and Chapter 2 concepts. Start session
+              finishes Agency Relationships first, then opens Agency Issues.
             </p>
             <p className="mt-4 text-sm text-ink">
               This is an exam-blueprint recommendation, not a readiness score.

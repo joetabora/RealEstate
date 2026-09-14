@@ -2,7 +2,7 @@
 
 Personal learning system for the Wisconsin real estate **salesperson** exam. Teach Me is the home loop.
 
-This repository is **Phase 4**: a sourced Agency Teach Me session on top of ingestion and the Chapter 1 concept graph. Quizzes and class-miss photos are not in yet.
+This repository is **Phase 4**: sourced Teach Me sittings for **Chapter 1 then Chapter 2**, on top of ingestion and the concept graph. The product goal is all **14 chapters**. Quizzes and class-miss photos are not in yet.
 
 ## Requirements
 
@@ -26,7 +26,7 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000). Library is at [http://localhost:3000/library](http://localhost:3000/library). Progress is at [http://localhost:3000/progress](http://localhost:3000/progress).
 
-The second `npx prisma db seed` attaches Chapter 1 concepts and Agency teaching assets to ingested section IDs. `npm run ingest` also re-seeds those after writing sections.
+The second `npx prisma db seed` attaches Chapter 1–2 concepts and Teach Me assets to ingested section IDs. `npm run ingest` also re-seeds those after writing sections (PUB725 + Chapter 1–2 notes).
 
 The database listens on **localhost:5433** so it does not collide with a local Postgres on 5432.
 
@@ -35,15 +35,15 @@ If Docker Desktop is not running, the Teach Me shell still renders from the in-c
 ## What Phase 4 includes
 
 - Everything in Phase 1–3
-- Hand-authored Agency learning assets (explanation, simple language, scenario, comparison, teach-back, recall) with heading citations
-- A rule-based Teach Me planner for one Agency sitting
+- Hand-authored Chapter 1 and Chapter 2 learning assets (explanation, simple language, scenario, comparison, teach-back, recall) with heading citations
+- Sequential Teach Me planners: finish Chapter 1 (`phase4-agency-v1`) before Chapter 2 (`phase4-ch2-v1`)
 - Start session / Resume on the local database (`/` stays static for Vercel)
-- Progress may mark taught concepts as learning — still no 0% bars
+- Progress lists Chapters 1–2 and may mark taught concepts as learning — still no 0% bars
 - Architecture lock in [docs/decisions.md](docs/decisions.md)
 
 ## What Phase 4 does not include
 
-Quizzes, class-miss photo intake, tutor, math solver, exam simulator, embeddings, OpenAI, OCR, video, XP, authentication, auto-extracted concepts for chapters 2–14.
+Quizzes, class-miss photo intake, tutor, math solver, exam simulator, embeddings, OpenAI, OCR, video, XP, authentication, Teach Me sittings for chapters 3–14 (same loop comes next).
 
 ## What Phase 3 includes
 
@@ -56,7 +56,7 @@ Quizzes, class-miss photo intake, tutor, math solver, exam simulator, embeddings
 
 ## What Phase 3 does not include
 
-Quizzes, tutor, math solver, exam simulator, embeddings, OpenAI, OCR, video, XP, authentication, auto-extracted concepts for chapters 2–14. Teach Me sessions arrived in Phase 4.
+Quizzes, tutor, math solver, exam simulator, embeddings, OpenAI, OCR, video, XP, authentication, auto-extracted concepts for chapters 3–14. Teach Me sessions arrived in Phase 4.
 
 ## What Phase 2 includes
 
@@ -65,7 +65,7 @@ Quizzes, tutor, math solver, exam simulator, embeddings, OpenAI, OCR, video, XP,
 - Seeded `CourseEdition` `wra-sales-2024` and exam categories I–X (weights sum to 140)
 - Singleton local learner (`key = local`)
 - Teach Me empty state recommending Agency (32 items)
-- Ingest CLI for PUB725 + Chapter 1 notes
+- Ingest CLI for PUB725 + Chapter 1–2 notes
 - Layered `SourceDocument` / `SourceSection` records with page citations
 - Chapters 12–14 visible in Library (book-only; no chapter-folder notes)
 - VisualAnchor page-number placeholders (no OCR / page images)

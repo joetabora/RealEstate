@@ -4,10 +4,20 @@ export {
   DEFERRED_CONFUSION_PAIRS,
   WI_SCOPED_CHAPTER_1_SLUGS,
 } from "./chapter1";
-export { seedPhase3 } from "./seed";
+export {
+  CHAPTER_2_CONCEPTS,
+  CHAPTER_2_CONFUSION_PAIRS,
+  WI_SCOPED_CHAPTER_2_SLUGS,
+} from "./chapter2";
+export {
+  ALL_CONCEPT_CATALOGS,
+  ALL_CONFUSION_PAIR_CATALOGS,
+  seedPhase3,
+} from "./seed";
 export { getConceptDetail, getProgressData } from "./queries";
 export {
   CONCEPT_GROUP_LABELS,
+  COURSE_CHAPTER_TITLES,
   activateConfusionPairs,
   canonicalPairKey,
 } from "./types";

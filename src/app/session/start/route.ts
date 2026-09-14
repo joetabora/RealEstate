@@ -1,10 +1,10 @@
 import { redirect } from "next/navigation";
-import { startOrResumeAgencySession } from "@/lib/teach-me/session";
+import { startOrResumeTeachMeSession } from "@/lib/teach-me/session";
 
 export async function POST() {
   let sessionId: string | undefined;
   try {
-    const session = await startOrResumeAgencySession();
+    const session = await startOrResumeTeachMeSession();
     sessionId = session.id;
   } catch {
     redirect("/session/unavailable");

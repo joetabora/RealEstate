@@ -1,10 +1,13 @@
 import type { PrismaClient } from "@prisma/client";
 import { resolveCitedSectionId } from "@/lib/knowledge/seed";
-import { canonicalPairKey } from "@/lib/knowledge/types";
 import { citationsForAsset, PHASE4_ASSETS, pairKeyForAsset } from "./assets";
+import { PHASE4_CH2_ASSETS } from "./chapter2-assets";
+import type { AssetSeed } from "./assets";
+
+const ALL_TEACH_ME_ASSETS: readonly AssetSeed[] = [...PHASE4_ASSETS, ...PHASE4_CH2_ASSETS];
 
 export async function seedPhase4(prisma: PrismaClient, editionId: string) {
-  const catalogSlugs = PHASE4_ASSETS.map((asset) => asset.slug);
+  const catalogSlugs = ALL_TEACH_ME_ASSETS.map((asset) => asset.slug);
   const concepts = await prisma.concept.findMany({
     where: { editionId },
     select: { id: true, slug: true },
@@ -19,16 +22,16 @@ export async function seedPhase4(prisma: PrismaClient, editionId: string) {
 
   const assetIds = new Map<string, string>();
 
-  for (const [index, seed] of PHASE4_ASSETS.entries()) {
+  for (const [index, seed] of ALL_TEACH_ME_ASSETS.entries()) {
     const conceptId = seed.conceptSlug ? conceptIds.get(seed.conceptSlug) ?? null : null;
     if (seed.conceptSlug && !conceptId) {
-      throw new Error(`Concept ${seed.conceptSlug} is missing. Seed Chapter 1 knowledge first.`);
+      throw new Error(`Concept ${seed.conceptSlug} is missing. Seed knowledge catalogs first.`);
     }
 
     const pairKey = pairKeyForAsset(seed);
     const pairId = pairKey ? pairIds.get(pairKey) ?? null : null;
     if (pairKey && !pairId) {
-      throw new Error(`Confusion pair ${pairKey} is missing. Seed Chapter 1 knowledge first.`);
+      throw new Error(`Confusion pair ${pairKey} is missing. Seed knowledge catalogs first.`);
     }
 
     const row = await prisma.learningAsset.upsert({

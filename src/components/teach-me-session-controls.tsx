@@ -23,6 +23,9 @@ export function TeachMeSessionControls() {
             openSessionId: null,
             completedSessionCount: 0,
             assetCount: 0,
+            chapter1Complete: false,
+            nextSittingLabel: "Chapter 1 — Agency Relationships",
+            nextSittingHint: "Start with Chapter 1 — Agency Relationships.",
           });
         }
       });
@@ -33,17 +36,27 @@ export function TeachMeSessionControls() {
 
   const ready = status?.canStart === true;
   const resumeHref = status?.openSessionId ? `/session/${status.openSessionId}` : null;
+  const title = resumeHref
+    ? "Session in progress"
+    : status?.chapter1Complete
+      ? "Next: Agency Issues"
+      : "Agency Relationships";
+  const hint =
+    status?.nextSittingHint ??
+    "Start with Chapter 1 — Agency Relationships. After that sitting is complete, Teach Me opens Chapter 2.";
 
   return (
     <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
       <div>
-        <h2 className="font-display text-2xl text-ink">
-          {resumeHref ? "Session in progress" : "Agency session"}
-        </h2>
+        <h2 className="font-display text-2xl text-ink">{title}</h2>
         <p className="mt-2 max-w-lg text-sm leading-6 text-muted">
-          Today’s sitting is a sourced Agency path: client vs customer, designated
-          agency, and the two duty headings. No quizzes yet — you will learn,
-          compare, teach back, and recall.
+          {hint} Sourced learn / repair / teach-back / recall — no quizzes yet.
+          {status?.nextSittingLabel ? (
+            <>
+              {" "}
+              Sitting: <span className="text-ink">{status.nextSittingLabel}</span>.
+            </>
+          ) : null}
         </p>
         {status && !status.databaseConnected ? (
           <p className="mt-3 text-sm text-ink/80">

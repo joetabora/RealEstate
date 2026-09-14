@@ -2,7 +2,12 @@ import { prisma } from "@/lib/db/prisma";
 import { COURSE_EDITION_SEED } from "@/lib/blueprint";
 import { formatPageCitation } from "@/lib/ingest/citation";
 import { getLearningConceptIds, studyStateFor } from "@/lib/teach-me/queries";
-import { CONCEPT_GROUP_LABELS, type ConceptGroup, type JurisdictionScope } from "./types";
+import {
+  CONCEPT_GROUP_LABELS,
+  COURSE_CHAPTER_TITLES,
+  type ConceptGroup,
+  type JurisdictionScope,
+} from "./types";
 import type { ConceptStudyState } from "@/lib/teach-me/types";
 
 export type ConceptListItem = {
@@ -17,17 +22,23 @@ export type ConceptListItem = {
   state: ConceptStudyState;
 };
 
+export type ProgressChapter = {
+  chapterNumber: number;
+  title: string;
+  groups: Array<{
+    id: ConceptGroup;
+    label: string;
+    concepts: ConceptListItem[];
+  }>;
+};
+
 export type ProgressData = {
   databaseConnected: boolean;
   seeded: boolean;
   conceptCount: number;
   pairCount: number;
   learningCount: number;
-  groups: Array<{
-    id: ConceptGroup;
-    label: string;
-    concepts: ConceptListItem[];
-  }>;
+  chapters: ProgressChapter[];
 };
 
 export type ConceptDetailData = {
@@ -54,6 +65,21 @@ export type ConceptDetailData = {
     reason: string;
   }>;
 };
+
+const GROUP_ORDER: ConceptGroup[] = [
+  "roles",
+  "broker-definition",
+  "models",
+  "duties",
+  "disclosure",
+  "office",
+  "agency-creation",
+  "agency-contracts",
+  "termination",
+  "remedies",
+  "compensation",
+  "antitrust",
+];
 
 export async function getProgressData(): Promise<ProgressData> {
   try {
@@ -92,14 +118,22 @@ export async function getProgressData(): Promise<ProgressData> {
       };
     });
 
-    const groupOrder: ConceptGroup[] = [
-      "roles",
-      "broker-definition",
-      "models",
-      "duties",
-      "disclosure",
-      "office",
-    ];
+    const chapterNumbers = [...new Set(items.map((item) => item.chapterNumber))].sort(
+      (a, b) => a - b,
+    );
+
+    const chapters: ProgressChapter[] = chapterNumbers.map((chapterNumber) => {
+      const chapterItems = items.filter((item) => item.chapterNumber === chapterNumber);
+      return {
+        chapterNumber,
+        title: COURSE_CHAPTER_TITLES[chapterNumber] ?? `Chapter ${chapterNumber}`,
+        groups: GROUP_ORDER.map((id) => ({
+          id,
+          label: CONCEPT_GROUP_LABELS[id],
+          concepts: chapterItems.filter((item) => item.group === id),
+        })).filter((group) => group.concepts.length > 0),
+      };
+    });
 
     return {
       databaseConnected: true,
@@ -107,13 +141,7 @@ export async function getProgressData(): Promise<ProgressData> {
       conceptCount: items.length,
       pairCount,
       learningCount: items.filter((item) => item.state === "learning").length,
-      groups: groupOrder
-        .map((id) => ({
-          id,
-          label: CONCEPT_GROUP_LABELS[id],
-          concepts: items.filter((item) => item.group === id),
-        }))
-        .filter((group) => group.concepts.length > 0),
+      chapters,
     };
   } catch {
     return {
@@ -122,7 +150,7 @@ export async function getProgressData(): Promise<ProgressData> {
       conceptCount: 0,
       pairCount: 0,
       learningCount: 0,
-      groups: [],
+      chapters: [],
     };
   }
 }

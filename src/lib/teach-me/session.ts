@@ -1,10 +1,19 @@
 import { prisma } from "@/lib/db/prisma";
 import { COURSE_EDITION_SEED } from "@/lib/blueprint";
 import { getLocalLearner } from "@/lib/learner";
-import { planAgencySession } from "./planner";
-import { PLANNER_VERSION } from "./types";
+import { planTeachMeSitting } from "./planner";
+import {
+  PLANNER_VERSION_CH1,
+  PLANNER_VERSION_CH2,
+  TEACH_ME_PLANNER_VERSIONS,
+  sittingLabelForPlanner,
+} from "./types";
 
-export async function startOrResumeAgencySession() {
+/**
+ * Resume any open Teach Me sitting. Otherwise start Chapter 1 until that
+ * sitting is complete, then start Chapter 2.
+ */
+export async function startOrResumeTeachMeSession() {
   const edition = await prisma.courseEdition.findUnique({
     where: { slug: COURSE_EDITION_SEED.slug },
   });
@@ -17,7 +26,7 @@ export async function startOrResumeAgencySession() {
     where: {
       learnerId: learner.id,
       editionId: edition.id,
-      plannerVersion: PLANNER_VERSION,
+      plannerVersion: { in: [...TEACH_ME_PLANNER_VERSIONS] },
       completedAt: null,
     },
     orderBy: { startedAt: "desc" },
@@ -26,11 +35,27 @@ export async function startOrResumeAgencySession() {
     return open;
   }
 
+  const chapter1Complete = await prisma.learningSession.findFirst({
+    where: {
+      learnerId: learner.id,
+      editionId: edition.id,
+      plannerVersion: PLANNER_VERSION_CH1,
+      completedAt: { not: null },
+    },
+    orderBy: { completedAt: "desc" },
+  });
+
   const assets = await prisma.learningAsset.findMany({
     where: { editionId: edition.id, lifecycle: "active" },
     select: { id: true, slug: true, conceptId: true, pairId: true },
   });
-  const draft = planAgencySession(assets);
+
+  const draft = planTeachMeSitting(assets, Boolean(chapter1Complete));
+
+  const recommendedOnComplete =
+    draft.plannerVersion === PLANNER_VERSION_CH2
+      ? "Chapter 2 sitting complete. Review Agency Issues on Progress. Chapters 3–14 come next."
+      : "Chapter 1 sitting complete. Start session again for Chapter 2 — Agency Issues.";
 
   return prisma.learningSession.create({
     data: {
@@ -42,6 +67,7 @@ export async function startOrResumeAgencySession() {
       stateBefore: {
         plannerVersion: draft.plannerVersion,
         assetCount: draft.items.length,
+        sitting: sittingLabelForPlanner(draft.plannerVersion),
       },
       items: {
         create: draft.items.map((item) => ({
@@ -52,9 +78,13 @@ export async function startOrResumeAgencySession() {
           assetId: item.assetId ?? null,
         })),
       },
+      recommendedNext: recommendedOnComplete,
     },
   });
 }
+
+/** @deprecated Prefer startOrResumeTeachMeSession. */
+export const startOrResumeAgencySession = startOrResumeTeachMeSession;
 
 export async function completeSessionItem(sessionId: string, itemId: string) {
   const item = await prisma.sessionItem.findFirst({
@@ -74,13 +104,19 @@ export async function completeSessionItem(sessionId: string, itemId: string) {
     where: { sessionId, completedAt: null },
   });
   if (remaining === 0) {
+    const session = await prisma.learningSession.findUnique({ where: { id: sessionId } });
+    const recommendedNext =
+      session?.plannerVersion === PLANNER_VERSION_CH2
+        ? "Chapter 2 sitting complete. Review Agency Issues on Progress. Chapters 3–14 come next."
+        : "Chapter 1 sitting complete. Start session again for Chapter 2 — Agency Issues.";
+
     await prisma.learningSession.update({
       where: { id: sessionId },
       data: {
         completedAt: new Date(),
-        recommendedNext: "Review Agency concepts on Progress. Sourced questions come in the next phase.",
+        recommendedNext,
         stateAfter: {
-          plannerVersion: PLANNER_VERSION,
+          plannerVersion: session?.plannerVersion ?? PLANNER_VERSION_CH1,
           completed: true,
         },
       },

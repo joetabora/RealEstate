@@ -1,53 +1,75 @@
 import type { PrismaClient } from "@prisma/client";
 import { CHAPTER_1_CONCEPTS, CHAPTER_1_CONFUSION_PAIRS } from "./chapter1";
+import { CHAPTER_2_CONCEPTS, CHAPTER_2_CONFUSION_PAIRS } from "./chapter2";
 import { activateConfusionPairs, canonicalPairKey } from "./types";
+import type { ConceptSeed, ConfusionPairSeed } from "./types";
+
+export const ALL_CONCEPT_CATALOGS: readonly ConceptSeed[] = [
+  ...CHAPTER_1_CONCEPTS,
+  ...CHAPTER_2_CONCEPTS,
+];
+
+export const ALL_CONFUSION_PAIR_CATALOGS: readonly ConfusionPairSeed[] = [
+  ...CHAPTER_1_CONFUSION_PAIRS,
+  ...CHAPTER_2_CONFUSION_PAIRS,
+];
+
+const CHAPTER_CATALOGS: ReadonlyArray<{
+  chapterNumber: number;
+  concepts: readonly ConceptSeed[];
+}> = [
+  { chapterNumber: 1, concepts: CHAPTER_1_CONCEPTS },
+  { chapterNumber: 2, concepts: CHAPTER_2_CONCEPTS },
+];
 
 export async function seedPhase3(prisma: PrismaClient, editionId: string) {
   const examCategories = await prisma.examCategory.findMany({
     where: { editionId },
   });
   const categoryByCode = new Map(examCategories.map((row) => [row.code, row.id]));
-  const catalogSlugs = CHAPTER_1_CONCEPTS.map((concept) => concept.slug);
-
   const conceptIds = new Map<string, string>();
 
-  for (const [index, seed] of CHAPTER_1_CONCEPTS.entries()) {
-    const row = await prisma.concept.upsert({
-      where: {
-        editionId_slug: {
+  for (const catalog of CHAPTER_CATALOGS) {
+    const catalogSlugs = catalog.concepts.map((concept) => concept.slug);
+
+    for (const [index, seed] of catalog.concepts.entries()) {
+      const row = await prisma.concept.upsert({
+        where: {
+          editionId_slug: {
+            editionId,
+            slug: seed.slug,
+          },
+        },
+        create: {
           editionId,
           slug: seed.slug,
+          name: seed.name,
+          chapterNumber: seed.chapterNumber,
+          group: seed.group,
+          jurisdictionScope: seed.jurisdictionScope,
+          sortOrder: index + 1,
         },
-      },
-      create: {
+        update: {
+          name: seed.name,
+          chapterNumber: seed.chapterNumber,
+          group: seed.group,
+          jurisdictionScope: seed.jurisdictionScope,
+          sortOrder: index + 1,
+        },
+      });
+      conceptIds.set(seed.slug, row.id);
+    }
+
+    await prisma.concept.deleteMany({
+      where: {
         editionId,
-        slug: seed.slug,
-        name: seed.name,
-        chapterNumber: seed.chapterNumber,
-        group: seed.group,
-        jurisdictionScope: seed.jurisdictionScope,
-        sortOrder: index + 1,
-      },
-      update: {
-        name: seed.name,
-        chapterNumber: seed.chapterNumber,
-        group: seed.group,
-        jurisdictionScope: seed.jurisdictionScope,
-        sortOrder: index + 1,
+        chapterNumber: catalog.chapterNumber,
+        slug: { notIn: catalogSlugs },
       },
     });
-    conceptIds.set(seed.slug, row.id);
   }
 
-  await prisma.concept.deleteMany({
-    where: {
-      editionId,
-      chapterNumber: 1,
-      slug: { notIn: catalogSlugs },
-    },
-  });
-
-  for (const seed of CHAPTER_1_CONCEPTS) {
+  for (const seed of ALL_CONCEPT_CATALOGS) {
     const rowId = conceptIds.get(seed.slug);
     if (!rowId) continue;
 
@@ -65,7 +87,10 @@ export async function seedPhase3(prisma: PrismaClient, editionId: string) {
     }
 
     for (const citation of seed.citations) {
-      const sectionId = await resolveCitedSectionId(prisma, citation);
+      const sectionId = await resolveCitedSectionId(prisma, {
+        ...citation,
+        chapterNumber: seed.chapterNumber,
+      });
       await prisma.conceptCitation.create({
         data: {
           conceptId: rowId,
@@ -80,12 +105,12 @@ export async function seedPhase3(prisma: PrismaClient, editionId: string) {
     }
   }
 
-  const chapter1Ids = [...conceptIds.values()];
+  const allIds = [...conceptIds.values()];
   await prisma.conceptRelationship.deleteMany({
-    where: { fromConceptId: { in: chapter1Ids } },
+    where: { fromConceptId: { in: allIds } },
   });
 
-  for (const seed of CHAPTER_1_CONCEPTS) {
+  for (const seed of ALL_CONCEPT_CATALOGS) {
     const fromId = conceptIds.get(seed.slug);
     if (!fromId) continue;
 
@@ -115,8 +140,8 @@ export async function seedPhase3(prisma: PrismaClient, editionId: string) {
   });
 
   const activePairs = activateConfusionPairs(
-    CHAPTER_1_CONCEPTS.map((concept) => concept.slug),
-    CHAPTER_1_CONFUSION_PAIRS,
+    ALL_CONCEPT_CATALOGS.map((concept) => concept.slug),
+    ALL_CONFUSION_PAIR_CATALOGS,
   );
 
   for (const pair of activePairs) {
@@ -153,13 +178,13 @@ export async function seedPhase3(prisma: PrismaClient, editionId: string) {
 
 export async function resolveCitedSectionId(
   prisma: PrismaClient,
-  citation: { documentSlug: string; heading: string },
+  citation: { documentSlug: string; heading: string; chapterNumber?: number },
 ): Promise<string | null> {
   const sections = await prisma.sourceSection.findMany({
     where: {
       document: { slug: citation.documentSlug },
       kind: { not: "chapter" },
-      chapterNumber: 1,
+      ...(citation.chapterNumber != null ? { chapterNumber: citation.chapterNumber } : {}),
       NOT: { heading: { contains: "(cont.)" } },
     },
     select: { id: true, heading: true },

@@ -1,3 +1,14 @@
+import {
+  CHAPTER_1_NOTES_PART,
+  CHAPTER_2_NOTES_PART,
+  CHAPTER_NOTES_PARTS,
+  BLUEPRINT_SOURCE_PART,
+  editionDefaults,
+  PUB725_EFFECTIVE_AT,
+  PUB725_PARTS,
+  PUB725_RELATIVE_PATH,
+  printedPageForPdfPage,
+} from "./catalog";
 import { access } from "node:fs/promises";
 import path from "node:path";
 import type { PrismaClient } from "@prisma/client";
@@ -5,15 +16,6 @@ import { SALESPERSON_EXAM_CATEGORIES } from "@/lib/blueprint";
 import { seedPhase1 } from "@/lib/db/seed";
 import { seedPhase3 } from "@/lib/knowledge/seed";
 import { seedPhase4 } from "@/lib/teach-me/seed";
-import {
-  BLUEPRINT_SOURCE_PART,
-  CHAPTER_1_NOTES_PART,
-  editionDefaults,
-  PUB725_EFFECTIVE_AT,
-  PUB725_PARTS,
-  PUB725_RELATIVE_PATH,
-  printedPageForPdfPage,
-} from "./catalog";
 import { extractPdfPages, resolveSourceFile, sha256Hex } from "./pdf-text";
 import { persistDocuments } from "./persist";
 import { buildSections } from "./sections";
@@ -28,14 +30,18 @@ export async function ingestPhase2(
   sourceRoot: string,
 ): Promise<IngestSummary> {
   await assertReadable(resolveSourceFile(sourceRoot, PUB725_RELATIVE_PATH));
-  await assertReadable(resolveSourceFile(sourceRoot, CHAPTER_1_NOTES_PART.relativePath));
+  for (const notes of CHAPTER_NOTES_PARTS) {
+    await assertReadable(resolveSourceFile(sourceRoot, notes.relativePath));
+  }
 
   const { edition } = await seedPhase1(prisma);
   const documents: BuiltDocument[] = [];
 
   documents.push(buildBlueprintDocument(edition.jurisdiction));
   documents.push(...(await ingestPub725(sourceRoot, edition.jurisdiction)));
-  documents.push(await ingestChapter1Notes(sourceRoot, edition.jurisdiction));
+  for (const notes of CHAPTER_NOTES_PARTS) {
+    documents.push(await ingestChapterNotes(sourceRoot, edition.jurisdiction, notes));
+  }
 
   const summary = await persistDocuments(prisma, edition.id, documents);
   await seedPhase3(prisma, edition.id);
@@ -84,11 +90,12 @@ async function ingestPub725(sourceRoot: string, jurisdiction: string): Promise<B
   });
 }
 
-async function ingestChapter1Notes(
+async function ingestChapterNotes(
   sourceRoot: string,
   jurisdiction: string,
+  part: typeof CHAPTER_1_NOTES_PART | typeof CHAPTER_2_NOTES_PART,
 ): Promise<BuiltDocument> {
-  const relativePath = CHAPTER_1_NOTES_PART.relativePath;
+  const relativePath = part.relativePath;
   const filePath = resolveSourceFile(sourceRoot, relativePath);
   const data = await readPdf(filePath);
   const { pages, headings } = await extractPdfPages(data, () => null);
@@ -96,16 +103,16 @@ async function ingestChapter1Notes(
   const sections = buildSections({
     pages,
     headings,
-    defaultHeading: CHAPTER_1_NOTES_PART.title,
+    defaultHeading: part.title,
     injectChapters: false,
-    chapterNumber: CHAPTER_1_NOTES_PART.chapterNumber,
-    chapterTitle: CHAPTER_1_NOTES_PART.chapterTitle,
+    chapterNumber: part.chapterNumber,
+    chapterTitle: part.chapterTitle,
   });
 
   return {
-    slug: CHAPTER_1_NOTES_PART.slug,
-    title: CHAPTER_1_NOTES_PART.title,
-    layer: CHAPTER_1_NOTES_PART.layer,
+    slug: part.slug,
+    title: part.title,
+    layer: part.layer,
     authority: "educational",
     jurisdiction,
     relativePath,

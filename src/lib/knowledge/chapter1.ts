@@ -593,9 +593,8 @@ export const CHAPTER_1_CONFUSION_PAIRS: readonly ConfusionPairSeed[] = [
 
 /** Locked pairs that wait until later chapters exist as concepts. */
 export const DEFERRED_CONFUSION_PAIRS: readonly ConfusionPairSeed[] = [
-  { a: "appraised-value", b: "assessed-value", reason: "Not in Chapter 1 headings." },
-  { a: "easement", b: "license", reason: "Not in Chapter 1 headings." },
-  { a: "exclusive-agency", b: "exclusive-right-to-sell", reason: "Not in Chapter 1 headings." },
+  { a: "appraised-value", b: "assessed-value", reason: "Not in Chapter 1–2 headings." },
+  { a: "easement", b: "license", reason: "Not in Chapter 1–2 headings." },
 ];
 
 export const WI_SCOPED_CHAPTER_1_SLUGS = CHAPTER_1_CONCEPTS.filter(

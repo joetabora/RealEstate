@@ -8,6 +8,8 @@ import { INGEST_VERSION, type SourceAuthority, type SourceLayer } from "./types"
 export const PUB725_RELATIVE_PATH = "Course/PUB725_July_2024.pdf";
 export const CHAPTER_1_NOTES_RELATIVE_PATH =
   "Course/Chapter1/Chapter 1 Agency relationships.pdf";
+export const CHAPTER_2_NOTES_RELATIVE_PATH =
+  "Course/Chapter2/Chapter 2 Agency Issues.pdf";
 
 /** Inspected: printed page 1 is PDF page 5; the offset holds through the math appendix. */
 export const PUB725_PRINTED_PAGE_OFFSET = 4;
@@ -100,6 +102,18 @@ export const CHAPTER_1_NOTES_PART = {
   chapterTitle: "Agency Relationships",
 } as const;
 
+export const CHAPTER_2_NOTES_PART = {
+  slug: "chapter-2-agency-issues-notes",
+  title: "Chapter 2 notes — Agency issues",
+  layer: "chapter_notes" as SourceLayer,
+  relativePath: CHAPTER_2_NOTES_RELATIVE_PATH,
+  hideBodyInUi: false,
+  chapterNumber: 2,
+  chapterTitle: "Agency Issues",
+} as const;
+
+export const CHAPTER_NOTES_PARTS = [CHAPTER_1_NOTES_PART, CHAPTER_2_NOTES_PART] as const;
+
 export const BLUEPRINT_SOURCE_PART = {
   slug: "pearson-salesperson-outline",
   title: "Pearson VUE Wisconsin salesperson content outline",
@@ -156,5 +170,9 @@ export function editionDefaults() {
 }
 
 export function requiredSourceFiles(): string[] {
-  return [PUB725_RELATIVE_PATH, CHAPTER_1_NOTES_RELATIVE_PATH];
+  return [
+    PUB725_RELATIVE_PATH,
+    CHAPTER_1_NOTES_RELATIVE_PATH,
+    CHAPTER_2_NOTES_RELATIVE_PATH,
+  ];
 }

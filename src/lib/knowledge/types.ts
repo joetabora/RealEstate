@@ -31,6 +31,13 @@ export const CONCEPT_GROUPS = [
   "co-ownership",
   "wi-ownership",
   "special-ownership",
+  "title-transfer",
+  "deeds",
+  "wi-title",
+  "encumbrances",
+  "liens",
+  "title-tax",
+  "title-evidence",
 ] as const;
 
 export type ConceptGroup = (typeof CONCEPT_GROUPS)[number];
@@ -50,7 +57,8 @@ export type ConceptCitationSeed = {
     | "chapter-4-disclosure-obligations-notes"
     | "chapter-5-fair-housing-notes"
     | "chapter-6-valuation-notes"
-    | "chapter-7-ownership-notes";
+    | "chapter-7-ownership-notes"
+    | "chapter-8-title-notes";
   heading: string;
   pdfPage: number;
   printedPage?: number;
@@ -120,6 +128,13 @@ export const CONCEPT_GROUP_LABELS: Record<ConceptGroup, string> = {
   "co-ownership": "Forms of ownership",
   "wi-ownership": "Wisconsin marital property",
   "special-ownership": "Condo, coop, and time-share",
+  "title-transfer": "Transfer of title",
+  deeds: "Deeds",
+  "wi-title": "Wisconsin title transfer",
+  encumbrances: "Encumbrances",
+  liens: "Liens",
+  "title-tax": "Tax calculations",
+  "title-evidence": "Evidence of title",
 };
 
 export const COURSE_CHAPTER_TITLES: Record<number, string> = {

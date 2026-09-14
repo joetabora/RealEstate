@@ -32,6 +32,9 @@ export const PLANNER_VERSION_CH4 = "phase4-ch4-v1";
 /** Chapter 5 Fair Housing sitting. */
 export const PLANNER_VERSION_CH5 = "phase4-ch5-v1";
 
+/** Chapter 6 Valuation sitting. */
+export const PLANNER_VERSION_CH6 = "phase4-ch6-v1";
+
 export const TEACH_ME_SITTINGS = [
   {
     id: "chapter1" as const,
@@ -62,6 +65,12 @@ export const TEACH_ME_SITTINGS = [
     plannerVersion: PLANNER_VERSION_CH5,
     label: "Chapter 5 — Fair Housing",
     shortNext: "Fair Housing",
+  },
+  {
+    id: "chapter6" as const,
+    plannerVersion: PLANNER_VERSION_CH6,
+    label: "Chapter 6 — Valuation",
+    shortNext: "Valuation",
   },
 ] as const;
 
@@ -102,7 +111,7 @@ export function recommendedNextForPlanner(plannerVersion: string | null | undefi
   const current = TEACH_ME_SITTINGS[Math.max(index, 0)];
   const next = index >= 0 ? TEACH_ME_SITTINGS[index + 1] : undefined;
   if (!next) {
-    return `${current.label} sitting complete. Review on Progress. Chapters 6–14 come next.`;
+    return `${current.label} sitting complete. Review on Progress. Chapters 7–14 come next.`;
   }
   return `${current.label} sitting complete. Start session again for ${next.label}.`;
 }

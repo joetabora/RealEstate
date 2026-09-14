@@ -23,6 +23,8 @@ export const CONCEPT_GROUPS = [
   "fair-housing",
   "fair-housing-practice",
   "disability-access",
+  "valuation",
+  "valuation-approach",
 ] as const;
 
 export type ConceptGroup = (typeof CONCEPT_GROUPS)[number];
@@ -40,7 +42,8 @@ export type ConceptCitationSeed = {
     | "chapter-2-agency-issues-notes"
     | "chapter-3-agency-agreements-notes"
     | "chapter-4-disclosure-obligations-notes"
-    | "chapter-5-fair-housing-notes";
+    | "chapter-5-fair-housing-notes"
+    | "chapter-6-valuation-notes";
   heading: string;
   pdfPage: number;
   printedPage?: number;
@@ -102,6 +105,8 @@ export const CONCEPT_GROUP_LABELS: Record<ConceptGroup, string> = {
   "fair-housing": "Fair housing law",
   "fair-housing-practice": "Fair housing practice",
   "disability-access": "ADA / disability access",
+  valuation: "Valuation",
+  "valuation-approach": "Approaches to value",
 };
 
 export const COURSE_CHAPTER_TITLES: Record<number, string> = {

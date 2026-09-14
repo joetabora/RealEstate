@@ -7,6 +7,7 @@ export {
   planChapter3Session,
   planChapter4Session,
   planChapter5Session,
+  planChapter6Session,
   planTeachMeSitting,
   selectTeachMeSitting,
 } from "./planner";
@@ -15,6 +16,7 @@ export { PHASE4_CH2_ASSETS, PHASE4_CH2_SESSION_STEPS } from "./chapter2-assets";
 export { PHASE4_CH3_ASSETS, PHASE4_CH3_SESSION_STEPS } from "./chapter3-assets";
 export { PHASE4_CH4_ASSETS, PHASE4_CH4_SESSION_STEPS } from "./chapter4-assets";
 export { PHASE4_CH5_ASSETS, PHASE4_CH5_SESSION_STEPS } from "./chapter5-assets";
+export { PHASE4_CH6_ASSETS, PHASE4_CH6_SESSION_STEPS } from "./chapter6-assets";
 export {
   PLANNER_VERSION,
   PLANNER_VERSION_CH1,
@@ -22,6 +24,7 @@ export {
   PLANNER_VERSION_CH3,
   PLANNER_VERSION_CH4,
   PLANNER_VERSION_CH5,
+  PLANNER_VERSION_CH6,
   TEACH_ME_PLANNER_VERSIONS,
   TEACH_ME_SITTINGS,
 } from "./types";

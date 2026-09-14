@@ -16,6 +16,8 @@ export const CHAPTER_4_NOTES_RELATIVE_PATH =
   "Course/Chapter4/Chapter 4 Disclosure Obligations.pdf";
 export const CHAPTER_5_NOTES_RELATIVE_PATH =
   "Course/Chapter5/Chapter 5 Fair Housing.pdf";
+export const CHAPTER_6_NOTES_RELATIVE_PATH =
+  "Course/Chapter6/Chapter 6 Valuation.pdf";
 
 /** Inspected: printed page 1 is PDF page 5; the offset holds through the math appendix. */
 export const PUB725_PRINTED_PAGE_OFFSET = 4;
@@ -148,12 +150,23 @@ export const CHAPTER_5_NOTES_PART = {
   chapterTitle: "Fair Housing",
 } as const;
 
+export const CHAPTER_6_NOTES_PART = {
+  slug: "chapter-6-valuation-notes",
+  title: "Chapter 6 notes — Valuation",
+  layer: "chapter_notes" as SourceLayer,
+  relativePath: CHAPTER_6_NOTES_RELATIVE_PATH,
+  hideBodyInUi: false,
+  chapterNumber: 6,
+  chapterTitle: "Valuation",
+} as const;
+
 export const CHAPTER_NOTES_PARTS = [
   CHAPTER_1_NOTES_PART,
   CHAPTER_2_NOTES_PART,
   CHAPTER_3_NOTES_PART,
   CHAPTER_4_NOTES_PART,
   CHAPTER_5_NOTES_PART,
+  CHAPTER_6_NOTES_PART,
 ] as const;
 
 export const BLUEPRINT_SOURCE_PART = {
@@ -219,5 +232,6 @@ export function requiredSourceFiles(): string[] {
     CHAPTER_3_NOTES_RELATIVE_PATH,
     CHAPTER_4_NOTES_RELATIVE_PATH,
     CHAPTER_5_NOTES_RELATIVE_PATH,
+    CHAPTER_6_NOTES_RELATIVE_PATH,
   ];
 }

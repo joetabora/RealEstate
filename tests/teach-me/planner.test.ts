@@ -1,18 +1,19 @@
 import { describe, expect, it } from "vitest";
 import {
   planAgencySession,
-  planChapter5Session,
+  planChapter6Session,
   planTeachMeSitting,
   selectTeachMeSitting,
 } from "@/lib/teach-me/planner";
 import { PHASE4_SESSION_STEPS } from "@/lib/teach-me/assets";
-import { PHASE4_CH5_SESSION_STEPS } from "@/lib/teach-me/chapter5-assets";
+import { PHASE4_CH6_SESSION_STEPS } from "@/lib/teach-me/chapter6-assets";
 import {
   PLANNER_VERSION_CH1,
   PLANNER_VERSION_CH2,
   PLANNER_VERSION_CH3,
   PLANNER_VERSION_CH4,
   PLANNER_VERSION_CH5,
+  PLANNER_VERSION_CH6,
 } from "@/lib/teach-me/types";
 
 describe("Teach Me sequential planner", () => {
@@ -35,31 +36,33 @@ describe("Teach Me sequential planner", () => {
           PLANNER_VERSION_CH2,
           PLANNER_VERSION_CH3,
           PLANNER_VERSION_CH4,
+          PLANNER_VERSION_CH5,
         ]),
       }),
-    ).toBe("chapter5");
+    ).toBe("chapter6");
   });
 
-  it("does not open Chapter 5 while Chapter 4 is incomplete", () => {
+  it("does not open Chapter 6 while Chapter 5 is incomplete", () => {
     expect(
       selectTeachMeSitting({
         completedPlannerVersions: new Set([
           PLANNER_VERSION_CH1,
           PLANNER_VERSION_CH2,
           PLANNER_VERSION_CH3,
+          PLANNER_VERSION_CH4,
         ]),
       }),
-    ).toBe("chapter4");
+    ).toBe("chapter5");
   });
 
-  it("starts Chapter 5 after Chapters 1–4 are complete", () => {
-    const assets = PHASE4_CH5_SESSION_STEPS.map((step, index) => ({
+  it("starts Chapter 6 after Chapters 1–5 are complete", () => {
+    const assets = PHASE4_CH6_SESSION_STEPS.map((step, index) => ({
       slug: step.assetSlug,
-      id: `ch5-${index}`,
+      id: `ch6-${index}`,
       conceptId: null,
       pairId: null,
     }));
-    expect(planChapter5Session(assets).plannerVersion).toBe(PLANNER_VERSION_CH5);
+    expect(planChapter6Session(assets).plannerVersion).toBe(PLANNER_VERSION_CH6);
     expect(
       planTeachMeSitting(assets, {
         completedPlannerVersions: new Set([
@@ -67,10 +70,11 @@ describe("Teach Me sequential planner", () => {
           PLANNER_VERSION_CH2,
           PLANNER_VERSION_CH3,
           PLANNER_VERSION_CH4,
+          PLANNER_VERSION_CH5,
         ]),
       }).plannerVersion,
-    ).toBe(PLANNER_VERSION_CH5);
-    expect(planChapter5Session(assets).items).toHaveLength(PHASE4_CH5_SESSION_STEPS.length);
+    ).toBe(PLANNER_VERSION_CH6);
+    expect(planChapter6Session(assets).items).toHaveLength(PHASE4_CH6_SESSION_STEPS.length);
   });
 
   it("throws when a required Chapter 1 asset was not seeded", () => {

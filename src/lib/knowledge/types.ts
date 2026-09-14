@@ -52,6 +52,11 @@ export const CONCEPT_GROUPS = [
   "mortgage-markets",
   "mortgage-math",
   "financing-law",
+  "other-forms-basics",
+  "counter-forms",
+  "amendment-forms",
+  "notice-release-forms",
+  "option-sale-forms",
 ] as const;
 
 export type ConceptGroup = (typeof CONCEPT_GROUPS)[number];
@@ -166,6 +171,11 @@ export const CONCEPT_GROUP_LABELS: Record<ConceptGroup, string> = {
   "mortgage-markets": "Primary and secondary markets",
   "mortgage-math": "Mortgage payment calculations",
   "financing-law": "Financing legislation",
+  "other-forms-basics": "Other approved forms",
+  "counter-forms": "Counter-offer forms",
+  "amendment-forms": "Amendment forms",
+  "notice-release-forms": "Notice and release forms",
+  "option-sale-forms": "Option and bill of sale",
 };
 
 export const COURSE_CHAPTER_TITLES: Record<number, string> = {

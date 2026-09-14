@@ -50,6 +50,9 @@ export const PLANNER_VERSION_CH10 = "phase4-ch10-v1";
 /** Chapter 11 Financing sitting. */
 export const PLANNER_VERSION_CH11 = "phase4-ch11-v1";
 
+/** Chapter 12 Other Approved Forms sitting. */
+export const PLANNER_VERSION_CH12 = "phase4-ch12-v1";
+
 export const TEACH_ME_SITTINGS = [
   {
     id: "chapter1" as const,
@@ -117,6 +120,12 @@ export const TEACH_ME_SITTINGS = [
     label: "Chapter 11 — Financing",
     shortNext: "Financing",
   },
+  {
+    id: "chapter12" as const,
+    plannerVersion: PLANNER_VERSION_CH12,
+    label: "Chapter 12 — Other Approved Forms",
+    shortNext: "Other Approved Forms",
+  },
 ] as const;
 
 export type TeachMeSittingId = (typeof TEACH_ME_SITTINGS)[number]["id"];
@@ -156,7 +165,7 @@ export function recommendedNextForPlanner(plannerVersion: string | null | undefi
   const current = TEACH_ME_SITTINGS[Math.max(index, 0)];
   const next = index >= 0 ? TEACH_ME_SITTINGS[index + 1] : undefined;
   if (!next) {
-    return `${current.label} sitting complete. Review on Progress. Chapters 12–14 come next.`;
+    return `${current.label} sitting complete. Review on Progress. Chapters 13–14 come next.`;
   }
   return `${current.label} sitting complete. Start session again for ${next.label}.`;
 }

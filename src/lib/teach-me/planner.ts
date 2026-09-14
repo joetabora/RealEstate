@@ -10,6 +10,7 @@ import { PHASE4_CH8_ASSETS, PHASE4_CH8_SESSION_STEPS } from "./chapter8-assets";
 import { PHASE4_CH9_ASSETS, PHASE4_CH9_SESSION_STEPS } from "./chapter9-assets";
 import { PHASE4_CH10_ASSETS, PHASE4_CH10_SESSION_STEPS } from "./chapter10-assets";
 import { PHASE4_CH11_ASSETS, PHASE4_CH11_SESSION_STEPS } from "./chapter11-assets";
+import { PHASE4_CH12_ASSETS, PHASE4_CH12_SESSION_STEPS } from "./chapter12-assets";
 import {
   PLANNER_VERSION_CH1,
   PLANNER_VERSION_CH2,
@@ -22,6 +23,7 @@ import {
   PLANNER_VERSION_CH9,
   PLANNER_VERSION_CH10,
   PLANNER_VERSION_CH11,
+  PLANNER_VERSION_CH12,
   SESSION_TARGET_MINUTES,
   TEACH_ME_SITTINGS,
   type TeachMeSittingId,
@@ -45,7 +47,8 @@ type SessionSteps =
   | typeof PHASE4_CH8_SESSION_STEPS
   | typeof PHASE4_CH9_SESSION_STEPS
   | typeof PHASE4_CH10_SESSION_STEPS
-  | typeof PHASE4_CH11_SESSION_STEPS;
+  | typeof PHASE4_CH11_SESSION_STEPS
+  | typeof PHASE4_CH12_SESSION_STEPS;
 
 function planFromSteps(
   assets: PlannedAsset[],
@@ -204,6 +207,17 @@ export function planChapter11Session(assets: PlannedAsset[]): SessionDraft {
   );
 }
 
+/** Chapter 12 Other Approved Forms sitting (`phase4-ch12-v1`). */
+export function planChapter12Session(assets: PlannedAsset[]): SessionDraft {
+  return planFromSteps(
+    assets,
+    PHASE4_CH12_SESSION_STEPS,
+    PHASE4_CH12_ASSETS.length,
+    "Other forms: WB-44/46 counters, WB-40/41/42 amendments & notice, WB-45/24/25",
+    PLANNER_VERSION_CH12,
+  );
+}
+
 export type TeachMeProgress = {
   completedPlannerVersions: ReadonlySet<string>;
 };
@@ -226,6 +240,7 @@ export function planTeachMeSitting(
   progress: TeachMeProgress,
 ): SessionDraft {
   const sitting = selectTeachMeSitting(progress);
+  if (sitting === "chapter12") return planChapter12Session(assets);
   if (sitting === "chapter11") return planChapter11Session(assets);
   if (sitting === "chapter10") return planChapter10Session(assets);
   if (sitting === "chapter9") return planChapter9Session(assets);

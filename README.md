@@ -35,14 +35,14 @@ If Docker Desktop is not running, the Teach Me shell still renders from the in-c
 ## What Phase 5 includes
 
 - Everything in Phase 1–4
-- Hand-authored Chapter 1–3 Agency / Agency Agreements MCQs from seeded confusion pairs, with heading citations
+- Hand-authored Chapter 1–4 Agency / Disclosure MCQs from seeded confusion pairs, with heading citations
 - Practice runner with confidence (1–5), remediation on miss, and immediate retest queue
 - `QuestionAttempt`, separate `KnowledgeState` / `PerformanceState`, and Mistakes list
 - Architecture lock in [docs/decisions.md](docs/decisions.md)
 
 ## What Phase 5 does not include
 
-Generated MCQs through validation gates, class-miss photo intake, tutor, math solver, exam simulator, embeddings, OpenAI, OCR, video, XP, authentication, questions for chapters 4–14 (same loop comes next).
+Generated MCQs through validation gates, class-miss photo intake, tutor, math solver, exam simulator, embeddings, OpenAI, OCR, video, XP, authentication, questions for chapters 5–14 (same loop comes next).
 
 ## What Phase 4 includes
 

@@ -4,6 +4,7 @@ import { canonicalPairKey } from "@/lib/knowledge/types";
 import { PHASE5_CH1_QUESTIONS } from "./chapter1";
 import { PHASE5_CH2_QUESTIONS } from "./chapter2";
 import { PHASE5_CH3_QUESTIONS } from "./chapter3";
+import { PHASE5_CH4_QUESTIONS } from "./chapter4";
 import {
   citationsForQuestion,
   pairKeyForQuestion,
@@ -14,6 +15,7 @@ const ALL_QUESTIONS: readonly QuestionSeed[] = [
   ...PHASE5_CH1_QUESTIONS,
   ...PHASE5_CH2_QUESTIONS,
   ...PHASE5_CH3_QUESTIONS,
+  ...PHASE5_CH4_QUESTIONS,
 ];
 
 export async function seedPhase5(prisma: PrismaClient, editionId: string) {
@@ -147,6 +149,7 @@ export async function seedPhase5(prisma: PrismaClient, editionId: string) {
 export { PHASE5_CH1_QUESTIONS } from "./chapter1";
 export { PHASE5_CH2_QUESTIONS } from "./chapter2";
 export { PHASE5_CH3_QUESTIONS } from "./chapter3";
+export { PHASE5_CH4_QUESTIONS } from "./chapter4";
 export {
   citationsForQuestion,
   pairKeyForQuestion,

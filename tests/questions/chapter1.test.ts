@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  PHASE5_CH1_QUESTIONS,
-  citationsForQuestion,
-  pairKeyForQuestion,
-} from "@/lib/questions/chapter1";
+import { PHASE5_CH1_QUESTIONS, citationsForQuestion, pairKeyForQuestion } from "@/lib/questions/chapter1";
 import { CHAPTER_1_CONFUSION_PAIRS, canonicalPairKey } from "@/lib/knowledge";
 
 describe("Phase 5 Chapter 1 questions", () => {

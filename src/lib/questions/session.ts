@@ -1,12 +1,17 @@
 import { prisma } from "@/lib/db/prisma";
 import { COURSE_EDITION_SEED } from "@/lib/blueprint";
 import { getLocalLearner } from "@/lib/learner";
-import { PLANNER_VERSION_PRACTICE_CH1, PRACTICE_SESSION_TARGET_MINUTES } from "./types";
+import {
+  PRACTICE_SESSION_TARGET_MINUTES,
+  practiceSittingByChapter,
+  type PracticeChapterNumber,
+} from "./types";
 
 /**
- * Resume an open Chapter 1 practice sitting, or start a new one from active questions.
+ * Resume an open practice sitting for a chapter, or start a new one from active questions.
  */
-export async function startOrResumeChapter1Practice() {
+export async function startOrResumeChapterPractice(chapterNumber: PracticeChapterNumber) {
+  const sitting = practiceSittingByChapter(chapterNumber);
   const edition = await prisma.courseEdition.findUnique({
     where: { slug: COURSE_EDITION_SEED.slug },
   });
@@ -19,7 +24,7 @@ export async function startOrResumeChapter1Practice() {
     where: {
       learnerId: learner.id,
       editionId: edition.id,
-      plannerVersion: PLANNER_VERSION_PRACTICE_CH1,
+      plannerVersion: sitting.plannerVersion,
       completedAt: null,
     },
     orderBy: { startedAt: "desc" },
@@ -32,40 +37,46 @@ export async function startOrResumeChapter1Practice() {
     where: {
       editionId: edition.id,
       lifecycle: "active",
-      chapterNumber: 1,
+      chapterNumber,
     },
     select: { id: true, conceptId: true, slug: true },
     orderBy: { sortOrder: "asc" },
   });
   if (questions.length === 0) {
-    throw new Error("No Chapter 1 questions seeded. Run: npx prisma db seed");
+    throw new Error(
+      `No Chapter ${chapterNumber} questions seeded. Run: npx prisma db seed`,
+    );
   }
 
   return prisma.learningSession.create({
     data: {
       learnerId: learner.id,
       editionId: edition.id,
-      objective: "Chapter 1 Agency practice: sourced MCQs with confidence and remediation",
+      objective: `${sitting.label} practice: sourced MCQs with confidence and remediation`,
       targetMinutes: PRACTICE_SESSION_TARGET_MINUTES,
-      plannerVersion: PLANNER_VERSION_PRACTICE_CH1,
+      plannerVersion: sitting.plannerVersion,
       stateBefore: {
-        plannerVersion: PLANNER_VERSION_PRACTICE_CH1,
+        plannerVersion: sitting.plannerVersion,
         questionCount: questions.length,
-        chapterNumber: 1,
+        chapterNumber,
       },
       items: {
         create: questions.map((question, index) => ({
           sortOrder: index + 1,
           kind: "practice",
-          reasonCodes: ["phase5", "chapter_1", "seed"],
+          reasonCodes: ["phase5", `chapter_${chapterNumber}`, "seed"],
           conceptId: question.conceptId,
           questionId: question.id,
         })),
       },
-      recommendedNext:
-        "Chapter 1 practice complete. Review Mistakes for misses, or Start session on Teach Me.",
+      recommendedNext: `${sitting.label} practice complete. Review Mistakes for misses, or continue on Practice / Teach Me.`,
     },
   });
+}
+
+/** @deprecated Prefer startOrResumeChapterPractice(1). */
+export async function startOrResumeChapter1Practice() {
+  return startOrResumeChapterPractice(1);
 }
 
 export type SubmitAnswerInput = {
@@ -233,7 +244,6 @@ export async function submitPracticeAnswer(input: SubmitAnswerInput) {
       });
     }
   } else {
-    // Immediate retest: keep item open; append a fresh practice step for the same question at the end.
     const maxSort = await prisma.sessionItem.aggregate({
       where: { sessionId: input.sessionId },
       _max: { sortOrder: true },
@@ -252,7 +262,7 @@ export async function submitPracticeAnswer(input: SubmitAnswerInput) {
           sessionId: input.sessionId,
           sortOrder: (maxSort._max.sortOrder ?? item.sortOrder) + 1,
           kind: "practice",
-          reasonCodes: ["retest", "phase5", "chapter_1"],
+          reasonCodes: ["retest", "phase5", `chapter_${item.question.chapterNumber}`],
           conceptId: item.question.conceptId,
           questionId: item.question.id,
         },

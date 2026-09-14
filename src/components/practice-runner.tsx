@@ -28,7 +28,7 @@ export function PracticeRunner({
           Practice complete
         </p>
         <h1 className="mt-3 font-display text-4xl tracking-tight text-ink">
-          Chapter 1 practice done
+          {session.sittingLabel} done
         </h1>
         <p className="mt-4 text-base leading-7 text-muted">{session.objective}</p>
         <p className="mt-4 text-sm leading-6 text-muted">
@@ -58,7 +58,7 @@ export function PracticeRunner({
         {item.kind} · {stepLabel} · about {session.targetMinutes} min
       </p>
       <h1 className="mt-3 font-display text-3xl tracking-tight text-ink sm:text-4xl">
-        Chapter 1 practice
+        {session.sittingLabel}
       </h1>
       {item.conceptName ? (
         <p className="mt-3 text-sm text-muted">

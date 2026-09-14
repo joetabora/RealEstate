@@ -2,10 +2,23 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { startOrResumeChapter1Practice, submitPracticeAnswer } from "./session";
+import { startOrResumeChapterPractice, submitPracticeAnswer } from "./session";
+import type { PracticeChapterNumber } from "./types";
 
+export async function startChapterPracticeAction(formData: FormData) {
+  const chapterNumber = Number(formData.get("chapterNumber") ?? 0) as PracticeChapterNumber;
+  if (chapterNumber !== 1 && chapterNumber !== 2) {
+    redirect("/practice");
+  }
+  const session = await startOrResumeChapterPractice(chapterNumber);
+  revalidatePath("/practice");
+  revalidatePath("/mistakes");
+  redirect(`/practice/session/${session.id}`);
+}
+
+/** @deprecated Prefer startChapterPracticeAction with chapterNumber. */
 export async function startChapter1PracticeAction() {
-  const session = await startOrResumeChapter1Practice();
+  const session = await startOrResumeChapterPractice(1);
   revalidatePath("/practice");
   revalidatePath("/mistakes");
   redirect(`/practice/session/${session.id}`);

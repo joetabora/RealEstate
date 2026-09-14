@@ -48,7 +48,12 @@ import {
   seedPhase4,
 } from "@/lib/teach-me";
 import { startOrResumeTeachMeSession } from "@/lib/teach-me/session";
-import { PHASE5_CH1_QUESTIONS, seedPhase5, startOrResumeChapter1Practice } from "@/lib/questions";
+import {
+  PHASE5_CH1_QUESTIONS,
+  PHASE5_CH2_QUESTIONS,
+  seedPhase5,
+  startOrResumeChapterPractice,
+} from "@/lib/questions";
 import { submitPracticeAnswer } from "@/lib/questions/session";
 
 const prisma = new PrismaClient();
@@ -203,7 +208,7 @@ describe("database seed (integration)", () => {
     }
   });
 
-  it("seeds Chapter 1 practice questions and records attempts with knowledge vs performance", async ({
+  it("seeds Chapter 1–2 practice questions and records attempts with knowledge vs performance", async ({
     skip,
   }) => {
     if (!(await databaseIsReachable())) {
@@ -214,12 +219,14 @@ describe("database seed (integration)", () => {
     await seedPhase3(prisma, edition.id);
     await seedPhase4(prisma, edition.id);
     const seeded = await seedPhase5(prisma, edition.id);
-    expect(seeded.questionCount).toBe(PHASE5_CH1_QUESTIONS.length);
+    expect(seeded.questionCount).toBe(
+      PHASE5_CH1_QUESTIONS.length + PHASE5_CH2_QUESTIONS.length,
+    );
     expect(
       await prisma.question.count({
-        where: { editionId: edition.id, chapterNumber: 1, lifecycle: "active" },
+        where: { editionId: edition.id, chapterNumber: 2, lifecycle: "active" },
       }),
-    ).toBe(PHASE5_CH1_QUESTIONS.length);
+    ).toBe(PHASE5_CH2_QUESTIONS.length);
 
     await prisma.sessionItem.deleteMany({});
     await prisma.learningSession.deleteMany({});
@@ -228,7 +235,7 @@ describe("database seed (integration)", () => {
     await prisma.knowledgeState.deleteMany({});
     await prisma.performanceState.deleteMany({});
 
-    const session = await startOrResumeChapter1Practice();
+    const session = await startOrResumeChapterPractice(2);
     const item = await prisma.sessionItem.findFirst({
       where: { sessionId: session.id, completedAt: null },
       include: { question: { include: { options: true } } },

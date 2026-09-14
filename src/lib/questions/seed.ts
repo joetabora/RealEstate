@@ -1,14 +1,18 @@
 import type { PrismaClient } from "@prisma/client";
 import { resolveCitedSectionId } from "@/lib/knowledge/seed";
 import { canonicalPairKey } from "@/lib/knowledge/types";
+import { PHASE5_CH1_QUESTIONS } from "./chapter1";
+import { PHASE5_CH2_QUESTIONS } from "./chapter2";
 import {
-  PHASE5_CH1_QUESTIONS,
   citationsForQuestion,
   pairKeyForQuestion,
   type QuestionSeed,
-} from "./chapter1";
+} from "./catalog";
 
-const ALL_QUESTIONS: readonly QuestionSeed[] = [...PHASE5_CH1_QUESTIONS];
+const ALL_QUESTIONS: readonly QuestionSeed[] = [
+  ...PHASE5_CH1_QUESTIONS,
+  ...PHASE5_CH2_QUESTIONS,
+];
 
 export async function seedPhase5(prisma: PrismaClient, editionId: string) {
   const catalogSlugs = ALL_QUESTIONS.map((question) => question.slug);
@@ -138,5 +142,12 @@ export async function seedPhase5(prisma: PrismaClient, editionId: string) {
   return { questionCount, pairKeySample: canonicalPairKey("client", "customer") };
 }
 
-export { PHASE5_CH1_QUESTIONS, citationsForQuestion, pairKeyForQuestion };
-export type { QuestionSeed, QuestionOptionSeed, QuestionCitationSeed };
+export { PHASE5_CH1_QUESTIONS } from "./chapter1";
+export { PHASE5_CH2_QUESTIONS } from "./chapter2";
+export {
+  citationsForQuestion,
+  pairKeyForQuestion,
+  type QuestionSeed,
+  type QuestionOptionSeed,
+  type QuestionCitationSeed,
+} from "./catalog";

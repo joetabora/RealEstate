@@ -2,14 +2,25 @@ import { prisma } from "@/lib/db/prisma";
 import { COURSE_EDITION_SEED } from "@/lib/blueprint";
 import { formatPageCitation } from "@/lib/ingest/citation";
 import { getLocalLearner } from "@/lib/learner";
-import { isPracticePlannerVersion } from "./types";
+import {
+  PRACTICE_SITTINGS,
+  isPracticePlannerVersion,
+  practiceSittingByPlannerVersion,
+} from "./types";
+
+export type PracticeChapterCard = {
+  chapterNumber: number;
+  label: string;
+  shortLabel: string;
+  questionCount: number;
+  openSessionId: string | null;
+  canStart: boolean;
+};
 
 export type PracticeHomeData = {
   databaseConnected: boolean;
-  questionCount: number;
-  openSessionId: string | null;
+  chapters: PracticeChapterCard[];
   openMistakes: number;
-  canStart: boolean;
 };
 
 export type PracticeSessionView = {
@@ -17,6 +28,7 @@ export type PracticeSessionView = {
   objective: string;
   targetMinutes: number;
   plannerVersion: string;
+  sittingLabel: string;
   completed: boolean;
   recommendedNext: string | null;
   currentIndex: number;
@@ -47,42 +59,70 @@ export async function getPracticeHomeData(): Promise<PracticeHomeData> {
     if (!edition) {
       return {
         databaseConnected: true,
-        questionCount: 0,
-        openSessionId: null,
+        chapters: PRACTICE_SITTINGS.map((sitting) => ({
+          chapterNumber: sitting.chapterNumber,
+          label: sitting.label,
+          shortLabel: sitting.shortLabel,
+          questionCount: 0,
+          openSessionId: null,
+          canStart: false,
+        })),
         openMistakes: 0,
-        canStart: false,
       };
     }
     const learner = await getLocalLearner(prisma);
-    const questionCount = await prisma.question.count({
-      where: { editionId: edition.id, lifecycle: "active", chapterNumber: 1 },
-    });
-    const open = await prisma.learningSession.findFirst({
+    const openSessions = await prisma.learningSession.findMany({
       where: {
         learnerId: learner.id,
         editionId: edition.id,
-        plannerVersion: { startsWith: "phase5-" },
+        plannerVersion: { in: [...PRACTICE_SITTINGS.map((row) => row.plannerVersion)] },
         completedAt: null,
       },
-      orderBy: { startedAt: "desc" },
+      select: { id: true, plannerVersion: true },
     });
+    const openByPlanner = new Map(
+      openSessions.map((row) => [row.plannerVersion ?? "", row.id]),
+    );
+
+    const chapters: PracticeChapterCard[] = [];
+    for (const sitting of PRACTICE_SITTINGS) {
+      const questionCount = await prisma.question.count({
+        where: {
+          editionId: edition.id,
+          lifecycle: "active",
+          chapterNumber: sitting.chapterNumber,
+        },
+      });
+      chapters.push({
+        chapterNumber: sitting.chapterNumber,
+        label: sitting.label,
+        shortLabel: sitting.shortLabel,
+        questionCount,
+        openSessionId: openByPlanner.get(sitting.plannerVersion) ?? null,
+        canStart: questionCount > 0,
+      });
+    }
+
     const openMistakes = await prisma.mistake.count({
       where: { learnerId: learner.id, resolvedAt: null },
     });
     return {
       databaseConnected: true,
-      questionCount,
-      openSessionId: open?.id ?? null,
+      chapters,
       openMistakes,
-      canStart: questionCount > 0,
     };
   } catch {
     return {
       databaseConnected: false,
-      questionCount: 0,
-      openSessionId: null,
+      chapters: PRACTICE_SITTINGS.map((sitting) => ({
+        chapterNumber: sitting.chapterNumber,
+        label: sitting.label,
+        shortLabel: sitting.shortLabel,
+        questionCount: 0,
+        openSessionId: null,
+        canStart: false,
+      })),
       openMistakes: 0,
-      canStart: false,
     };
   }
 }
@@ -111,6 +151,7 @@ export async function getPracticeSessionView(
     return null;
   }
 
+  const sitting = practiceSittingByPlannerVersion(session.plannerVersion);
   const incomplete = session.items.filter((item) => !item.completedAt);
   const current = incomplete[0] ?? null;
   const completed = Boolean(session.completedAt) || incomplete.length === 0;
@@ -150,9 +191,10 @@ export async function getPracticeSessionView(
 
   return {
     id: session.id,
-    objective: session.objective ?? "Chapter 1 practice",
+    objective: session.objective ?? sitting?.label ?? "Practice",
     targetMinutes: session.targetMinutes ?? 15,
     plannerVersion: session.plannerVersion ?? "",
+    sittingLabel: sitting?.label ?? "Practice",
     completed,
     recommendedNext: session.recommendedNext,
     currentIndex: Math.max(currentIndex, 0),
@@ -184,7 +226,9 @@ export async function getMistakeList(): Promise<{
       orderBy: [{ resolvedAt: "asc" }, { createdAt: "desc" }],
       take: 50,
       include: {
-        question: { select: { stem: true, remediationWhyMissed: true, remediationDistinction: true } },
+        question: {
+          select: { stem: true, remediationWhyMissed: true, remediationDistinction: true },
+        },
         attempt: { select: { errorCategory: true, confidence: true } },
         concept: { select: { name: true } },
       },

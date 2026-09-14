@@ -5,6 +5,7 @@ export const PLANNER_VERSION_PRACTICE_CH2 = "phase5-ch2-practice-v1";
 export const PLANNER_VERSION_PRACTICE_CH3 = "phase5-ch3-practice-v1";
 export const PLANNER_VERSION_PRACTICE_CH4 = "phase5-ch4-practice-v1";
 export const PLANNER_VERSION_PRACTICE_CH5 = "phase5-ch5-practice-v1";
+export const PLANNER_VERSION_PRACTICE_CH6 = "phase5-ch6-practice-v1";
 
 export const PRACTICE_SITTINGS = [
   {
@@ -36,6 +37,12 @@ export const PRACTICE_SITTINGS = [
     plannerVersion: PLANNER_VERSION_PRACTICE_CH5,
     label: `Chapter 5 — ${COURSE_CHAPTER_TITLES[5]}`,
     shortLabel: COURSE_CHAPTER_TITLES[5],
+  },
+  {
+    chapterNumber: 6 as const,
+    plannerVersion: PLANNER_VERSION_PRACTICE_CH6,
+    label: `Chapter 6 — ${COURSE_CHAPTER_TITLES[6]}`,
+    shortLabel: COURSE_CHAPTER_TITLES[6],
   },
 ] as const;
 

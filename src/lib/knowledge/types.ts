@@ -20,6 +20,9 @@ export const CONCEPT_GROUPS = [
   "licensee-property-disclosure",
   "condominium-disclosure",
   "environmental",
+  "fair-housing",
+  "fair-housing-practice",
+  "disability-access",
 ] as const;
 
 export type ConceptGroup = (typeof CONCEPT_GROUPS)[number];
@@ -36,7 +39,8 @@ export type ConceptCitationSeed = {
     | "chapter-1-agency-notes"
     | "chapter-2-agency-issues-notes"
     | "chapter-3-agency-agreements-notes"
-    | "chapter-4-disclosure-obligations-notes";
+    | "chapter-4-disclosure-obligations-notes"
+    | "chapter-5-fair-housing-notes";
   heading: string;
   pdfPage: number;
   printedPage?: number;
@@ -95,6 +99,9 @@ export const CONCEPT_GROUP_LABELS: Record<ConceptGroup, string> = {
   "licensee-property-disclosure": "Licensee property disclosure",
   "condominium-disclosure": "Condominium disclosure",
   environmental: "Environmental concerns",
+  "fair-housing": "Fair housing law",
+  "fair-housing-practice": "Fair housing practice",
+  "disability-access": "ADA / disability access",
 };
 
 export const COURSE_CHAPTER_TITLES: Record<number, string> = {

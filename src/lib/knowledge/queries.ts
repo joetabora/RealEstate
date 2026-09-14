@@ -88,6 +88,9 @@ const GROUP_ORDER: ConceptGroup[] = [
   "licensee-property-disclosure",
   "condominium-disclosure",
   "environmental",
+  "fair-housing",
+  "fair-housing-practice",
+  "disability-access",
 ];
 
 export async function getProgressData(): Promise<ProgressData> {

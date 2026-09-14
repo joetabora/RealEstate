@@ -3,11 +3,13 @@ import { PHASE4_ASSETS, PHASE4_SESSION_STEPS } from "./assets";
 import { PHASE4_CH2_ASSETS, PHASE4_CH2_SESSION_STEPS } from "./chapter2-assets";
 import { PHASE4_CH3_ASSETS, PHASE4_CH3_SESSION_STEPS } from "./chapter3-assets";
 import { PHASE4_CH4_ASSETS, PHASE4_CH4_SESSION_STEPS } from "./chapter4-assets";
+import { PHASE4_CH5_ASSETS, PHASE4_CH5_SESSION_STEPS } from "./chapter5-assets";
 import {
   PLANNER_VERSION_CH1,
   PLANNER_VERSION_CH2,
   PLANNER_VERSION_CH3,
   PLANNER_VERSION_CH4,
+  PLANNER_VERSION_CH5,
   SESSION_TARGET_MINUTES,
   TEACH_ME_SITTINGS,
   type TeachMeSittingId,
@@ -24,7 +26,8 @@ type SessionSteps =
   | typeof PHASE4_SESSION_STEPS
   | typeof PHASE4_CH2_SESSION_STEPS
   | typeof PHASE4_CH3_SESSION_STEPS
-  | typeof PHASE4_CH4_SESSION_STEPS;
+  | typeof PHASE4_CH4_SESSION_STEPS
+  | typeof PHASE4_CH5_SESSION_STEPS;
 
 function planFromSteps(
   assets: PlannedAsset[],
@@ -106,6 +109,17 @@ export function planChapter4Session(assets: PlannedAsset[]): SessionDraft {
   );
 }
 
+/** Chapter 5 Fair Housing sitting (`phase4-ch5-v1`). */
+export function planChapter5Session(assets: PlannedAsset[]): SessionDraft {
+  return planFromSteps(
+    assets,
+    PHASE4_CH5_SESSION_STEPS,
+    PHASE4_CH5_ASSETS.length,
+    "Fair Housing: protected classes, prohibited vs permissible, ADA, complaints, office procedures",
+    PLANNER_VERSION_CH5,
+  );
+}
+
 export type TeachMeProgress = {
   completedPlannerVersions: ReadonlySet<string>;
 };
@@ -128,6 +142,7 @@ export function planTeachMeSitting(
   progress: TeachMeProgress,
 ): SessionDraft {
   const sitting = selectTeachMeSitting(progress);
+  if (sitting === "chapter5") return planChapter5Session(assets);
   if (sitting === "chapter4") return planChapter4Session(assets);
   if (sitting === "chapter3") return planChapter3Session(assets);
   if (sitting === "chapter2") return planChapter2Session(assets);

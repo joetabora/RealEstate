@@ -51,6 +51,7 @@ import { startOrResumeTeachMeSession } from "@/lib/teach-me/session";
 import {
   PHASE5_CH1_QUESTIONS,
   PHASE5_CH2_QUESTIONS,
+  PHASE5_CH3_QUESTIONS,
   seedPhase5,
   startOrResumeChapterPractice,
 } from "@/lib/questions";
@@ -208,7 +209,7 @@ describe("database seed (integration)", () => {
     }
   });
 
-  it("seeds Chapter 1–2 practice questions and records attempts with knowledge vs performance", async ({
+  it("seeds Chapter 1–3 practice questions and records attempts with knowledge vs performance", async ({
     skip,
   }) => {
     if (!(await databaseIsReachable())) {
@@ -220,13 +221,15 @@ describe("database seed (integration)", () => {
     await seedPhase4(prisma, edition.id);
     const seeded = await seedPhase5(prisma, edition.id);
     expect(seeded.questionCount).toBe(
-      PHASE5_CH1_QUESTIONS.length + PHASE5_CH2_QUESTIONS.length,
+      PHASE5_CH1_QUESTIONS.length +
+        PHASE5_CH2_QUESTIONS.length +
+        PHASE5_CH3_QUESTIONS.length,
     );
     expect(
       await prisma.question.count({
-        where: { editionId: edition.id, chapterNumber: 2, lifecycle: "active" },
+        where: { editionId: edition.id, chapterNumber: 3, lifecycle: "active" },
       }),
-    ).toBe(PHASE5_CH2_QUESTIONS.length);
+    ).toBe(PHASE5_CH3_QUESTIONS.length);
 
     await prisma.sessionItem.deleteMany({});
     await prisma.learningSession.deleteMany({});
@@ -235,7 +238,7 @@ describe("database seed (integration)", () => {
     await prisma.knowledgeState.deleteMany({});
     await prisma.performanceState.deleteMany({});
 
-    const session = await startOrResumeChapterPractice(2);
+    const session = await startOrResumeChapterPractice(3);
     const item = await prisma.sessionItem.findFirst({
       where: { sessionId: session.id, completedAt: null },
       include: { question: { include: { options: true } } },

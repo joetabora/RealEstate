@@ -3,11 +3,15 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { startOrResumeChapterPractice, submitPracticeAnswer } from "./session";
-import type { PracticeChapterNumber } from "./types";
+import { PRACTICE_SITTINGS, type PracticeChapterNumber } from "./types";
+
+function isPracticeChapterNumber(value: number): value is PracticeChapterNumber {
+  return PRACTICE_SITTINGS.some((sitting) => sitting.chapterNumber === value);
+}
 
 export async function startChapterPracticeAction(formData: FormData) {
-  const chapterNumber = Number(formData.get("chapterNumber") ?? 0) as PracticeChapterNumber;
-  if (chapterNumber !== 1 && chapterNumber !== 2) {
+  const chapterNumber = Number(formData.get("chapterNumber") ?? 0);
+  if (!isPracticeChapterNumber(chapterNumber)) {
     redirect("/practice");
   }
   const session = await startOrResumeChapterPractice(chapterNumber);

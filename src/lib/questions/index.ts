@@ -1,6 +1,7 @@
 export {
   PLANNER_VERSION_PRACTICE_CH1,
   PLANNER_VERSION_PRACTICE_CH2,
+  PLANNER_VERSION_PRACTICE_CH3,
   PRACTICE_PLANNER_VERSIONS,
   PRACTICE_SITTINGS,
   PRACTICE_SESSION_TARGET_MINUTES,
@@ -12,6 +13,7 @@ export type { PracticeChapterNumber, PracticePlannerVersion } from "./types";
 export {
   PHASE5_CH1_QUESTIONS,
   PHASE5_CH2_QUESTIONS,
+  PHASE5_CH3_QUESTIONS,
   citationsForQuestion,
   pairKeyForQuestion,
   seedPhase5,

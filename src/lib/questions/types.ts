@@ -2,6 +2,7 @@ import { COURSE_CHAPTER_TITLES } from "@/lib/knowledge/types";
 
 export const PLANNER_VERSION_PRACTICE_CH1 = "phase5-ch1-practice-v1";
 export const PLANNER_VERSION_PRACTICE_CH2 = "phase5-ch2-practice-v1";
+export const PLANNER_VERSION_PRACTICE_CH3 = "phase5-ch3-practice-v1";
 
 export const PRACTICE_SITTINGS = [
   {
@@ -15,6 +16,12 @@ export const PRACTICE_SITTINGS = [
     plannerVersion: PLANNER_VERSION_PRACTICE_CH2,
     label: `Chapter 2 — ${COURSE_CHAPTER_TITLES[2]}`,
     shortLabel: COURSE_CHAPTER_TITLES[2],
+  },
+  {
+    chapterNumber: 3 as const,
+    plannerVersion: PLANNER_VERSION_PRACTICE_CH3,
+    label: `Chapter 3 — ${COURSE_CHAPTER_TITLES[3]}`,
+    shortLabel: COURSE_CHAPTER_TITLES[3],
   },
 ] as const;
 

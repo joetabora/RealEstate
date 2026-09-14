@@ -5,6 +5,7 @@ import { PHASE4_CH3_ASSETS, PHASE4_CH3_SESSION_STEPS } from "./chapter3-assets";
 import { PHASE4_CH4_ASSETS, PHASE4_CH4_SESSION_STEPS } from "./chapter4-assets";
 import { PHASE4_CH5_ASSETS, PHASE4_CH5_SESSION_STEPS } from "./chapter5-assets";
 import { PHASE4_CH6_ASSETS, PHASE4_CH6_SESSION_STEPS } from "./chapter6-assets";
+import { PHASE4_CH7_ASSETS, PHASE4_CH7_SESSION_STEPS } from "./chapter7-assets";
 import {
   PLANNER_VERSION_CH1,
   PLANNER_VERSION_CH2,
@@ -12,6 +13,7 @@ import {
   PLANNER_VERSION_CH4,
   PLANNER_VERSION_CH5,
   PLANNER_VERSION_CH6,
+  PLANNER_VERSION_CH7,
   SESSION_TARGET_MINUTES,
   TEACH_ME_SITTINGS,
   type TeachMeSittingId,
@@ -30,7 +32,8 @@ type SessionSteps =
   | typeof PHASE4_CH3_SESSION_STEPS
   | typeof PHASE4_CH4_SESSION_STEPS
   | typeof PHASE4_CH5_SESSION_STEPS
-  | typeof PHASE4_CH6_SESSION_STEPS;
+  | typeof PHASE4_CH6_SESSION_STEPS
+  | typeof PHASE4_CH7_SESSION_STEPS;
 
 function planFromSteps(
   assets: PlannedAsset[],
@@ -134,6 +137,17 @@ export function planChapter6Session(assets: PlannedAsset[]): SessionDraft {
   );
 }
 
+/** Chapter 7 Real Property Ownership sitting (`phase4-ch7-v1`). */
+export function planChapter7Session(assets: PlannedAsset[]): SessionDraft {
+  return planFromSteps(
+    assets,
+    PHASE4_CH7_SESSION_STEPS,
+    PHASE4_CH7_ASSETS.length,
+    "Ownership: real vs personal, fixtures, freehold vs leasehold, WI marital, condo vs coop",
+    PLANNER_VERSION_CH7,
+  );
+}
+
 export type TeachMeProgress = {
   completedPlannerVersions: ReadonlySet<string>;
 };
@@ -156,6 +170,7 @@ export function planTeachMeSitting(
   progress: TeachMeProgress,
 ): SessionDraft {
   const sitting = selectTeachMeSitting(progress);
+  if (sitting === "chapter7") return planChapter7Session(assets);
   if (sitting === "chapter6") return planChapter6Session(assets);
   if (sitting === "chapter5") return planChapter5Session(assets);
   if (sitting === "chapter4") return planChapter4Session(assets);

@@ -25,6 +25,12 @@ export const CONCEPT_GROUPS = [
   "disability-access",
   "valuation",
   "valuation-approach",
+  "ownership-basics",
+  "property-classification",
+  "estates",
+  "co-ownership",
+  "wi-ownership",
+  "special-ownership",
 ] as const;
 
 export type ConceptGroup = (typeof CONCEPT_GROUPS)[number];
@@ -43,7 +49,8 @@ export type ConceptCitationSeed = {
     | "chapter-3-agency-agreements-notes"
     | "chapter-4-disclosure-obligations-notes"
     | "chapter-5-fair-housing-notes"
-    | "chapter-6-valuation-notes";
+    | "chapter-6-valuation-notes"
+    | "chapter-7-ownership-notes";
   heading: string;
   pdfPage: number;
   printedPage?: number;
@@ -107,6 +114,12 @@ export const CONCEPT_GROUP_LABELS: Record<ConceptGroup, string> = {
   "disability-access": "ADA / disability access",
   valuation: "Valuation",
   "valuation-approach": "Approaches to value",
+  "ownership-basics": "Ownership basics",
+  "property-classification": "Real vs personal property",
+  estates: "Estates in land",
+  "co-ownership": "Forms of ownership",
+  "wi-ownership": "Wisconsin marital property",
+  "special-ownership": "Condo, coop, and time-share",
 };
 
 export const COURSE_CHAPTER_TITLES: Record<number, string> = {

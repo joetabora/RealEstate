@@ -22,6 +22,8 @@ export const CHAPTER_7_NOTES_RELATIVE_PATH =
   "Course/Chapter7/Chapter 7 Real Property Ownership.pdf";
 export const CHAPTER_8_NOTES_RELATIVE_PATH =
   "Course/Chapter8/Chapter 8 Title of Real Estate.pdf";
+export const CHAPTER_9_NOTES_RELATIVE_PATH =
+  "Course/Chapter9/Chapter 9 Land Use.pdf";
 
 /** Inspected: printed page 1 is PDF page 5; the offset holds through the math appendix. */
 export const PUB725_PRINTED_PAGE_OFFSET = 4;
@@ -184,6 +186,16 @@ export const CHAPTER_8_NOTES_PART = {
   chapterTitle: "Title of Real Estate",
 } as const;
 
+export const CHAPTER_9_NOTES_PART = {
+  slug: "chapter-9-land-use-notes",
+  title: "Chapter 9 notes — Land use",
+  layer: "chapter_notes" as SourceLayer,
+  relativePath: CHAPTER_9_NOTES_RELATIVE_PATH,
+  hideBodyInUi: false,
+  chapterNumber: 9,
+  chapterTitle: "Land Use",
+} as const;
+
 export const CHAPTER_NOTES_PARTS = [
   CHAPTER_1_NOTES_PART,
   CHAPTER_2_NOTES_PART,
@@ -193,6 +205,7 @@ export const CHAPTER_NOTES_PARTS = [
   CHAPTER_6_NOTES_PART,
   CHAPTER_7_NOTES_PART,
   CHAPTER_8_NOTES_PART,
+  CHAPTER_9_NOTES_PART,
 ] as const;
 
 export const BLUEPRINT_SOURCE_PART = {
@@ -261,5 +274,6 @@ export function requiredSourceFiles(): string[] {
     CHAPTER_6_NOTES_RELATIVE_PATH,
     CHAPTER_7_NOTES_RELATIVE_PATH,
     CHAPTER_8_NOTES_RELATIVE_PATH,
+    CHAPTER_9_NOTES_RELATIVE_PATH,
   ];
 }

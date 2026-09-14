@@ -41,6 +41,9 @@ export const PLANNER_VERSION_CH7 = "phase4-ch7-v1";
 /** Chapter 8 Title of Real Estate sitting. */
 export const PLANNER_VERSION_CH8 = "phase4-ch8-v1";
 
+/** Chapter 9 Land Use sitting. */
+export const PLANNER_VERSION_CH9 = "phase4-ch9-v1";
+
 export const TEACH_ME_SITTINGS = [
   {
     id: "chapter1" as const,
@@ -90,6 +93,12 @@ export const TEACH_ME_SITTINGS = [
     label: "Chapter 8 — Title of Real Estate",
     shortNext: "Title of Real Estate",
   },
+  {
+    id: "chapter9" as const,
+    plannerVersion: PLANNER_VERSION_CH9,
+    label: "Chapter 9 — Land Use",
+    shortNext: "Land Use",
+  },
 ] as const;
 
 export type TeachMeSittingId = (typeof TEACH_ME_SITTINGS)[number]["id"];
@@ -129,7 +138,7 @@ export function recommendedNextForPlanner(plannerVersion: string | null | undefi
   const current = TEACH_ME_SITTINGS[Math.max(index, 0)];
   const next = index >= 0 ? TEACH_ME_SITTINGS[index + 1] : undefined;
   if (!next) {
-    return `${current.label} sitting complete. Review on Progress. Chapters 9–14 come next.`;
+    return `${current.label} sitting complete. Review on Progress. Chapters 10–14 come next.`;
   }
   return `${current.label} sitting complete. Start session again for ${next.label}.`;
 }

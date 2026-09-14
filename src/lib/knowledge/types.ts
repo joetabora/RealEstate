@@ -38,6 +38,10 @@ export const CONCEPT_GROUPS = [
   "liens",
   "title-tax",
   "title-evidence",
+  "land-use-basics",
+  "zoning",
+  "water-land-use",
+  "private-controls",
 ] as const;
 
 export type ConceptGroup = (typeof CONCEPT_GROUPS)[number];
@@ -58,7 +62,8 @@ export type ConceptCitationSeed = {
     | "chapter-5-fair-housing-notes"
     | "chapter-6-valuation-notes"
     | "chapter-7-ownership-notes"
-    | "chapter-8-title-notes";
+    | "chapter-8-title-notes"
+    | "chapter-9-land-use-notes";
   heading: string;
   pdfPage: number;
   printedPage?: number;
@@ -135,6 +140,10 @@ export const CONCEPT_GROUP_LABELS: Record<ConceptGroup, string> = {
   liens: "Liens",
   "title-tax": "Tax calculations",
   "title-evidence": "Evidence of title",
+  "land-use-basics": "Land use basics",
+  zoning: "Zoning",
+  "water-land-use": "Water rights and wetlands",
+  "private-controls": "Private land use controls",
 };
 
 export const COURSE_CHAPTER_TITLES: Record<number, string> = {

@@ -7,3 +7,4 @@ export {
   seedPhase1,
 } from "./seed";
 export { seedPhase3 } from "../knowledge/seed";
+export { seedPhase4 } from "../teach-me/seed";

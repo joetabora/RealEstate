@@ -1,4 +1,5 @@
 import { AppShell } from "@/components/app-shell";
+import { TeachMeSessionControls } from "@/components/teach-me-session-controls";
 import { SALESPERSON_EXAM_ITEM_TOTAL } from "@/lib/blueprint";
 import type { TeachMeHomeData } from "@/lib/teach-me/home-data";
 
@@ -29,35 +30,14 @@ export function TeachMeHome({ data }: { data: TeachMeHomeData }) {
             Your session will be chosen for you.
           </h1>
           <p className="mt-4 max-w-xl text-base leading-7 text-muted">
-            You should not have to pick a chapter. When the course is in the
-            system, Teach Me will assemble overdue reviews, weak concepts,
-            Wisconsin-specific gaps, and exam-weighted new material into one
-            sitting.
+            You should not have to pick a chapter. Teach Me assembles a sourced
+            Agency sitting: overdue repairs later, exam-weighted new material
+            now. Wisconsin facts stay cited.
           </p>
         </header>
 
         <section className="card mt-10 p-6 sm:p-8">
-          <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <h2 className="font-display text-2xl text-ink">No session yet</h2>
-              <p className="mt-2 max-w-lg text-sm leading-6 text-muted">
-                Chapter 1 Agency concepts are listed on Progress with
-                citations. There is no mastery data yet — this is a new learner
-                on <span className="text-ink">{data.edition.name}</span>. Teach
-                Me sessions are not built yet, so Start session stays off.
-              </p>
-              {!data.databaseConnected ? (
-                <p className="mt-3 text-sm text-ink/80">
-                  Postgres is not connected yet, so nothing is persisted. The
-                  starting area below still comes from the official exam
-                  outline. See the README to start the database.
-                </p>
-              ) : null}
-            </div>
-            <button type="button" className="btn-primary self-start" disabled>
-              Start session
-            </button>
-          </div>
+          <TeachMeSessionControls />
 
           <ol className="mt-8 grid gap-3 sm:grid-cols-2">
             {[
@@ -92,8 +72,8 @@ export function TeachMeHome({ data }: { data: TeachMeHomeData }) {
               scored items. {plannedStart.name} is the largest official category
               at {plannedStart.weight} items
               {plannedStart.code ? ` (section ${plannedStart.code})` : ""}.
-              Agency concepts from Chapter 1 are on Progress. Teaching those
-              concepts in a session comes in a later phase.
+              Agency concepts from Chapter 1 are on Progress. Start session
+              runs a sourced path through the highest-confusion Agency pairs.
             </p>
             <p className="mt-4 text-sm text-ink">
               This is an exam-blueprint recommendation, not a readiness score.

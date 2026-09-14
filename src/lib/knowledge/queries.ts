@@ -1,7 +1,9 @@
 import { prisma } from "@/lib/db/prisma";
 import { COURSE_EDITION_SEED } from "@/lib/blueprint";
 import { formatPageCitation } from "@/lib/ingest/citation";
+import { getLearningConceptIds, studyStateFor } from "@/lib/teach-me/queries";
 import { CONCEPT_GROUP_LABELS, type ConceptGroup, type JurisdictionScope } from "./types";
+import type { ConceptStudyState } from "@/lib/teach-me/types";
 
 export type ConceptListItem = {
   slug: string;
@@ -12,7 +14,7 @@ export type ConceptListItem = {
   examCategoryCodes: string[];
   chapterNumber: number;
   citation: string;
-  state: "not_started";
+  state: ConceptStudyState;
 };
 
 export type ProgressData = {
@@ -20,6 +22,7 @@ export type ProgressData = {
   seeded: boolean;
   conceptCount: number;
   pairCount: number;
+  learningCount: number;
   groups: Array<{
     id: ConceptGroup;
     label: string;
@@ -34,7 +37,7 @@ export type ConceptDetailData = {
   jurisdictionScope: JurisdictionScope;
   examCategoryCodes: string[];
   chapterNumber: number;
-  state: "not_started";
+  state: ConceptStudyState;
   citations: Array<{
     documentSlug: string;
     heading: string;
@@ -65,6 +68,7 @@ export async function getProgressData(): Promise<ProgressData> {
     const pairCount = await prisma.confusionPair.count({
       where: { edition: { slug: COURSE_EDITION_SEED.slug }, active: true },
     });
+    const learningIds = await getLearningConceptIds();
 
     const items: ConceptListItem[] = concepts.map((concept) => {
       const citation = concept.citations[0];
@@ -84,7 +88,7 @@ export async function getProgressData(): Promise<ProgressData> {
               pdfPageEnd: citation.pdfPage,
             })
           : "Uncited",
-        state: "not_started",
+        state: studyStateFor(concept.id, learningIds),
       };
     });
 
@@ -102,6 +106,7 @@ export async function getProgressData(): Promise<ProgressData> {
       seeded: items.length > 0,
       conceptCount: items.length,
       pairCount,
+      learningCount: items.filter((item) => item.state === "learning").length,
       groups: groupOrder
         .map((id) => ({
           id,
@@ -116,6 +121,7 @@ export async function getProgressData(): Promise<ProgressData> {
       seeded: false,
       conceptCount: 0,
       pairCount: 0,
+      learningCount: 0,
       groups: [],
     };
   }
@@ -151,6 +157,8 @@ export async function getConceptDetail(slug: string): Promise<ConceptDetailData 
       })),
     ];
 
+    const learningIds = await getLearningConceptIds();
+
     return {
       slug: concept.slug,
       name: concept.name,
@@ -158,7 +166,7 @@ export async function getConceptDetail(slug: string): Promise<ConceptDetailData 
       jurisdictionScope: concept.jurisdictionScope as JurisdictionScope,
       examCategoryCodes: concept.examCategories.map((join) => join.examCategory.code),
       chapterNumber: concept.chapterNumber,
-      state: "not_started",
+      state: studyStateFor(concept.id, learningIds),
       citations: concept.citations.map((citation) => ({
         documentSlug: citation.documentSlug,
         heading: citation.heading,

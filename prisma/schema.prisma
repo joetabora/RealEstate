@@ -23,6 +23,7 @@ model CourseEdition {
   sourceDocuments  SourceDocument[]
   concepts         Concept[]
   confusionPairs   ConfusionPair[]
+  learningAssets   LearningAsset[]
 }
 
 /// Official Wisconsin salesperson exam weighting structure (Pearson outline).
@@ -100,9 +101,10 @@ model SessionItem {
   kind        String
   reasonCodes String[]      @default([])
 
-  /// Future foreign keys — stored as ids until Concept/LearningAsset/Question exist.
-  conceptId  String?
-  assetId    String?
+  conceptId String?
+  concept   Concept?       @relation(fields: [conceptId], references: [id], onDelete: SetNull)
+  assetId   String?
+  asset     LearningAsset? @relation(fields: [assetId], references: [id], onDelete: SetNull)
   questionId String?
 
   completedAt DateTime?
@@ -110,6 +112,8 @@ model SessionItem {
   updatedAt   DateTime  @updatedAt
 
   @@index([sessionId, sortOrder])
+  @@index([conceptId])
+  @@index([assetId])
 }
 
 /// A layered source work (course book, chapter notes, forms, glossary, …).
@@ -187,8 +191,9 @@ model SourceSection {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  anchors   VisualAnchor[]
-  citations ConceptCitation[]
+  anchors        VisualAnchor[]
+  citations      ConceptCitation[]
+  assetCitations AssetCitation[]
 
   @@index([documentId, sortOrder])
   @@index([documentId, chapterNumber])
@@ -287,6 +292,8 @@ model Concept {
   incoming       ConceptRelationship[] @relation("RelationshipTo")
   confusionA     ConfusionPair[]       @relation("ConfusionConceptA")
   confusionB     ConfusionPair[]       @relation("ConfusionConceptB")
+  assets         LearningAsset[]
+  sessionItems   SessionItem[]
 
   @@unique([editionId, slug])
   @@index([editionId, chapterNumber, sortOrder])
@@ -356,6 +363,7 @@ model ConfusionPair {
   updatedAt DateTime @updatedAt
 
   evidence ConfusionEvidence[]
+  assets   LearningAsset[]
 
   @@unique([editionId, canonicalKey])
   @@index([editionId, active])
@@ -372,4 +380,58 @@ model ConfusionEvidence {
   createdAt DateTime @default(now())
 
   @@index([pairId])
+}
+
+/// A hand-authored teaching unit. Original language plus citations — not a reconstructed chapter.
+model LearningAsset {
+  id        String        @id @default(cuid())
+  editionId String
+  edition   CourseEdition @relation(fields: [editionId], references: [id], onDelete: Cascade)
+
+  slug String
+  /// explanation | simple_language | scenario | comparison | teachback_prompt | recall_prompt
+  kind String
+  /// course_sourced | general_explanation | needs_verification
+  informationClass String
+  /// generated | extracted | active | rejected — Phase 4 seed is active
+  lifecycle String @default("active")
+
+  conceptId String?
+  concept   Concept?       @relation(fields: [conceptId], references: [id], onDelete: SetNull)
+  pairId    String?
+  pair      ConfusionPair? @relation(fields: [pairId], references: [id], onDelete: SetNull)
+
+  title     String
+  body      String @db.Text
+  sortOrder Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  citations    AssetCitation[]
+  sessionItems SessionItem[]
+
+  @@unique([editionId, slug])
+  @@index([editionId, lifecycle, sortOrder])
+  @@index([conceptId])
+  @@index([pairId])
+}
+
+model AssetCitation {
+  id      String        @id @default(cuid())
+  assetId String
+  asset   LearningAsset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  sectionId String?
+  section   SourceSection? @relation(fields: [sectionId], references: [id], onDelete: SetNull)
+
+  documentSlug String
+  heading      String
+  pdfPage      Int
+  printedPage  Int?
+  layer        String
+
+  createdAt DateTime @default(now())
+
+  @@index([assetId])
+  @@index([sectionId])
 }

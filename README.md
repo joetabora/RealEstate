@@ -2,7 +2,7 @@
 
 Personal learning system for the Wisconsin real estate **salesperson** exam. Teach Me is the home loop.
 
-This repository is **Phase 3**: foundation, local ingestion, and a hand-seeded Chapter 1 Agency concept graph. Teach Me sessions are not built yet.
+This repository is **Phase 4**: a sourced Agency Teach Me session on top of ingestion and the Chapter 1 concept graph. Quizzes and class-miss photos are not in yet.
 
 ## Requirements
 
@@ -26,11 +26,24 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000). Library is at [http://localhost:3000/library](http://localhost:3000/library). Progress is at [http://localhost:3000/progress](http://localhost:3000/progress).
 
-The second `npx prisma db seed` attaches Chapter 1 concepts to ingested section IDs. `npm run ingest` also re-seeds those concepts after writing sections.
+The second `npx prisma db seed` attaches Chapter 1 concepts and Agency teaching assets to ingested section IDs. `npm run ingest` also re-seeds those after writing sections.
 
 The database listens on **localhost:5433** so it does not collide with a local Postgres on 5432.
 
 If Docker Desktop is not running, the Teach Me shell still renders from the in-code exam blueprint. Persistence and ingested sections require the database.
+
+## What Phase 4 includes
+
+- Everything in Phase 1–3
+- Hand-authored Agency learning assets (explanation, simple language, scenario, comparison, teach-back, recall) with heading citations
+- A rule-based Teach Me planner for one Agency sitting
+- Start session / Resume on the local database (`/` stays static for Vercel)
+- Progress may mark taught concepts as learning — still no 0% bars
+- Architecture lock in [docs/decisions.md](docs/decisions.md)
+
+## What Phase 4 does not include
+
+Quizzes, class-miss photo intake, tutor, math solver, exam simulator, embeddings, OpenAI, OCR, video, XP, authentication, auto-extracted concepts for chapters 2–14.
 
 ## What Phase 3 includes
 
@@ -43,7 +56,7 @@ If Docker Desktop is not running, the Teach Me shell still renders from the in-c
 
 ## What Phase 3 does not include
 
-Quizzes, Teach Me session runner, tutor, math solver, exam simulator, embeddings, OpenAI, OCR, video, XP, authentication, auto-extracted concepts for chapters 2–14.
+Quizzes, tutor, math solver, exam simulator, embeddings, OpenAI, OCR, video, XP, authentication, auto-extracted concepts for chapters 2–14. Teach Me sessions arrived in Phase 4.
 
 ## What Phase 2 includes
 

@@ -103,6 +103,8 @@ describe("prisma schema (Phase 3)", () => {
       "ConceptRelationship",
       "ConfusionPair",
       "ConfusionEvidence",
+      "LearningAsset",
+      "AssetCitation",
     ]) {
       expect(schema).toContain(`model ${model}`);
     }

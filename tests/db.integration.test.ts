@@ -6,12 +6,16 @@ import {
   examCategoryWeightTotal,
 } from "@/lib/blueprint";
 import { ensureLocalLearner, seedPhase1 } from "@/lib/db/seed";
+import { prisma as appPrisma } from "@/lib/db/prisma";
 import { CHAPTER_1_CONCEPTS, CHAPTER_1_CONFUSION_PAIRS, canonicalPairKey, seedPhase3 } from "@/lib/knowledge";
+import { PHASE4_ASSETS, seedPhase4 } from "@/lib/teach-me";
+import { startOrResumeAgencySession } from "@/lib/teach-me/session";
 
 const prisma = new PrismaClient();
 
 afterAll(async () => {
   await prisma.$disconnect();
+  await appPrisma.$disconnect();
 });
 
 async function databaseIsReachable(): Promise<boolean> {
@@ -52,6 +56,8 @@ describe("database seed (integration)", () => {
         "ConceptRelationship",
         "ConfusionPair",
         "ConfusionEvidence",
+        "LearningAsset",
+        "AssetCitation",
       ]),
     );
   });
@@ -125,5 +131,25 @@ describe("database seed (integration)", () => {
         (pair) => pair.canonicalKey === canonicalPairKey("client", "customer"),
       ),
     ).toBe(true);
+  });
+
+  it("seeds Agency teaching assets and resumes an open session", async ({ skip }) => {
+    if (!(await databaseIsReachable())) {
+      skip();
+      return;
+    }
+
+    const { edition } = await seedPhase1(prisma);
+    await seedPhase3(prisma, edition.id);
+    const first = await seedPhase4(prisma, edition.id);
+    const second = await seedPhase4(prisma, edition.id);
+    expect(first.assetCount).toBe(PHASE4_ASSETS.length);
+    expect(second.assetCount).toBe(first.assetCount);
+
+    const created = await startOrResumeAgencySession();
+    const resumed = await startOrResumeAgencySession();
+    expect(resumed.id).toBe(created.id);
+    const itemCount = await prisma.sessionItem.count({ where: { sessionId: created.id } });
+    expect(itemCount).toBe(PHASE4_ASSETS.length);
   });
 });

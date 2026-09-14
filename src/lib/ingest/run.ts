@@ -4,6 +4,7 @@ import type { PrismaClient } from "@prisma/client";
 import { SALESPERSON_EXAM_CATEGORIES } from "@/lib/blueprint";
 import { seedPhase1 } from "@/lib/db/seed";
 import { seedPhase3 } from "@/lib/knowledge/seed";
+import { seedPhase4 } from "@/lib/teach-me/seed";
 import {
   BLUEPRINT_SOURCE_PART,
   CHAPTER_1_NOTES_PART,
@@ -38,6 +39,7 @@ export async function ingestPhase2(
 
   const summary = await persistDocuments(prisma, edition.id, documents);
   await seedPhase3(prisma, edition.id);
+  await seedPhase4(prisma, edition.id);
   return summary;
 }
 

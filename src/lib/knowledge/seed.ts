@@ -1,7 +1,6 @@
 import type { PrismaClient } from "@prisma/client";
 import { CHAPTER_1_CONCEPTS, CHAPTER_1_CONFUSION_PAIRS } from "./chapter1";
 import { activateConfusionPairs, canonicalPairKey } from "./types";
-import type { ConceptCitationSeed } from "./types";
 
 export async function seedPhase3(prisma: PrismaClient, editionId: string) {
   const examCategories = await prisma.examCategory.findMany({
@@ -66,7 +65,7 @@ export async function seedPhase3(prisma: PrismaClient, editionId: string) {
     }
 
     for (const citation of seed.citations) {
-      const sectionId = await resolveSectionId(prisma, citation);
+      const sectionId = await resolveCitedSectionId(prisma, citation);
       await prisma.conceptCitation.create({
         data: {
           conceptId: rowId,
@@ -152,9 +151,9 @@ export async function seedPhase3(prisma: PrismaClient, editionId: string) {
   };
 }
 
-async function resolveSectionId(
+export async function resolveCitedSectionId(
   prisma: PrismaClient,
-  citation: ConceptCitationSeed,
+  citation: { documentSlug: string; heading: string },
 ): Promise<string | null> {
   const sections = await prisma.sourceSection.findMany({
     where: {

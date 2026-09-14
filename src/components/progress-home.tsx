@@ -36,8 +36,11 @@ export function ProgressHome({ data }: { data: ProgressData }) {
         <>
           <p className="mt-8 text-sm text-muted">
             {data.conceptCount} Chapter 1 concepts · {data.pairCount} active
-            confusion pairs · exam category IV (Agency). All{" "}
-            <span className="text-ink">not started</span>.
+            confusion pairs · exam category IV (Agency)
+            {data.learningCount > 0
+              ? ` · ${data.learningCount} learning`
+              : " · none scored yet"}
+            . No 0% bars.
           </p>
           {data.groups.map((group) => (
             <section key={group.id} className="mt-8">

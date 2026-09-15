@@ -2,7 +2,7 @@
 
 Personal learning system for the Wisconsin real estate **salesperson** exam. Teach Me is the home loop.
 
-This repository is **Phase 11 (in progress)**: class-miss photo intake on Mistakes, on top of Phase 10 visual/OCR. Photos stay local; optional OCR is needs_verification only. Generated items and video transcription are not in yet.
+This repository is **Phase 11 (complete)**: class-miss photo intake on Mistakes, on top of Phase 10 visual/OCR. Photos stay local; optional OCR is needs_verification only. Photos can link to open practice mistakes or be discarded. Generated items and video transcription are not in yet.
 
 ## Requirements
 
@@ -32,15 +32,16 @@ The database listens on **localhost:5433** so it does not collide with a local P
 
 If Docker Desktop is not running, the Teach Me shell still renders from the in-code exam blueprint. Persistence and ingested sections require the database.
 
-## What Phase 11 includes (in progress)
+## What Phase 11 includes
 
 - Everything in Phase 1–10
 - Class-miss photo upload on Mistakes (`ClassMissCapture`) into gitignored `data/class-miss-photos/`
 - Optional local Tesseract on upload (unverified); optional concept link
+- Link photo to an open practice Mistake, or discard from the queue
 - Safe `/api/mistakes/class-miss/[id]` image serve for the local learner only
 - No auto-generated questions or Teach Me assets from photos
 
-## What Phase 11 does not include yet
+## What Phase 11 does not include
 
 Cloud photo sync, OCR-as-truth, auto MCQ generation from photos, video transcription, bounding-box editors.
 

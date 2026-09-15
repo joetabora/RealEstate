@@ -1,5 +1,9 @@
 import Link from "next/link";
-import { uploadClassMissAction } from "@/lib/mistakes/actions";
+import {
+  discardClassMissAction,
+  linkClassMissAction,
+  uploadClassMissAction,
+} from "@/lib/mistakes/actions";
 import type { ClassMissCaptureView } from "@/lib/mistakes";
 import type { MistakeListItem } from "@/lib/questions/queries";
 
@@ -133,7 +137,46 @@ export function MistakesHome({
                           </Link>
                         </>
                       ) : null}
+                      {capture.linkedMistakeLabel
+                        ? ` · linked: ${capture.linkedMistakeLabel}`
+                        : ""}
                     </p>
+                    <div className="mt-4 flex flex-wrap items-end gap-3">
+                      {open.length > 0 && capture.status !== "linked" ? (
+                        <form action={linkClassMissAction} className="flex flex-wrap items-end gap-2">
+                          <input type="hidden" name="captureId" value={capture.id} />
+                          <label className="block text-xs text-muted">
+                            Link to open practice miss
+                            <select
+                              name="mistakeId"
+                              required
+                              className="mt-1 block max-w-xs rounded-lg border border-line bg-paper px-2 py-1.5 text-sm text-ink"
+                              defaultValue=""
+                            >
+                              <option value="" disabled>
+                                Choose…
+                              </option>
+                              {open.map((item) => (
+                                <option key={item.id} value={item.id}>
+                                  {item.stem.length > 60
+                                    ? `${item.stem.slice(0, 57)}…`
+                                    : item.stem}
+                                </option>
+                              ))}
+                            </select>
+                          </label>
+                          <button type="submit" className="text-sm text-accent underline">
+                            Link
+                          </button>
+                        </form>
+                      ) : null}
+                      <form action={discardClassMissAction}>
+                        <input type="hidden" name="captureId" value={capture.id} />
+                        <button type="submit" className="text-sm text-muted underline">
+                          Discard
+                        </button>
+                      </form>
+                    </div>
                   </li>
                 ))}
               </ul>

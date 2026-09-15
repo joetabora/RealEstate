@@ -5,7 +5,11 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db/prisma";
 import { COURSE_EDITION_SEED } from "@/lib/blueprint";
 import { getLocalLearner } from "@/lib/learner";
-import { createClassMissCapture } from "./class-miss";
+import {
+  createClassMissCapture,
+  discardClassMissCapture,
+  linkClassMissToMistake,
+} from "./class-miss";
 
 export async function uploadClassMissAction(formData: FormData) {
   const file = formData.get("photo");
@@ -47,4 +51,44 @@ export async function uploadClassMissAction(formData: FormData) {
 
   revalidatePath("/mistakes");
   redirect("/mistakes?upload=ok");
+}
+
+export async function discardClassMissAction(formData: FormData) {
+  const captureId = String(formData.get("captureId") ?? "");
+  if (!captureId) {
+    redirect("/mistakes");
+  }
+  try {
+    const learner = await getLocalLearner(prisma);
+    await discardClassMissCapture({
+      prisma,
+      learnerId: learner.id,
+      captureId,
+    });
+  } catch {
+    redirect("/mistakes?upload=error");
+  }
+  revalidatePath("/mistakes");
+  redirect("/mistakes");
+}
+
+export async function linkClassMissAction(formData: FormData) {
+  const captureId = String(formData.get("captureId") ?? "");
+  const mistakeId = String(formData.get("mistakeId") ?? "");
+  if (!captureId || !mistakeId) {
+    redirect("/mistakes");
+  }
+  try {
+    const learner = await getLocalLearner(prisma);
+    await linkClassMissToMistake({
+      prisma,
+      learnerId: learner.id,
+      captureId,
+      mistakeId,
+    });
+  } catch {
+    redirect("/mistakes?upload=error");
+  }
+  revalidatePath("/mistakes");
+  redirect("/mistakes");
 }

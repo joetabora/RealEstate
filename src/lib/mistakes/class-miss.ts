@@ -34,6 +34,8 @@ export type ClassMissCaptureView = {
   ocrVerified: boolean;
   conceptSlug: string | null;
   conceptName: string | null;
+  mistakeId: string | null;
+  linkedMistakeLabel: string | null;
 };
 
 /**
@@ -94,7 +96,7 @@ export async function createClassMissCapture(input: {
     include: { concept: { select: { slug: true, name: true } } },
   });
 
-  return toCaptureView(row);
+  return toCaptureView({ ...row, mistake: null });
 }
 
 export function toCaptureView(row: {
@@ -105,8 +107,11 @@ export function toCaptureView(row: {
   mimeType: string;
   ocrText: string | null;
   ocrVerified: boolean;
+  mistakeId: string | null;
   concept: { slug: string; name: string } | null;
+  mistake?: { question: { stem: string } } | null;
 }): ClassMissCaptureView {
+  const stem = row.mistake?.question.stem ?? null;
   return {
     id: row.id,
     createdAt: row.createdAt.toISOString(),
@@ -118,6 +123,12 @@ export function toCaptureView(row: {
     ocrVerified: row.ocrVerified,
     conceptSlug: row.concept?.slug ?? null,
     conceptName: row.concept?.name ?? null,
+    mistakeId: row.mistakeId,
+    linkedMistakeLabel: stem
+      ? stem.length > 80
+        ? `${stem.slice(0, 77)}…`
+        : stem
+      : null,
   };
 }
 
@@ -133,7 +144,72 @@ export async function listClassMissCaptures(input: {
     },
     orderBy: { createdAt: "desc" },
     take: input.take ?? 30,
-    include: { concept: { select: { slug: true, name: true } } },
+    include: {
+      concept: { select: { slug: true, name: true } },
+      mistake: { select: { question: { select: { stem: true } } } },
+    },
   });
   return rows.map(toCaptureView);
+}
+
+export async function discardClassMissCapture(input: {
+  prisma: PrismaClient;
+  learnerId: string;
+  captureId: string;
+}): Promise<void> {
+  const updated = await input.prisma.classMissCapture.updateMany({
+    where: { id: input.captureId, learnerId: input.learnerId, status: { not: "discarded" } },
+    data: { status: "discarded", mistakeId: null },
+  });
+  if (updated.count === 0) {
+    throw new Error("Class-miss capture not found.");
+  }
+}
+
+/**
+ * Link a photo to an existing open practice Mistake. Does not invent questions.
+ */
+export async function linkClassMissToMistake(input: {
+  prisma: PrismaClient;
+  learnerId: string;
+  captureId: string;
+  mistakeId: string;
+}): Promise<ClassMissCaptureView> {
+  const mistake = await input.prisma.mistake.findFirst({
+    where: {
+      id: input.mistakeId,
+      learnerId: input.learnerId,
+      resolvedAt: null,
+    },
+    select: { id: true, conceptId: true },
+  });
+  if (!mistake) {
+    throw new Error("Open practice mistake not found for this learner.");
+  }
+
+  const existing = await input.prisma.classMissCapture.findFirst({
+    where: {
+      id: input.captureId,
+      learnerId: input.learnerId,
+      status: { not: "discarded" },
+    },
+    select: { id: true },
+  });
+  if (!existing) {
+    throw new Error("Class-miss capture not found.");
+  }
+
+  const row = await input.prisma.classMissCapture.update({
+    where: { id: input.captureId },
+    data: {
+      mistakeId: mistake.id,
+      status: "linked",
+      conceptId: mistake.conceptId ?? undefined,
+    },
+    include: {
+      concept: { select: { slug: true, name: true } },
+      mistake: { select: { question: { select: { stem: true } } } },
+    },
+  });
+  return toCaptureView(row);
 }

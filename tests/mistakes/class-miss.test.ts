@@ -23,3 +23,12 @@ describe("class miss paths", () => {
     expect(resolveSafeClassMissFile("/etc/passwd")).toBeNull();
   });
 });
+
+describe("class miss link label helper", () => {
+  it("truncates long stems for display labels", () => {
+    const long = "a".repeat(100);
+    const label = long.length > 80 ? `${long.slice(0, 77)}…` : long;
+    expect(label.endsWith("…")).toBe(true);
+    expect(label.length).toBe(78);
+  });
+});

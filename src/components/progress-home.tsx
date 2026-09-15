@@ -41,6 +41,36 @@ export function ProgressHome({ data }: { data: ProgressData }) {
         <>
           <section className="card mt-8 p-6 sm:p-8">
             <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted">
+              Phase 15 · Blueprint readiness
+            </p>
+            <h2 className="mt-2 font-display text-2xl text-ink">Exam-weighted signals</h2>
+            <p className="mt-3 text-sm leading-6 text-muted">{data.readiness.headline}</p>
+            <ul className="mt-5 space-y-2">
+              {data.readiness.categories.map((row) => (
+                <li
+                  key={row.code}
+                  className="rounded-lg bg-paper px-4 py-3 text-sm text-ink ring-1 ring-line"
+                >
+                  {row.line}
+                </li>
+              ))}
+            </ul>
+            <div className="mt-5 flex flex-wrap gap-4">
+              {data.readiness.nextActions.map((action) => (
+                <Link
+                  key={action.href + action.label}
+                  href={action.href}
+                  className="text-sm font-medium text-accent underline-offset-2 hover:underline"
+                  title={action.reason}
+                >
+                  {action.label}
+                </Link>
+              ))}
+            </div>
+          </section>
+
+          <section className="card mt-8 p-6 sm:p-8">
+            <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted">
               Review queue
             </p>
             <h2 className="mt-2 font-display text-2xl text-ink">Due recalls</h2>

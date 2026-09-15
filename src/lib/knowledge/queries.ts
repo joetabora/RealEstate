@@ -3,8 +3,11 @@ import { COURSE_EDITION_SEED } from "@/lib/blueprint";
 import { formatPageCitation } from "@/lib/ingest/citation";
 import { getLocalLearner } from "@/lib/learner";
 import {
+  emptyExamReadinessSummary,
   emptyReviewQueueSummary,
+  getExamReadinessSummary,
   getReviewQueueSummary,
+  type ExamReadinessSummary,
   type ReviewQueueSummary,
 } from "@/lib/mastery";
 import { mathTemplateIdForConceptSlug } from "@/lib/math";
@@ -46,6 +49,7 @@ export type ProgressData = {
   pairCount: number;
   learningCount: number;
   review: ReviewQueueSummary;
+  readiness: ExamReadinessSummary;
   chapters: ProgressChapter[];
 };
 
@@ -131,6 +135,11 @@ export async function getProgressData(): Promise<ProgressData> {
       prisma,
       learnerId: learner.id,
     });
+    const readiness = await getExamReadinessSummary({
+      prisma,
+      learnerId: learner.id,
+      learningConceptIds: learningIds,
+    });
 
     const items: ConceptListItem[] = concepts.map((concept) => {
       const citation = concept.citations[0];
@@ -178,6 +187,7 @@ export async function getProgressData(): Promise<ProgressData> {
       pairCount,
       learningCount: items.filter((item) => item.state === "learning").length,
       review,
+      readiness,
       chapters,
     };
   } catch {
@@ -188,6 +198,7 @@ export async function getProgressData(): Promise<ProgressData> {
       pairCount: 0,
       learningCount: 0,
       review: emptyReviewQueueSummary(),
+      readiness: emptyExamReadinessSummary(),
       chapters: [],
     };
   }

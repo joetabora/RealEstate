@@ -1,6 +1,6 @@
 # Architecture decisions
 
-Phase: 14 — Local video transcripts  
+Phase: 15 — Exam readiness narrative  
 Status: locked unless a concrete technical contradiction appears.
 
 This file records the Architecture Lock. It is binding for implementation.
@@ -47,6 +47,14 @@ This file records the Architecture Lock. It is binding for implementation.
 - **Canonical book is PUB725.** Chapter-folder PDFs are aligned notes with different pagination.
 - **Practice-exam stems stay in the local DB** and are not rendered in Library or committed to git.
 - **Video transcription and OCR are deferred** (Phase 10). Image-heavy form pages are stored as `needsOcr` placeholders.
+
+## Phase 15 complete (exam readiness narrative)
+
+Progress shows a deterministic, exam-weighted readiness block: per Pearson category counts for open mistakes, overdue SM-2 reviews, concepts in learning, and last simulation correct/answered. Headline and next-action links are template-only. Exam home shows a short strip linking to Progress. No mastery percentage bars and no predicted licensing score. Planner and readiness never call an LLM.
+
+## Phase 15 boundaries (still in force)
+
+Do not invent a score prediction ("you will score X"). Do not collapse KnowledgeState and PerformanceState into one mastery %. Do not add XP. Do not let an LLM narrate the plan as authority.
 
 ## Phase 14 complete (local video transcripts)
 

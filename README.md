@@ -2,7 +2,7 @@
 
 Personal learning system for the Wisconsin real estate **salesperson** exam. Teach Me is the home loop.
 
-This repository is **Phase 14 (complete)**: local video inventory + optional Whisper transcripts on top of Phase 13. Transcript dumps stay needs_verification and never become Teach Me truth. Embeddings are not in yet.
+This repository is **Phase 15 (complete)**: deterministic exam-readiness narrative on Progress (and a strip on Exam), on top of Phase 14. Counts and templates only — no mastery %, no LLM score prediction. Embeddings are not in yet.
 
 ## Requirements
 
@@ -31,6 +31,18 @@ The second `npx prisma db seed` attaches Chapter 1–14 concepts, Teach Me asset
 The database listens on **localhost:5433** so it does not collide with a local Postgres on 5432.
 
 If Docker Desktop is not running, the Teach Me shell still renders from the in-code exam blueprint. Persistence and ingested sections require the database.
+
+## What Phase 15 includes
+
+- Everything in Phase 1–14
+- Blueprint-category readiness on Progress: open mistakes, overdue reviews, learning counts, last sim category scores
+- Deterministic headline + next-action links (Mistakes / Practice / Teach Me / Exam)
+- Exam home readiness strip linking back to Progress
+- No mastery percentages and no predicted licensing score
+
+## What Phase 15 does not include yet
+
+Embeddings/RAG, local backup/export, form-line trainer, LLM narration of readiness.
 
 ## What Phase 14 includes
 

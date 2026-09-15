@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db/prisma";
 import { COURSE_EDITION_SEED, SALESPERSON_EXAM_CATEGORIES } from "@/lib/blueprint";
 import { getLocalLearner } from "@/lib/learner";
+import { getExamReadinessSummary } from "@/lib/mastery";
 import { buildExamScoreSummary } from "./session";
 import { selectExamSimulationQuestions } from "./select";
 import { shuffledCopy } from "./shuffle";
@@ -33,6 +34,8 @@ export type ExamHomeData = {
   targetMinutes: number;
   quotas: ExamCategoryQuota[];
   recent: ExamHistoryRow[];
+  readinessHeadline: string;
+  readinessLastSim: { correct: number; answered: number; total: number } | null;
 };
 
 export type ExamSessionView = {
@@ -88,6 +91,9 @@ export async function getExamHomeData(): Promise<ExamHomeData> {
       seats: 0,
     })),
     recent: [],
+    readinessHeadline:
+      "No study signals yet — start Teach Me or Practice. This is not a score prediction.",
+    readinessLastSim: null,
   };
 
   try {
@@ -142,6 +148,11 @@ export async function getExamHomeData(): Promise<ExamHomeData> {
       };
     });
 
+    const readiness = await getExamReadinessSummary({
+      prisma,
+      learnerId: learner.id,
+    });
+
     return {
       databaseConnected: true,
       disclaimer: EXAM_SIM_DISCLAIMER,
@@ -152,6 +163,8 @@ export async function getExamHomeData(): Promise<ExamHomeData> {
       targetMinutes: examTargetMinutes(picks.length),
       quotas,
       recent,
+      readinessHeadline: readiness.headline,
+      readinessLastSim: readiness.lastSimOverall,
     };
   } catch {
     return empty;

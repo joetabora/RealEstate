@@ -25,6 +25,28 @@ export function ExamHome({ data }: { data: ExamHomeData }) {
       ) : (
         <div className="mt-8 space-y-6">
           <section className="card p-6 sm:p-8">
+            <h2 className="font-display text-2xl text-ink">Readiness strip</h2>
+            <p className="mt-3 text-sm leading-6 text-muted">{data.readinessHeadline}</p>
+            {data.readinessLastSim ? (
+              <p className="mt-2 text-sm text-ink">
+                Last simulation: {data.readinessLastSim.correct}/{data.readinessLastSim.answered}{" "}
+                answered
+                {data.readinessLastSim.total > data.readinessLastSim.answered
+                  ? ` · ${data.readinessLastSim.total} items`
+                  : ""}
+              </p>
+            ) : null}
+            <p className="mt-4">
+              <Link
+                href="/progress"
+                className="text-sm font-medium text-accent underline-offset-2 hover:underline"
+              >
+                Full blueprint readiness on Progress
+              </Link>
+            </p>
+          </section>
+
+          <section className="card p-6 sm:p-8">
             <h2 className="font-display text-2xl text-ink">This sitting</h2>
             <p className="mt-3 text-sm leading-6 text-muted">
               Planned items:{" "}

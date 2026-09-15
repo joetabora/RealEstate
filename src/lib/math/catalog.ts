@@ -194,12 +194,200 @@ export const SIMPLE_INTEREST: MathTemplate = {
   },
 };
 
+export const LOAN_FROM_LTV: MathTemplate = {
+  id: "loan-from-ltv",
+  title: "Loan amount from LTV",
+  summary: "Loan = property value × LTV percent.",
+  formula: "loanAmount = propertyValue × (ltvPercent ÷ 100)",
+  inputs: [
+    { key: "propertyValue", label: "Property value", unit: "dollar" },
+    { key: "ltvPercent", label: "LTV", unit: "percent" },
+  ],
+  solve(inputs): MathSolveResult {
+    requireFinite(inputs, ["propertyValue", "ltvPercent"]);
+    const propertyValue = inputs.propertyValue!;
+    const ltvPercent = inputs.ltvPercent!;
+    const loanAmount = roundMoney(propertyValue * percentToRate(ltvPercent));
+    return {
+      answerKey: "loanAmount",
+      answerLabel: "Loan amount",
+      answer: loanAmount,
+      unit: "dollar",
+      steps: [
+        {
+          label: "Convert LTV percent to decimal",
+          expression: `${ltvPercent}% ÷ 100`,
+          value: roundRatio(percentToRate(ltvPercent), 6),
+        },
+        {
+          label: "Multiply value by LTV",
+          expression: `${propertyValue} × ${roundRatio(percentToRate(ltvPercent), 6)}`,
+          value: loanAmount,
+        },
+      ],
+    };
+  },
+};
+
+export const DAILY_PRORATION: MathTemplate = {
+  id: "daily-proration",
+  title: "Daily proration (365-day)",
+  summary: "Share of an annual amount for a given number of days using a 365-day year.",
+  formula: "share = annualAmount × days ÷ 365",
+  inputs: [
+    { key: "annualAmount", label: "Annual amount", unit: "dollar" },
+    { key: "days", label: "Days", unit: "number" },
+  ],
+  solve(inputs): MathSolveResult {
+    requireFinite(inputs, ["annualAmount", "days"]);
+    const annualAmount = inputs.annualAmount!;
+    const days = inputs.days!;
+    if (days < 0) {
+      throw new Error("Days cannot be negative.");
+    }
+    const daily = annualAmount / 365;
+    const share = roundMoney(annualAmount * (days / 365));
+    return {
+      answerKey: "share",
+      answerLabel: "Prorated share",
+      answer: share,
+      unit: "dollar",
+      steps: [
+        {
+          label: "Daily rate (365-day year)",
+          expression: `${annualAmount} ÷ 365`,
+          value: roundRatio(daily, 6),
+        },
+        {
+          label: "Multiply by days",
+          expression: `${roundRatio(daily, 6)} × ${days}`,
+          value: share,
+        },
+      ],
+    };
+  },
+};
+
+export const BANKER_PRORATION: MathTemplate = {
+  id: "banker-proration",
+  title: "Daily proration (360-day)",
+  summary: "Banker's year: annual amount × days ÷ 360.",
+  formula: "share = annualAmount × days ÷ 360",
+  inputs: [
+    { key: "annualAmount", label: "Annual amount", unit: "dollar" },
+    { key: "days", label: "Days", unit: "number" },
+  ],
+  solve(inputs): MathSolveResult {
+    requireFinite(inputs, ["annualAmount", "days"]);
+    const annualAmount = inputs.annualAmount!;
+    const days = inputs.days!;
+    if (days < 0) {
+      throw new Error("Days cannot be negative.");
+    }
+    const daily = annualAmount / 360;
+    const share = roundMoney(annualAmount * (days / 360));
+    return {
+      answerKey: "share",
+      answerLabel: "Prorated share",
+      answer: share,
+      unit: "dollar",
+      steps: [
+        {
+          label: "Daily rate (360-day year)",
+          expression: `${annualAmount} ÷ 360`,
+          value: roundRatio(daily, 6),
+        },
+        {
+          label: "Multiply by days",
+          expression: `${roundRatio(daily, 6)} × ${days}`,
+          value: share,
+        },
+      ],
+    };
+  },
+};
+
+/**
+ * Transfer / conveyance fee as a general formula.
+ * Rate is an input — do not hardcode a Wisconsin statutory rate here.
+ */
+export const TRANSFER_FEE: MathTemplate = {
+  id: "transfer-fee",
+  title: "Transfer fee (rate input)",
+  summary:
+    "Sale price × fee rate. Enter the rate from your cited course material — this app does not invent Wisconsin fee schedules.",
+  formula: "fee = salePrice × (ratePercent ÷ 100)",
+  inputs: [
+    { key: "salePrice", label: "Sale / consideration", unit: "dollar" },
+    { key: "ratePercent", label: "Fee rate (from citation)", unit: "percent" },
+  ],
+  solve(inputs): MathSolveResult {
+    requireFinite(inputs, ["salePrice", "ratePercent"]);
+    const salePrice = inputs.salePrice!;
+    const ratePercent = inputs.ratePercent!;
+    const fee = roundMoney(salePrice * percentToRate(ratePercent));
+    return {
+      answerKey: "fee",
+      answerLabel: "Transfer fee",
+      answer: fee,
+      unit: "dollar",
+      steps: [
+        {
+          label: "Convert cited rate to decimal",
+          expression: `${ratePercent}% ÷ 100`,
+          value: roundRatio(percentToRate(ratePercent), 6),
+        },
+        {
+          label: "Multiply by consideration",
+          expression: `${salePrice} × ${roundRatio(percentToRate(ratePercent), 6)}`,
+          value: fee,
+        },
+      ],
+    };
+  },
+};
+
+export const DOWN_PAYMENT: MathTemplate = {
+  id: "down-payment",
+  title: "Down payment",
+  summary: "Purchase price minus loan amount.",
+  formula: "downPayment = purchasePrice − loanAmount",
+  inputs: [
+    { key: "purchasePrice", label: "Purchase price", unit: "dollar" },
+    { key: "loanAmount", label: "Loan amount", unit: "dollar" },
+  ],
+  solve(inputs): MathSolveResult {
+    requireFinite(inputs, ["purchasePrice", "loanAmount"]);
+    const purchasePrice = inputs.purchasePrice!;
+    const loanAmount = inputs.loanAmount!;
+    const downPayment = roundMoney(purchasePrice - loanAmount);
+    return {
+      answerKey: "downPayment",
+      answerLabel: "Down payment",
+      answer: downPayment,
+      unit: "dollar",
+      steps: [
+        {
+          label: "Subtract loan from price",
+          expression: `${purchasePrice} − ${loanAmount}`,
+          value: downPayment,
+        },
+      ],
+    };
+  },
+};
+
 export const PHASE8_MATH_TEMPLATES: readonly MathTemplate[] = [
   COMMISSION_GROSS,
   SELLER_NET_AFTER_COMMISSION,
   LTV_RATIO,
+  LOAN_FROM_LTV,
+  DOWN_PAYMENT,
   DISCOUNT_POINTS,
   SIMPLE_INTEREST,
+  DAILY_PRORATION,
+  BANKER_PRORATION,
+  TRANSFER_FEE,
 ];
 
 export function mathTemplateById(id: string): MathTemplate | null {

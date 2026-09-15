@@ -50,7 +50,7 @@ This file records the Architecture Lock. It is binding for implementation.
 
 ## Phase 8 in progress (deterministic math)
 
-In-code math templates with fixed solvers for commission, seller net, LTV, discount points, and simple interest. Guided steps and optional attempt checking. The tutor / any LLM never computes the numeric key. No prorations or WI transfer-fee tables invented beyond formula templates already listed.
+In-code math templates with fixed solvers for commission, seller net, LTV, loan-from-LTV, down payment, discount points, simple interest, 365- and 360-day prorations, and transfer fee with an explicit rate input (no hardcoded Wisconsin statutory schedule). Guided steps and optional attempt checking. The tutor / any LLM never computes the numeric key.
 
 ## Phase 8 boundaries (still in force)
 

@@ -35,12 +35,12 @@ If Docker Desktop is not running, the Teach Me shell still renders from the in-c
 ## What Phase 8 includes (in progress)
 
 - Everything in Phase 1–7
-- Deterministic solvers: gross commission, seller net, LTV, discount points, simple interest
+- Deterministic solvers: commission, seller net, LTV, loan-from-LTV, down payment, points, simple interest, 365/360 prorations, transfer fee (rate as input)
 - Guided steps + optional attempt-check with error-kind hints (no AI keys)
 
 ## What Phase 8 does not include yet
 
-Prorations / tax / transfer-fee templates, timed drills, Teach Me math-repair insertion, AI-calculated keys (never).
+Timed drills, Teach Me math-repair insertion, hardcoded Wisconsin statutory fee tables, AI-calculated keys (never).
 
 ## What Phase 7 includes
 

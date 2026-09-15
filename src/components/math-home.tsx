@@ -92,8 +92,9 @@ export function MathHome() {
       </p>
       <h1 className="mt-3 font-display text-4xl tracking-tight text-ink">Math</h1>
       <p className="mt-4 max-w-2xl text-base leading-7 text-muted">
-        Commission, LTV, points, and simple interest use fixed formulas. Language models never
-        own the numeric answer — only these solvers do.
+        Commission, financing, prorations, and transfer-fee arithmetic use fixed formulas.
+        Enter cited rates yourself — this page does not invent Wisconsin fee schedules.
+        Language models never own the numeric answer.
       </p>
 
       <section className="card mt-8 p-6 sm:p-8">

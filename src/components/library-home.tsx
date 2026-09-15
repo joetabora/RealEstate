@@ -5,11 +5,13 @@ export function LibraryHome({
   databaseConnected,
   ingested,
   conceptCount,
+  ocrPendingCount,
   documents,
 }: {
   databaseConnected: boolean;
   ingested: boolean;
   conceptCount: number;
+  ocrPendingCount: number;
   documents: LibraryDocumentCard[];
 }) {
   return (
@@ -45,6 +47,24 @@ export function LibraryHome({
             machine and are never committed.
           </p>
         </div>
+      ) : null}
+
+      {databaseConnected && ingested ? (
+        <section className="card mt-8 p-6 sm:p-8">
+          <h2 className="font-display text-2xl text-ink">OCR queue</h2>
+          <p className="mt-2 text-sm leading-6 text-muted">
+            Image-heavy pages stay labeled until a local render exists. This app
+            does not invent form text or upload PDFs to a vendor.
+          </p>
+          <p className="mt-3 text-sm text-ink">
+            {ocrPendingCount} section{ocrPendingCount === 1 ? "" : "s"} marked needs OCR
+          </p>
+          <p className="mt-4">
+            <Link href="/library/ocr" className="font-medium text-accent underline-offset-2 hover:underline">
+              Open OCR queue
+            </Link>
+          </p>
+        </section>
       ) : null}
 
       {documents.length > 0 ? (

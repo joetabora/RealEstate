@@ -44,6 +44,22 @@ export function LibrarySectionView({
         <p className="mt-2 text-xs text-muted">Anchor: {section.visualAnchorLabel}</p>
       ) : null}
 
+      {section.needsOcr || section.ocrStatus ? (
+        <section className="card mt-6 p-5">
+          <h2 className="font-display text-lg text-ink">Visual / OCR</h2>
+          <p className="mt-2 text-sm leading-6 text-muted">
+            {section.ocrStatusLabel ?? "Status unknown"}
+            {section.formNumber ? ` · form ${section.formNumber}` : ""}
+            {section.hasLocalRender ? " · local render path recorded" : ""}
+          </p>
+          <p className="mt-3 text-sm">
+            <Link href="/library/ocr" className="text-accent underline">
+              OCR queue
+            </Link>
+          </p>
+        </section>
+      ) : null}
+
       <article className="card mt-8 p-6 sm:p-8">
         {section.withheldReason ? (
           <p className="text-sm leading-7 text-muted">{section.withheldReason}</p>

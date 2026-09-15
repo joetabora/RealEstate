@@ -2,7 +2,7 @@
 
 Personal learning system for the Wisconsin real estate **salesperson** exam. Teach Me is the home loop.
 
-This repository is **Phase 9 (complete)**: blueprint-balanced timed exam simulation on top of Phase 8 math. Sourced MCQs only — never labeled as a live licensing exam. Class-miss photos and generated items are not in yet.
+This repository is **Phase 10 (in progress)**: visual / OCR queue on Library anchors on top of Phase 9 exam simulation. No invented form text and no vendor PDF upload. Class-miss photos and generated items are not in yet.
 
 ## Requirements
 
@@ -31,6 +31,18 @@ The second `npx prisma db seed` attaches Chapter 1–14 concepts, Teach Me asset
 The database listens on **localhost:5433** so it does not collide with a local Postgres on 5432.
 
 If Docker Desktop is not running, the Teach Me shell still renders from the in-code exam blueprint. Persistence and ingested sections require the database.
+
+## What Phase 10 includes (in progress)
+
+- Everything in Phase 1–9
+- `VisualAnchor.ocrStatus` / `ocrNote` with ingest backfill for `needsOcr` sections
+- Form numbers inferred only from extracted headings (e.g. WB-11)
+- Library OCR queue at `/library/ocr` plus section visual/OCR status strip
+- Explicit rule: no invented OCR text; PDFs stay local / never uploaded to a vendor
+
+## What Phase 10 does not include yet
+
+Actual local page rasterization, Tesseract/cloud OCR output, bounding-box capture UI, video transcription, class-miss photo intake.
 
 ## What Phase 9 includes
 

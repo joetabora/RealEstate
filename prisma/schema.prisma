@@ -256,7 +256,7 @@ model SourceAsset {
   @@index([documentId, pdfPage])
 }
 
-/// Page-number placeholder until OCR / page images exist.
+/// Page-number / form placeholder. Raster OCR text stays out until a local render exists.
 model VisualAnchor {
   id String @id @default(cuid())
 
@@ -277,11 +277,17 @@ model VisualAnchor {
 
   label String?
 
+  /// not_needed | pending | render_queued | complete | unavailable
+  ocrStatus String @default("not_needed")
+  /// Operator note only — never invented statute/form text.
+  ocrNote String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([pdfPage])
   @@index([sectionId])
+  @@index([ocrStatus])
 }
 
 /// A teachable idea in one course edition. Labels and citations only — not a reconstructed chapter.

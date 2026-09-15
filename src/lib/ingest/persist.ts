@@ -1,4 +1,9 @@
 import type { PrismaClient } from "@prisma/client";
+import {
+  inferFormNumberFromHeading,
+  ocrStatusForNeedsOcr,
+  visualAnchorLabel,
+} from "@/lib/library/ocr";
 import type { BuiltDocument, IngestSummary } from "./types";
 
 export async function persistDocuments(
@@ -98,9 +103,17 @@ export async function persistDocuments(
             assetId: pdfAsset.id,
             pdfPage: section.pdfPageStart,
             printedPage: section.printedPageStart,
-            label: section.needsOcr
-              ? `Page image placeholder (OCR later) — PDF p. ${section.pdfPageStart}`
-              : `Page ${section.printedPageStart ?? section.pdfPageStart}`,
+            formNumber: inferFormNumberFromHeading(section.heading),
+            label: visualAnchorLabel({
+              needsOcr: section.needsOcr,
+              pdfPage: section.pdfPageStart,
+              printedPage: section.printedPageStart,
+              formNumber: inferFormNumberFromHeading(section.heading),
+            }),
+            ocrStatus: ocrStatusForNeedsOcr(section.needsOcr),
+            ocrNote: section.needsOcr
+              ? "Image-heavy extract. Local page render / OCR not run yet — no invented form text."
+              : null,
           },
         });
 

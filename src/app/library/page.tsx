@@ -13,6 +13,7 @@ export default async function LibraryPage() {
         databaseConnected={data.databaseConnected}
         ingested={data.ingested}
         conceptCount={data.conceptCount}
+        ocrPendingCount={data.ocrPendingCount}
         documents={data.documents}
       />
     </AppShell>

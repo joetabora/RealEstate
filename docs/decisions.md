@@ -1,6 +1,6 @@
 # Architecture decisions
 
-Phase: 9 — Exam simulation  
+Phase: 10 — Visual / OCR placeholders  
 Status: locked unless a concrete technical contradiction appears.
 
 This file records the Architecture Lock. It is binding for implementation.
@@ -47,6 +47,14 @@ This file records the Architecture Lock. It is binding for implementation.
 - **Canonical book is PUB725.** Chapter-folder PDFs are aligned notes with different pagination.
 - **Practice-exam stems stay in the local DB** and are not rendered in Library or committed to git.
 - **Video transcription and OCR are deferred** (Phase 10). Image-heavy form pages are stored as `needsOcr` placeholders.
+
+## Phase 10 in progress (visual / OCR queue)
+
+`VisualAnchor` grows `ocrStatus` and `ocrNote`. Ingest sets `pending` for `needsOcr` sections and may copy a form token from the extracted heading only. Library lists a local OCR queue; section pages show status without inventing form/page text. Source PDFs stay on disk (`filePath` gitignored); no vendor upload. Raster OCR and video transcription remain out until a later Phase 10 slice.
+
+## Phase 10 boundaries (still in force)
+
+Do not invent OCR text for image-heavy pages. Do not upload PDFs to a vendor. Do not treat pending placeholders as verified Wisconsin form lines. Do not commit rendered page images.
 
 ## Phase 9 complete (exam simulation)
 

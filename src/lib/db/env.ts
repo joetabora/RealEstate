@@ -11,6 +11,13 @@ export function getLocalPageRenderPath(): string {
   );
 }
 
+/** Class-miss photo uploads. Never commit this directory. */
+export function getLocalClassMissPath(): string {
+  return (
+    process.env.LOCAL_CLASS_MISS_PATH ?? path.resolve(process.cwd(), "data", "class-miss-photos")
+  );
+}
+
 export function getDatabaseUrl(): string {
   const url = process.env.DATABASE_URL;
   if (!url) {

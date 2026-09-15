@@ -1,6 +1,6 @@
 # Architecture decisions
 
-Phase: 10 — Visual / OCR placeholders  
+Phase: 11 — Class-miss photo intake  
 Status: locked unless a concrete technical contradiction appears.
 
 This file records the Architecture Lock. It is binding for implementation.
@@ -47,6 +47,14 @@ This file records the Architecture Lock. It is binding for implementation.
 - **Canonical book is PUB725.** Chapter-folder PDFs are aligned notes with different pagination.
 - **Practice-exam stems stay in the local DB** and are not rendered in Library or committed to git.
 - **Video transcription and OCR are deferred** (Phase 10). Image-heavy form pages are stored as `needsOcr` placeholders.
+
+## Phase 11 in progress (class-miss photos)
+
+Local photo intake on Mistakes via `ClassMissCapture`. Files stay under `LOCAL_CLASS_MISS_PATH` (gitignored). Optional Tesseract text is stored with `ocrVerified=false` / needs_verification and never becomes Teach Me content or Wisconsin course truth. Photos may optionally link a concept. No cloud upload and no auto-generated MCQs from images.
+
+## Phase 11 boundaries (still in force)
+
+Do not upload class photos to a vendor. Do not invent WI facts from OCR. Do not auto-activate questions or Teach Me assets from photo intake. Do not commit photo binaries.
 
 ## Phase 10 complete (visual / OCR queue)
 

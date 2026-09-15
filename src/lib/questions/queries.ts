@@ -2,6 +2,8 @@ import { prisma } from "@/lib/db/prisma";
 import { COURSE_EDITION_SEED } from "@/lib/blueprint";
 import { formatPageCitation } from "@/lib/ingest/citation";
 import { getLocalLearner } from "@/lib/learner";
+import type { ClassMissCaptureView } from "@/lib/mistakes";
+import { listClassMissCaptures } from "@/lib/mistakes/class-miss";
 import { selectDueReviewQuestions } from "./due-review";
 import {
   PLANNER_VERSION_PRACTICE_DUE_REVIEW,
@@ -265,21 +267,32 @@ export type MistakeListItem = {
 export async function getMistakeList(): Promise<{
   databaseConnected: boolean;
   items: MistakeListItem[];
+  classMissCaptures: ClassMissCaptureView[];
+  conceptOptions: Array<{ slug: string; name: string }>;
 }> {
   try {
     const learner = await getLocalLearner(prisma);
-    const rows = await prisma.mistake.findMany({
-      where: { learnerId: learner.id },
-      orderBy: [{ resolvedAt: "asc" }, { createdAt: "desc" }],
-      take: 50,
-      include: {
-        question: {
-          select: { stem: true, remediationWhyMissed: true, remediationDistinction: true },
+    const [rows, classMissCaptures, concepts] = await Promise.all([
+      prisma.mistake.findMany({
+        where: { learnerId: learner.id },
+        orderBy: [{ resolvedAt: "asc" }, { createdAt: "desc" }],
+        take: 50,
+        include: {
+          question: {
+            select: { stem: true, remediationWhyMissed: true, remediationDistinction: true },
+          },
+          attempt: { select: { errorCategory: true, confidence: true } },
+          concept: { select: { name: true } },
         },
-        attempt: { select: { errorCategory: true, confidence: true } },
-        concept: { select: { name: true } },
-      },
-    });
+      }),
+      listClassMissCaptures({ prisma, learnerId: learner.id }),
+      prisma.concept.findMany({
+        where: { edition: { slug: COURSE_EDITION_SEED.slug } },
+        select: { slug: true, name: true },
+        orderBy: [{ chapterNumber: "asc" }, { sortOrder: "asc" }],
+        take: 200,
+      }),
+    ]);
     return {
       databaseConnected: true,
       items: rows.map((row) => ({
@@ -293,8 +306,15 @@ export async function getMistakeList(): Promise<{
         confidence: row.attempt.confidence,
         conceptName: row.concept?.name ?? null,
       })),
+      classMissCaptures,
+      conceptOptions: concepts,
     };
   } catch {
-    return { databaseConnected: false, items: [] };
+    return {
+      databaseConnected: false,
+      items: [],
+      classMissCaptures: [],
+      conceptOptions: [],
+    };
   }
 }

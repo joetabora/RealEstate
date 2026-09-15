@@ -72,6 +72,7 @@ model Learner {
   performanceStates PerformanceState[]
   reviewSchedules   ReviewSchedule[]
   mistakes          Mistake[]
+  classMissCaptures ClassMissCapture[]
   tutorThreads      TutorThread[]
   tutorUsageDays    TutorUsageDay[]
 }
@@ -324,6 +325,7 @@ model Concept {
   performanceStates PerformanceState[]
   reviewSchedules ReviewSchedule[]
   mistakes       Mistake[]
+  classMissCaptures ClassMissCapture[]
 
   @@unique([editionId, slug])
   @@index([editionId, chapterNumber, sortOrder])
@@ -652,7 +654,7 @@ model ReviewSchedule {
   @@index([learnerId, dueAt])
 }
 
-/// A miss retained for repair. Photo miss intake still comes later.
+/// A miss retained for repair. Photo miss intake is ClassMissCapture (Phase 11).
 model Mistake {
   id         String   @id @default(cuid())
   learnerId  String
@@ -671,8 +673,42 @@ model Mistake {
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
 
+  classMissCaptures ClassMissCapture[]
+
   @@index([learnerId, resolvedAt, createdAt])
   @@index([questionId])
+}
+
+/// Class / quiz miss photo kept locally (Phase 11). Never invents WI facts from OCR.
+model ClassMissCapture {
+  id        String  @id @default(cuid())
+  learnerId String
+  learner   Learner @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+
+  /// Relative path under LOCAL_CLASS_MISS_PATH (gitignored).
+  filePath String
+  mimeType String
+  /// Learner caption / what they think they missed
+  note String? @db.Text
+
+  /// captured | needs_review | linked | discarded
+  status String @default("captured")
+
+  /// Optional local OCR dump — always needs_verification, never Teach Me truth.
+  ocrText     String? @db.Text
+  ocrVerified Boolean @default(false)
+
+  conceptId String?
+  concept   Concept? @relation(fields: [conceptId], references: [id], onDelete: SetNull)
+  mistakeId String?
+  mistake   Mistake? @relation(fields: [mistakeId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([learnerId, createdAt])
+  @@index([status])
+  @@index([conceptId])
 }
 
 /// Optional Socratic tutor thread (Phase 7). Never invents the study plan.

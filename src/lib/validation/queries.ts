@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/db/prisma";
 import { COURSE_EDITION_SEED } from "@/lib/blueprint";
+import { getGenerationStatus } from "@/lib/generation/service";
+import { getLocalLearner } from "@/lib/learner";
 
 export type ValidationQueueItem = {
   id: string;
@@ -30,6 +32,14 @@ export type ValidationHomeData = {
     validated: number;
     rejected: number;
     active: number;
+  };
+  generation: {
+    liveConfigured: boolean;
+    liveAvailable: boolean;
+    dailySpendCapUsd: number;
+    spentTodayUsd: number;
+    remainingTodayUsd: number;
+    model: string;
   };
 };
 
@@ -108,6 +118,12 @@ export async function getValidationHomeData(): Promise<ValidationHomeData> {
       })),
     ].sort((a, b) => a.lifecycle.localeCompare(b.lifecycle));
 
+    const learner = await getLocalLearner(prisma);
+    const generation = await getGenerationStatus({
+      prisma,
+      learnerId: learner.id,
+    });
+
     return {
       databaseConnected: true,
       queue,
@@ -129,6 +145,7 @@ export async function getValidationHomeData(): Promise<ValidationHomeData> {
         rejected: queue.filter((q) => q.lifecycle === "rejected").length,
         active: activeQ + activeA,
       },
+      generation,
     };
   } catch {
     return emptyValidationHome(false);
@@ -141,5 +158,13 @@ function emptyValidationHome(databaseConnected: boolean): ValidationHomeData {
     queue: [],
     recentEvents: [],
     counts: { inPipeline: 0, validated: 0, rejected: 0, active: 0 },
+    generation: {
+      liveConfigured: false,
+      liveAvailable: false,
+      dailySpendCapUsd: 1,
+      spentTodayUsd: 0,
+      remainingTodayUsd: 1,
+      model: "gpt-4o-mini",
+    },
   };
 }

@@ -2,7 +2,7 @@
 
 Personal learning system for the Wisconsin real estate **salesperson** exam. Teach Me is the home loop.
 
-This repository is **Phase 12 (complete)**: deterministic content validation gates on top of Phase 11. Generated drafts must pass source → structural → answer → ambiguity → WI-fact before activation. Teach Me still uses active only. Video transcription is not in yet.
+This repository is **Phase 13 (complete)**: optional draft MCQ generation into `lifecycle: generated`, on top of Phase 12 gates. Mock works offline; live is optional and shares the tutor spend cap. Drafts never auto-activate. Video transcription and embeddings are not in yet.
 
 ## Requirements
 
@@ -32,6 +32,19 @@ The database listens on **localhost:5433** so it does not collide with a local P
 
 If Docker Desktop is not running, the Teach Me shell still renders from the in-code exam blueprint. Persistence and ingested sections require the database.
 
+## What Phase 13 includes
+
+- Everything in Phase 1–12
+- Optional draft MCQ generation from active confusion pairs (`npm run generate:drafts`, Validation UI)
+- Mock (deterministic, offline) and live (OpenAI, optional) modes
+- Drafts persist as `lifecycle: generated` with concept citations only — never invent WI cites
+- Seed no longer deletes non-catalog pipeline drafts
+- Live generation shares the tutor daily spend cap
+
+## What Phase 13 does not include yet
+
+Auto-activation without review, video transcription, embeddings, photo→MCQ automation.
+
 ## What Phase 12 includes
 
 - Everything in Phase 1–11
@@ -40,10 +53,6 @@ If Docker Desktop is not running, the Teach Me shell still renders from the in-c
 - `ContentGateEvent` audit trail
 - WI-like language without citations fails wi_fact_check (never invents cites)
 - Explicit activate step from validated → active
-
-## What Phase 12 does not include yet
-
-LLM batch generation of MCQs, auto-activation without review, video transcription, embeddings.
 
 ## What Phase 11 includes
 

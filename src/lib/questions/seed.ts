@@ -156,10 +156,13 @@ export async function seedPhase5(prisma: PrismaClient, editionId: string) {
     }
   }
 
+  // Preserve Phase 13+ generated / in-pipeline drafts. Only prune stale active
+  // rows that are no longer in the hand-authored catalog.
   await prisma.question.deleteMany({
     where: {
       editionId,
       slug: { notIn: catalogSlugs },
+      lifecycle: "active",
     },
   });
 

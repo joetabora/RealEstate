@@ -1,6 +1,6 @@
 # Architecture decisions
 
-Phase: 12 — Content validation gates  
+Phase: 13 — Draft MCQ generation  
 Status: locked unless a concrete technical contradiction appears.
 
 This file records the Architecture Lock. It is binding for implementation.
@@ -47,6 +47,14 @@ This file records the Architecture Lock. It is binding for implementation.
 - **Canonical book is PUB725.** Chapter-folder PDFs are aligned notes with different pagination.
 - **Practice-exam stems stay in the local DB** and are not rendered in Library or committed to git.
 - **Video transcription and OCR are deferred** (Phase 10). Image-heavy form pages are stored as `needsOcr` placeholders.
+
+## Phase 13 complete (draft MCQ generation)
+
+Optional overlay creates confusion-pair draft MCQs as `lifecycle: generated` only. Mock is deterministic and offline; live OpenAI is optional and shares the tutor daily spend cap. Citations are copied from existing concept records — generation never invents Wisconsin statutes, fees, form lines, or numeric keys. Drafts must still pass Phase 12 gates and an explicit activate before Teach Me / Practice / Exam can use them. Re-seed preserves non-catalog pipeline drafts.
+
+## Phase 13 boundaries (still in force)
+
+Do not auto-activate generated drafts. Do not invent Wisconsin cites to satisfy gates. Do not require an API key for core study. Do not generate from class-miss OCR as course truth.
 
 ## Phase 12 complete (content validation gates)
 

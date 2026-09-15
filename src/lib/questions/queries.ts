@@ -2,7 +2,9 @@ import { prisma } from "@/lib/db/prisma";
 import { COURSE_EDITION_SEED } from "@/lib/blueprint";
 import { formatPageCitation } from "@/lib/ingest/citation";
 import { getLocalLearner } from "@/lib/learner";
+import { selectDueReviewQuestions } from "./due-review";
 import {
+  PLANNER_VERSION_PRACTICE_DUE_REVIEW,
   PRACTICE_SITTINGS,
   isPracticePlannerVersion,
   practiceSittingByPlannerVersion,
@@ -17,10 +19,18 @@ export type PracticeChapterCard = {
   canStart: boolean;
 };
 
+export type DueReviewCard = {
+  overdueCount: number;
+  questionCount: number;
+  openSessionId: string | null;
+  canStart: boolean;
+};
+
 export type PracticeHomeData = {
   databaseConnected: boolean;
   chapters: PracticeChapterCard[];
   openMistakes: number;
+  dueReview: DueReviewCard;
 };
 
 export type PracticeSessionView = {
@@ -52,6 +62,12 @@ export type PracticeItemView = {
 };
 
 export async function getPracticeHomeData(): Promise<PracticeHomeData> {
+  const emptyDueReview: DueReviewCard = {
+    overdueCount: 0,
+    questionCount: 0,
+    openSessionId: null,
+    canStart: false,
+  };
   try {
     const edition = await prisma.courseEdition.findUnique({
       where: { slug: COURSE_EDITION_SEED.slug },
@@ -68,6 +84,7 @@ export async function getPracticeHomeData(): Promise<PracticeHomeData> {
           canStart: false,
         })),
         openMistakes: 0,
+        dueReview: emptyDueReview,
       };
     }
     const learner = await getLocalLearner(prisma);
@@ -75,7 +92,12 @@ export async function getPracticeHomeData(): Promise<PracticeHomeData> {
       where: {
         learnerId: learner.id,
         editionId: edition.id,
-        plannerVersion: { in: [...PRACTICE_SITTINGS.map((row) => row.plannerVersion)] },
+        plannerVersion: {
+          in: [
+            ...PRACTICE_SITTINGS.map((row) => row.plannerVersion),
+            PLANNER_VERSION_PRACTICE_DUE_REVIEW,
+          ],
+        },
         completedAt: null,
       },
       select: { id: true, plannerVersion: true },
@@ -106,10 +128,34 @@ export async function getPracticeHomeData(): Promise<PracticeHomeData> {
     const openMistakes = await prisma.mistake.count({
       where: { learnerId: learner.id, resolvedAt: null },
     });
+    const overdueCount = await prisma.reviewSchedule.count({
+      where: { learnerId: learner.id, dueAt: { lte: new Date() } },
+    });
+    const dueOpenId = openByPlanner.get(PLANNER_VERSION_PRACTICE_DUE_REVIEW) ?? null;
+    const duePicks =
+      dueOpenId != null
+        ? []
+        : await selectDueReviewQuestions({
+            prisma,
+            editionId: edition.id,
+            learnerId: learner.id,
+          });
+    const dueQuestionCount = dueOpenId
+      ? await prisma.sessionItem.count({
+          where: { sessionId: dueOpenId },
+        })
+      : duePicks.length;
+
     return {
       databaseConnected: true,
       chapters,
       openMistakes,
+      dueReview: {
+        overdueCount,
+        questionCount: dueQuestionCount,
+        openSessionId: dueOpenId,
+        canStart: Boolean(dueOpenId) || duePicks.length > 0,
+      },
     };
   } catch {
     return {
@@ -123,6 +169,7 @@ export async function getPracticeHomeData(): Promise<PracticeHomeData> {
         canStart: false,
       })),
       openMistakes: 0,
+      dueReview: emptyDueReview,
     };
   }
 }

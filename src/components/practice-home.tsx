@@ -1,5 +1,8 @@
 import Link from "next/link";
-import { startChapterPracticeAction } from "@/lib/questions/actions";
+import {
+  startChapterPracticeAction,
+  startDueReviewPracticeAction,
+} from "@/lib/questions/actions";
 import type { PracticeHomeData } from "@/lib/questions/queries";
 
 export function PracticeHome({ data }: { data: PracticeHomeData }) {
@@ -10,9 +13,9 @@ export function PracticeHome({ data }: { data: PracticeHomeData }) {
       </p>
       <h1 className="mt-3 font-display text-4xl tracking-tight text-ink">Practice</h1>
       <p className="mt-4 max-w-2xl text-base leading-7 text-muted">
-        Phase 5 practice MCQs are built from seeded confusion pairs and heading citations.
+        Chapter MCQs come from seeded confusion pairs and heading citations.
+        Due review pulls existing stems for overdue SM-2 concepts across chapters.
         Confidence is required. Misses store remediation and queue an immediate retest.
-        Teach Me stays the home loop.
       </p>
 
       {!data.databaseConnected ? (
@@ -31,6 +34,35 @@ export function PracticeHome({ data }: { data: PracticeHomeData }) {
               </Link>
             </p>
           ) : null}
+
+          <section className="card p-6 sm:p-8">
+            <h2 className="font-display text-2xl text-ink">Due review</h2>
+            <p className="mt-2 text-sm text-muted">
+              {data.dueReview.overdueCount === 0
+                ? "Nothing overdue yet. Practice chapters create SM-2 schedules."
+                : `${data.dueReview.overdueCount} overdue concept${data.dueReview.overdueCount === 1 ? "" : "s"} · ${data.dueReview.questionCount} sourced question${data.dueReview.questionCount === 1 ? "" : "s"} ready.`}
+            </p>
+            <div className="mt-5 flex flex-wrap gap-3">
+              {data.dueReview.openSessionId ? (
+                <Link
+                  href={`/practice/session/${data.dueReview.openSessionId}`}
+                  className="btn-primary"
+                >
+                  Resume due review
+                </Link>
+              ) : data.dueReview.canStart ? (
+                <form action={startDueReviewPracticeAction}>
+                  <button type="submit" className="btn-primary">
+                    Start due review
+                  </button>
+                </form>
+              ) : data.dueReview.overdueCount > 0 ? (
+                <p className="text-sm text-muted">
+                  Overdue concepts exist, but no matching active MCQs were found yet.
+                </p>
+              ) : null}
+            </div>
+          </section>
 
           {data.chapters.map((chapter) => (
             <section key={chapter.chapterNumber} className="card p-6 sm:p-8">

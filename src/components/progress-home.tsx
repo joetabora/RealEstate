@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { startDueReviewPracticeAction } from "@/lib/questions/actions";
 import type { ProgressData } from "@/lib/knowledge/queries";
 
 export function ProgressHome({ data }: { data: ProgressData }) {
@@ -68,16 +69,29 @@ export function ProgressHome({ data }: { data: ProgressData }) {
                 ))}
               </ul>
             ) : null}
-            {data.review.openMistakeCount > 0 ? (
-              <p className="mt-4 text-sm">
+            <div className="mt-5 flex flex-wrap items-center gap-4">
+              {data.review.overdueCount > 0 ? (
+                <form action={startDueReviewPracticeAction}>
+                  <button type="submit" className="btn-primary">
+                    Practice due reviews
+                  </button>
+                </form>
+              ) : null}
+              {data.review.openMistakeCount > 0 ? (
                 <Link
                   href="/mistakes"
-                  className="font-medium text-accent underline-offset-2 hover:underline"
+                  className="text-sm font-medium text-accent underline-offset-2 hover:underline"
                 >
                   Open Mistakes ({data.review.openMistakeCount})
                 </Link>
-              </p>
-            ) : null}
+              ) : null}
+              <Link
+                href="/practice"
+                className="text-sm text-muted underline-offset-2 hover:underline"
+              >
+                Practice home
+              </Link>
+            </div>
           </section>
 
           <p className="mt-8 text-sm text-muted">

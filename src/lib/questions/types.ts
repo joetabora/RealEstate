@@ -106,7 +106,15 @@ export const PRACTICE_PLANNER_VERSIONS = PRACTICE_SITTINGS.map(
   (sitting) => sitting.plannerVersion,
 );
 
-export type PracticePlannerVersion = (typeof PRACTICE_PLANNER_VERSIONS)[number];
+/** Cross-chapter overdue MCQ sitting (Phase 6). Existing stems only. */
+export const PLANNER_VERSION_PRACTICE_DUE_REVIEW = "phase6-due-review-v1";
+export const DUE_REVIEW_PRACTICE_CAP = 8;
+export const DUE_REVIEW_LABEL = "Due review";
+export const DUE_REVIEW_SHORT_LABEL = "Due review";
+
+export type PracticePlannerVersion =
+  | (typeof PRACTICE_PLANNER_VERSIONS)[number]
+  | typeof PLANNER_VERSION_PRACTICE_DUE_REVIEW;
 export type PracticeChapterNumber = (typeof PRACTICE_SITTINGS)[number]["chapterNumber"];
 
 export const PRACTICE_SESSION_TARGET_MINUTES = 15;
@@ -116,7 +124,8 @@ export function isPracticePlannerVersion(
 ): version is PracticePlannerVersion {
   return (
     typeof version === "string" &&
-    (PRACTICE_PLANNER_VERSIONS as readonly string[]).includes(version)
+    ((PRACTICE_PLANNER_VERSIONS as readonly string[]).includes(version) ||
+      version === PLANNER_VERSION_PRACTICE_DUE_REVIEW)
   );
 }
 
@@ -129,5 +138,13 @@ export function practiceSittingByChapter(chapterNumber: number) {
 }
 
 export function practiceSittingByPlannerVersion(plannerVersion: string | null | undefined) {
+  if (plannerVersion === PLANNER_VERSION_PRACTICE_DUE_REVIEW) {
+    return {
+      chapterNumber: null,
+      plannerVersion: PLANNER_VERSION_PRACTICE_DUE_REVIEW,
+      label: DUE_REVIEW_LABEL,
+      shortLabel: DUE_REVIEW_SHORT_LABEL,
+    };
+  }
   return PRACTICE_SITTINGS.find((row) => row.plannerVersion === plannerVersion) ?? null;
 }

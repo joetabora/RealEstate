@@ -2,7 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { startOrResumeChapterPractice, submitPracticeAnswer } from "./session";
+import {
+  startOrResumeChapterPractice,
+  startOrResumeDueReviewPractice,
+  submitPracticeAnswer,
+} from "./session";
 import { PRACTICE_SITTINGS, type PracticeChapterNumber } from "./types";
 
 function isPracticeChapterNumber(value: number): value is PracticeChapterNumber {
@@ -17,6 +21,20 @@ export async function startChapterPracticeAction(formData: FormData) {
   const session = await startOrResumeChapterPractice(chapterNumber);
   revalidatePath("/practice");
   revalidatePath("/mistakes");
+  revalidatePath("/progress");
+  redirect(`/practice/session/${session.id}`);
+}
+
+export async function startDueReviewPracticeAction() {
+  let session;
+  try {
+    session = await startOrResumeDueReviewPractice();
+  } catch {
+    redirect("/practice");
+  }
+  revalidatePath("/practice");
+  revalidatePath("/mistakes");
+  revalidatePath("/progress");
   redirect(`/practice/session/${session.id}`);
 }
 

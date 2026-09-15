@@ -2,7 +2,10 @@ import { prisma } from "@/lib/db/prisma";
 import { COURSE_EDITION_SEED } from "@/lib/blueprint";
 import { getLocalLearner } from "@/lib/learner";
 import { updateReviewSchedulesForConcepts } from "@/lib/mastery";
+import { selectDueReviewQuestions } from "./due-review";
 import {
+  DUE_REVIEW_LABEL,
+  PLANNER_VERSION_PRACTICE_DUE_REVIEW,
   PRACTICE_SESSION_TARGET_MINUTES,
   practiceSittingByChapter,
   type PracticeChapterNumber,
@@ -71,6 +74,70 @@ export async function startOrResumeChapterPractice(chapterNumber: PracticeChapte
         })),
       },
       recommendedNext: `${sitting.label} practice complete. Review Mistakes for misses, or continue on Practice / Teach Me.`,
+    },
+  });
+}
+
+/**
+ * Resume or start a cross-chapter due-review sitting from overdue SM-2 concepts.
+ * Uses existing active MCQs only — no new stems.
+ */
+export async function startOrResumeDueReviewPractice() {
+  const edition = await prisma.courseEdition.findUnique({
+    where: { slug: COURSE_EDITION_SEED.slug },
+  });
+  if (!edition) {
+    throw new Error(`Course edition "${COURSE_EDITION_SEED.slug}" is missing. Run: npx prisma db seed`);
+  }
+
+  const learner = await getLocalLearner(prisma);
+  const open = await prisma.learningSession.findFirst({
+    where: {
+      learnerId: learner.id,
+      editionId: edition.id,
+      plannerVersion: PLANNER_VERSION_PRACTICE_DUE_REVIEW,
+      completedAt: null,
+    },
+    orderBy: { startedAt: "desc" },
+  });
+  if (open) {
+    return open;
+  }
+
+  const picks = await selectDueReviewQuestions({
+    prisma,
+    editionId: edition.id,
+    learnerId: learner.id,
+  });
+  if (picks.length === 0) {
+    throw new Error(
+      "No due-review questions available. Create overdue schedules via practice, or wait until concepts are due.",
+    );
+  }
+
+  return prisma.learningSession.create({
+    data: {
+      learnerId: learner.id,
+      editionId: edition.id,
+      objective: `${DUE_REVIEW_LABEL}: overdue concepts with sourced MCQs`,
+      targetMinutes: PRACTICE_SESSION_TARGET_MINUTES,
+      plannerVersion: PLANNER_VERSION_PRACTICE_DUE_REVIEW,
+      stateBefore: {
+        plannerVersion: PLANNER_VERSION_PRACTICE_DUE_REVIEW,
+        questionCount: picks.length,
+        kind: "due_review",
+      },
+      items: {
+        create: picks.map((pick, index) => ({
+          sortOrder: index + 1,
+          kind: "practice",
+          reasonCodes: ["phase6", "due_review", "overdue"],
+          conceptId: pick.conceptId ?? pick.reasonConceptId,
+          questionId: pick.id,
+        })),
+      },
+      recommendedNext:
+        "Due review complete. Check Progress for remaining overdue, or return to chapter practice / Teach Me.",
     },
   });
 }

@@ -40,6 +40,7 @@ If Docker Desktop is not running, the Teach Me shell still renders from the in-c
 - Sequential chapter sittings remain the base plan; adaptive items are prepended only
 - Progress review queue (overdue + open mistakes counts) and Teach Me adaptive hint
 - Completing Teach Me review/repair items advances the SM-2 schedule (quality 4)
+- Due-review practice sitting from overdue concepts (existing MCQs, cross-chapter, cap 8)
 
 ## What Phase 6 does not include yet
 

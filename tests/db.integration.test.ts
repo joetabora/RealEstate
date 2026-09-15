@@ -63,8 +63,10 @@ import {
   PHASE5_CH12_QUESTIONS,
   PHASE5_CH13_QUESTIONS,
   PHASE5_CH14_QUESTIONS,
+  PLANNER_VERSION_PRACTICE_DUE_REVIEW,
   seedPhase5,
   startOrResumeChapterPractice,
+  startOrResumeDueReviewPractice,
 } from "@/lib/questions";
 import { submitPracticeAnswer } from "@/lib/questions/session";
 import { TEACH_ME_REVIEW_QUALITY } from "@/lib/mastery";
@@ -400,5 +402,65 @@ describe("database seed (integration)", () => {
     expect(schedule.lastQuality).toBe(TEACH_ME_REVIEW_QUALITY);
     expect(schedule.dueAt.getTime()).toBeGreaterThan(before.getTime());
     expect(schedule.repetitions).toBeGreaterThan(0);
+  });
+
+  it("starts a due-review practice sitting from overdue concepts", async ({ skip }) => {
+    if (!(await databaseIsReachable())) {
+      skip();
+      return;
+    }
+
+    const { edition } = await seedPhase1(prisma);
+    await ensureLocalLearner(prisma);
+    await seedPhase3(prisma, edition.id);
+    await seedPhase4(prisma, edition.id);
+    await seedPhase5(prisma, edition.id);
+
+    const learner = await prisma.learner.findFirstOrThrow({
+      where: { key: LOCAL_LEARNER_KEY },
+    });
+    const question = await prisma.question.findFirstOrThrow({
+      where: {
+        editionId: edition.id,
+        lifecycle: "active",
+        OR: [{ conceptId: { not: null } }, { pairId: { not: null } }],
+      },
+      include: {
+        pair: { select: { conceptAId: true, conceptBId: true } },
+      },
+      orderBy: { sortOrder: "asc" },
+    });
+    const conceptId =
+      question.conceptId ?? question.pair?.conceptAId ?? question.pair?.conceptBId;
+    expect(conceptId).toBeTruthy();
+
+    await prisma.sessionItem.deleteMany({});
+    await prisma.learningSession.deleteMany({});
+    await prisma.reviewSchedule.deleteMany({ where: { learnerId: learner.id } });
+    await prisma.reviewSchedule.create({
+      data: {
+        learnerId: learner.id,
+        conceptId: conceptId!,
+        dueAt: new Date("2000-01-01T00:00:00.000Z"),
+        intervalDays: 1,
+        easeFactor: 2.5,
+        repetitions: 0,
+        lapses: 1,
+        lastQuality: 1,
+      },
+    });
+
+    const session = await startOrResumeDueReviewPractice();
+    expect(session.plannerVersion).toBe(PLANNER_VERSION_PRACTICE_DUE_REVIEW);
+    const items = await prisma.sessionItem.findMany({
+      where: { sessionId: session.id },
+      orderBy: { sortOrder: "asc" },
+    });
+    expect(items.length).toBeGreaterThan(0);
+    expect(items.some((item) => item.questionId === question.id)).toBe(true);
+    expect(items.every((item) => item.reasonCodes.includes("due_review"))).toBe(true);
+
+    const resumed = await startOrResumeDueReviewPractice();
+    expect(resumed.id).toBe(session.id);
   });
 });

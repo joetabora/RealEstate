@@ -259,6 +259,7 @@ describe("database seed (integration)", () => {
     await prisma.questionAttempt.deleteMany({});
     await prisma.knowledgeState.deleteMany({});
     await prisma.performanceState.deleteMany({});
+    await prisma.reviewSchedule.deleteMany({});
 
     const session = await startOrResumeChapterPractice(14);
     const item = await prisma.sessionItem.findFirst({
@@ -280,6 +281,7 @@ describe("database seed (integration)", () => {
     expect(miss.correct).toBe(false);
     expect(await prisma.mistake.count({ where: { resolvedAt: null } })).toBeGreaterThan(0);
     expect(await prisma.questionAttempt.count()).toBe(1);
+    expect(await prisma.reviewSchedule.count()).toBeGreaterThan(0);
 
     const retest = await prisma.sessionItem.findFirst({
       where: {
@@ -300,5 +302,6 @@ describe("database seed (integration)", () => {
     expect(hit.correct).toBe(true);
     expect(await prisma.performanceState.count()).toBeGreaterThan(0);
     expect(await prisma.knowledgeState.count()).toBeGreaterThan(0);
+    expect(await prisma.reviewSchedule.count()).toBeGreaterThan(0);
   });
 });

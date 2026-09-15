@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db/prisma";
 import { COURSE_EDITION_SEED } from "@/lib/blueprint";
 import { getLocalLearner } from "@/lib/learner";
+import { updateReviewSchedulesForConcepts } from "@/lib/mastery";
 import {
   PRACTICE_SESSION_TARGET_MINUTES,
   practiceSittingByChapter,
@@ -219,6 +220,16 @@ export async function submitPracticeAnswer(input: SubmitAnswerInput) {
         correctCount: correct ? { increment: 1 } : undefined,
         lastAttemptAt: new Date(),
       },
+    });
+  }
+
+  if (conceptIds.size > 0) {
+    await updateReviewSchedulesForConcepts({
+      prisma,
+      learnerId: learner.id,
+      conceptIds,
+      correct,
+      confidence,
     });
   }
 

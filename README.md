@@ -2,7 +2,7 @@
 
 Personal learning system for the Wisconsin real estate **salesperson** exam. Teach Me is the home loop.
 
-This repository is **Phase 5**: sourced Chapter 1–14 practice questions on top of Teach Me sittings for **all 14 chapters**. Class-miss photos and generated items are not in yet.
+This repository is **Phase 6 (in progress)**: deterministic SM-2 review schedules plus an adaptive Teach Me repair prefix on top of Phase 5 chapter practice. Class-miss photos and generated items are not in yet.
 
 ## Requirements
 
@@ -31,6 +31,17 @@ The second `npx prisma db seed` attaches Chapter 1–14 concepts, Teach Me asset
 The database listens on **localhost:5433** so it does not collide with a local Postgres on 5432.
 
 If Docker Desktop is not running, the Teach Me shell still renders from the in-code exam blueprint. Persistence and ingested sections require the database.
+
+## What Phase 6 includes (in progress)
+
+- Everything in Phase 1–5
+- `ReviewSchedule` rows updated from practice attempts via deterministic SM-2 (no LLM)
+- Adaptive Teach Me prefix (cap 3): open mistakes → overdue schedules → overconfidence misses
+- Sequential chapter sittings remain the base plan; adaptive items are prepended only
+
+## What Phase 6 does not include yet
+
+Full FSRS package, exam-weighted mastery %, LLM narration, class-miss photo intake, live tutor, XP.
 
 ## What Phase 5 includes
 

@@ -1,17 +1,29 @@
 import { prisma } from "@/lib/db/prisma";
 import { COURSE_EDITION_SEED } from "@/lib/blueprint";
 import { getLocalLearner } from "@/lib/learner";
+import { buildAdaptiveTeachMeDraft } from "@/lib/mastery";
 import { planTeachMeSitting } from "./planner";
 import {
   PLANNER_VERSION_CH1,
   TEACH_ME_PLANNER_VERSIONS,
   recommendedNextForPlanner,
+  sittingByPlannerVersion,
   sittingLabelForPlanner,
 } from "./types";
+
+function chapterNumberFromPlannerVersion(plannerVersion: string): number {
+  const sitting = sittingByPlannerVersion(plannerVersion);
+  const match = /^chapter(\d+)$/.exec(sitting.id);
+  if (!match) {
+    throw new Error(`Cannot map Teach Me sitting ${sitting.id} to a chapter number.`);
+  }
+  return Number(match[1]);
+}
 
 /**
  * Resume any open Teach Me sitting. Otherwise advance through ordered
  * chapter sittings only after each prior sitting is complete.
+ * New sittings prepend a deterministic adaptive repair prefix when signals exist.
  */
 export async function startOrResumeTeachMeSession() {
   const edition = await prisma.courseEdition.findUnique({
@@ -53,10 +65,18 @@ export async function startOrResumeTeachMeSession() {
 
   const assets = await prisma.learningAsset.findMany({
     where: { editionId: edition.id, lifecycle: "active" },
-    select: { id: true, slug: true, conceptId: true, pairId: true },
+    select: { id: true, slug: true, kind: true, conceptId: true, pairId: true },
   });
 
-  const draft = planTeachMeSitting(assets, { completedPlannerVersions });
+  const baseDraft = planTeachMeSitting(assets, { completedPlannerVersions });
+  const chapterNumber = chapterNumberFromPlannerVersion(baseDraft.plannerVersion);
+  const draft = await buildAdaptiveTeachMeDraft({
+    prisma,
+    learnerId: learner.id,
+    chapterNumber,
+    draft: baseDraft,
+    assets,
+  });
 
   return prisma.learningSession.create({
     data: {
@@ -69,6 +89,8 @@ export async function startOrResumeTeachMeSession() {
         plannerVersion: draft.plannerVersion,
         assetCount: draft.items.length,
         sitting: sittingLabelForPlanner(draft.plannerVersion),
+        chapterNumber,
+        adaptivePrefix: draft.items.length - baseDraft.items.length,
       },
       items: {
         create: draft.items.map((item) => ({

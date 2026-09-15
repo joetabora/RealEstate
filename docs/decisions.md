@@ -48,13 +48,21 @@ This file records the Architecture Lock. It is binding for implementation.
 - **Practice-exam stems stay in the local DB** and are not rendered in Library or committed to git.
 - **Video transcription and OCR are deferred** (Phase 10). Image-heavy form pages are stored as `needsOcr` placeholders.
 
+## Phase 6 in progress (adaptive planner)
+
+Deterministic SM-2 `ReviewSchedule` per concept, updated from practice attempts (correct + confidence → quality). New Teach Me sittings prepend up to three repair/review assets from open mistakes, overdue schedules, then overconfidence misses for the chapter. Planner and SRS never call an LLM. No XP. KnowledgeState and PerformanceState stay separate from ReviewSchedule.
+
+## Phase 6 boundaries (still in force)
+
+Do not invent Wisconsin facts. Do not add photo miss intake, the live tutor, embeddings, or LLM narration to the planner. Do not replace sequential chapter sittings with a free-form queue.
+
 ## Phase 5 complete (Chapters 1–14 questions)
 
 Hand-authored Chapter 1–14 MCQs with heading citations, confidence prompts, why-missed + distinction remediation, immediate retest queue, `QuestionAttempt`, and separate knowledge vs performance state rows. Mistakes lists open/resolved misses. No generated items, no practice-exam import, no class-miss photos yet.
 
 ## Phase 5 boundaries (still in force)
 
-Do not invent Wisconsin facts. Do not activate unvalidated generated MCQs. Do not import the 140-item practice exam into git. Do not add photo miss intake, the live tutor, embeddings, or SRS yet.
+Do not invent Wisconsin facts. Do not activate unvalidated generated MCQs. Do not import the 140-item practice exam into git. Do not add photo miss intake, the live tutor, or embeddings as Phase 5 work.
 
 ## Phase 4 complete (Chapters 1–14)
 

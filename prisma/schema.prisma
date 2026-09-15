@@ -68,6 +68,7 @@ model Learner {
   attempts QuestionAttempt[]
   knowledgeStates KnowledgeState[]
   performanceStates PerformanceState[]
+  reviewSchedules ReviewSchedule[]
   mistakes Mistake[]
 }
 
@@ -308,6 +309,7 @@ model Concept {
   questions      Question[]
   knowledgeStates KnowledgeState[]
   performanceStates PerformanceState[]
+  reviewSchedules ReviewSchedule[]
   mistakes       Mistake[]
 
   @@unique([editionId, slug])
@@ -612,6 +614,29 @@ model PerformanceState {
 
   @@unique([learnerId, conceptId])
   @@index([learnerId])
+}
+
+/// Deterministic SM-2 review schedule per concept (Phase 6). Planner never calls an LLM.
+model ReviewSchedule {
+  id        String  @id @default(cuid())
+  learnerId String
+  learner   Learner @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+  conceptId String
+  concept   Concept @relation(fields: [conceptId], references: [id], onDelete: Cascade)
+
+  dueAt         DateTime
+  intervalDays  Float    @default(0)
+  easeFactor    Float    @default(2.5)
+  repetitions   Int      @default(0)
+  lapses        Int      @default(0)
+  lastQuality   Int?
+  lastReviewedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([learnerId, conceptId])
+  @@index([learnerId, dueAt])
 }
 
 /// A miss retained for repair. Photo miss intake still comes later.

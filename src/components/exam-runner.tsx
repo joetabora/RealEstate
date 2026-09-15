@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { finishExamEarlyAction, submitExamAnswerAction } from "@/lib/exam/actions";
 import type { ExamSessionView } from "@/lib/exam/queries";
@@ -19,11 +19,14 @@ function formatRemaining(ms: number): string {
 
 export function ExamRunner({ session }: { session: ExamSessionView }) {
   const [optionId, setOptionId] = useState("");
-  const [startedAt] = useState(() => Date.now());
+  const [itemStartedAt, setItemStartedAt] = useState(() => Date.now());
   const [now, setNow] = useState(() => Date.now());
+  const timeoutFormRef = useRef<HTMLFormElement>(null);
+  const autoEndedRef = useRef(false);
 
   useEffect(() => {
     setOptionId("");
+    setItemStartedAt(Date.now());
   }, [session.item?.id]);
 
   useEffect(() => {
@@ -34,6 +37,12 @@ export function ExamRunner({ session }: { session: ExamSessionView }) {
 
   const remainingMs = session.endsAt ? Math.max(0, new Date(session.endsAt).getTime() - now) : null;
   const timedOut = remainingMs != null && remainingMs <= 0 && !session.completed;
+
+  useEffect(() => {
+    if (!timedOut || autoEndedRef.current) return;
+    autoEndedRef.current = true;
+    timeoutFormRef.current?.requestSubmit();
+  }, [timedOut]);
 
   if (session.completed || !session.item) {
     const results = session.results;
@@ -54,7 +63,7 @@ export function ExamRunner({ session }: { session: ExamSessionView }) {
               {results.answered !== results.total
                 ? ` · ${results.total - results.answered} unanswered`
                 : ""}
-              {results.endedEarly ? " · ended early" : ""}
+              {results.endedEarly ? " · ended early / timed out" : ""}
             </p>
             <p className="mt-2 text-base text-ink">
               Overall{" "}
@@ -107,6 +116,10 @@ export function ExamRunner({ session }: { session: ExamSessionView }) {
 
   return (
     <div className="mx-auto max-w-3xl">
+      <form ref={timeoutFormRef} action={finishExamEarlyAction} className="hidden">
+        <input type="hidden" name="sessionId" value={session.id} />
+      </form>
+
       <div className="flex flex-wrap items-baseline justify-between gap-3">
         <p className="text-xs font-medium uppercase tracking-[0.16em] text-accent">
           Exam · {stepLabel}
@@ -131,15 +144,8 @@ export function ExamRunner({ session }: { session: ExamSessionView }) {
       {timedOut ? (
         <section className="card mt-6 p-6">
           <p className="text-sm leading-6 text-muted">
-            Time expired. End the sitting to score answered items. Unanswered count as
-            incomplete.
+            Time expired. Scoring answered items…
           </p>
-          <form action={finishExamEarlyAction} className="mt-4">
-            <input type="hidden" name="sessionId" value={session.id} />
-            <button type="submit" className="btn-primary">
-              End and score
-            </button>
-          </form>
         </section>
       ) : (
         <section className="card mt-8 p-6 sm:p-8">
@@ -148,7 +154,11 @@ export function ExamRunner({ session }: { session: ExamSessionView }) {
             <input type="hidden" name="sessionId" value={session.id} />
             <input type="hidden" name="itemId" value={item.id} />
             <input type="hidden" name="optionId" value={optionId} />
-            <input type="hidden" name="latencyMs" value={Math.max(0, Date.now() - startedAt)} />
+            <input
+              type="hidden"
+              name="latencyMs"
+              value={Math.max(0, Date.now() - itemStartedAt)}
+            />
 
             <fieldset className="space-y-3">
               <legend className="text-sm font-medium text-ink">Choose one</legend>
@@ -187,12 +197,6 @@ export function ExamRunner({ session }: { session: ExamSessionView }) {
           </form>
         </section>
       )}
-
-      {item.citations.length > 0 ? (
-        <p className="mt-6 text-xs text-muted">
-          Citations are hidden during the simulation and remain on Practice / Mistakes.
-        </p>
-      ) : null}
     </div>
   );
 }

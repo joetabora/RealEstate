@@ -2,7 +2,7 @@
 
 Personal learning system for the Wisconsin real estate **salesperson** exam. Teach Me is the home loop.
 
-This repository is **Phase 9 (in progress)**: blueprint-balanced timed exam simulation on top of Phase 8 math. Sourced MCQs only — never labeled as a live licensing exam. Class-miss photos and generated items are not in yet.
+This repository is **Phase 9 (complete)**: blueprint-balanced timed exam simulation on top of Phase 8 math. Sourced MCQs only — never labeled as a live licensing exam. Class-miss photos and generated items are not in yet.
 
 ## Requirements
 
@@ -32,15 +32,16 @@ The database listens on **localhost:5433** so it does not collide with a local P
 
 If Docker Desktop is not running, the Teach Me shell still renders from the in-code exam blueprint. Persistence and ingested sections require the database.
 
-## What Phase 9 includes (in progress)
+## What Phase 9 includes
 
 - Everything in Phase 1–8
 - Timed `/exam` simulation from existing active MCQs
 - Blueprint seat allocation (Pearson salesperson weights, capped by inventory)
+- Seeded shuffle of question and option order; concept/citation hints hidden mid-exam
 - No mid-exam remediation or retest queue; category score summary at the end
-- Explicit study-simulation disclaimer (not a licensing exam; not the course 140-item practice test)
+- Auto-end on timeout, recent simulation history, study-simulation disclaimer
 
-## What Phase 9 does not include yet
+## What Phase 9 does not include
 
 Full 140 when inventory is short, importing the course practice exam into git, generated items, photo miss intake, AI-written stems.
 

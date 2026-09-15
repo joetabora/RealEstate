@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db/prisma";
 import { COURSE_EDITION_SEED, SALESPERSON_EXAM_CATEGORIES } from "@/lib/blueprint";
 import { getLocalLearner } from "@/lib/learner";
 import { selectExamSimulationQuestions } from "./select";
+import { shuffledCopy } from "./shuffle";
 import {
   EXAM_SIM_DISCLAIMER,
   EXAM_SIM_LABEL,
@@ -33,15 +34,17 @@ export async function startOrResumeExamSimulation() {
     return open;
   }
 
-  const { picks, quotas } = await selectExamSimulationQuestions({
+  const { picks: orderedPicks, quotas } = await selectExamSimulationQuestions({
     prisma,
     editionId: edition.id,
   });
-  if (picks.length === 0) {
+  if (orderedPicks.length === 0) {
     throw new Error("No active questions available for exam simulation. Run: npx prisma db seed");
   }
 
   const startedAt = new Date();
+  const shuffleSeed = `exam-order:${learner.id}:${startedAt.toISOString()}`;
+  const picks = shuffledCopy(orderedPicks, shuffleSeed);
   const targetMinutes = examTargetMinutes(picks.length);
   const endsAt = examEndsAtIso(startedAt, picks.length);
 
@@ -58,6 +61,7 @@ export async function startOrResumeExamSimulation() {
         questionCount: picks.length,
         startedAt: startedAt.toISOString(),
         endsAt,
+        shuffleSeed,
         quotas: quotas.map((row) => ({
           code: row.code,
           seats: row.seats,

@@ -12,7 +12,7 @@ export function ExamHome({ data }: { data: ExamHomeData }) {
       <p className="mt-4 max-w-2xl text-base leading-7 text-muted">
         Timed, blueprint-balanced sitting from your seeded MCQs. Seat counts follow the
         Pearson salesperson outline weights, capped by what is actually in the database.
-        {` ${data.disclaimer}`}
+        Question and option order are shuffled. {data.disclaimer}
       </p>
 
       {!data.databaseConnected ? (
@@ -74,6 +74,31 @@ export function ExamHome({ data }: { data: ExamHomeData }) {
               ))}
             </ul>
           </section>
+
+          {data.recent.length > 0 ? (
+            <section className="card p-6 sm:p-8">
+              <h2 className="font-display text-2xl text-ink">Recent simulations</h2>
+              <ul className="mt-5 space-y-2">
+                {data.recent.map((row) => (
+                  <li key={row.id}>
+                    <Link
+                      href={`/exam/session/${row.id}`}
+                      className="flex flex-wrap items-baseline justify-between gap-2 rounded-lg bg-paper px-4 py-3 text-sm ring-1 ring-line hover:text-ink"
+                    >
+                      <span className="text-muted">
+                        {new Date(row.completedAt).toLocaleString()}
+                        {row.endedEarly ? " · early" : ""}
+                      </span>
+                      <span className="tabular-nums text-ink">
+                        {row.correct}/{row.answered} answered
+                        {row.total > row.answered ? ` · ${row.total} items` : ""}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
 
           <p className="text-sm text-muted">
             Prefer chapter drills?{" "}

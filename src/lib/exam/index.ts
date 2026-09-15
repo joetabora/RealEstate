@@ -11,6 +11,7 @@ export {
 export type { ExamCategoryQuota, ExamCategoryScore } from "./types";
 export { allocateExamSeats } from "./allocate";
 export { selectExamSimulationQuestions } from "./select";
+export { shuffledCopy, shuffleInPlace, hashSeed, mulberry32 } from "./shuffle";
 export {
   startOrResumeExamSimulation,
   submitExamAnswer,
@@ -18,7 +19,7 @@ export {
   buildExamScoreSummary,
 } from "./session";
 export { getExamHomeData, getExamSessionView } from "./queries";
-export type { ExamHomeData, ExamSessionView, ExamItemView } from "./queries";
+export type { ExamHomeData, ExamSessionView, ExamItemView, ExamHistoryRow } from "./queries";
 export {
   startExamSimulationAction,
   submitExamAnswerAction,

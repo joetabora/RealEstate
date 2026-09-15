@@ -48,9 +48,9 @@ This file records the Architecture Lock. It is binding for implementation.
 - **Practice-exam stems stay in the local DB** and are not rendered in Library or committed to git.
 - **Video transcription and OCR are deferred** (Phase 10). Image-heavy form pages are stored as `needsOcr` placeholders.
 
-## Phase 9 in progress (exam simulation)
+## Phase 9 complete (exam simulation)
 
-Timed blueprint-balanced sitting on `/exam` using existing `active` MCQs only. Seat counts follow Pearson salesperson outline weights via largest-remainder allocation, never inventing stems or importing the course 140-item practice exam. Mid-exam: no remediation banner and no immediate retest queue. Attempts update PerformanceState and Mistakes; they do not advance SM-2. Results show overall and primary-category scores. Always labeled as a study simulation — never as a live licensing exam.
+Timed blueprint-balanced sitting on `/exam` using existing `active` MCQs only. Seat counts follow Pearson salesperson outline weights via largest-remainder allocation, never inventing stems or importing the course 140-item practice exam. Question and option order use a seeded shuffle. Mid-exam: no remediation banner, no immediate retest queue, and no concept/citation hints. Attempts update PerformanceState and Mistakes; they do not advance SM-2. Timer auto-ends the sitting; results show overall and primary-category scores with recent history on `/exam`. Always labeled as a study simulation — never as a live licensing exam.
 
 ## Phase 9 boundaries (still in force)
 

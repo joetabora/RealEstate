@@ -38,6 +38,7 @@ If Docker Desktop is not running, the Teach Me shell still renders from the in-c
 - `ReviewSchedule` rows updated from practice attempts via deterministic SM-2 (no LLM)
 - Adaptive Teach Me prefix (cap 3): open mistakes → overdue schedules → overconfidence misses
 - Sequential chapter sittings remain the base plan; adaptive items are prepended only
+- Progress review queue (overdue + open mistakes counts) and Teach Me adaptive hint
 
 ## What Phase 6 does not include yet
 

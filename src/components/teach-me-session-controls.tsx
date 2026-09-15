@@ -27,6 +27,9 @@ export function TeachMeSessionControls() {
             nextSittingLabel: "Chapter 1 — Agency Relationships",
             nextSittingShort: "Agency Relationships",
             nextSittingHint: "Start with Chapter 1 — Agency Relationships.",
+            overdueCount: 0,
+            openMistakeCount: 0,
+            adaptiveHint: null,
           });
         }
       });
@@ -51,7 +54,8 @@ export function TeachMeSessionControls() {
       <div>
         <h2 className="font-display text-2xl text-ink">{title}</h2>
         <p className="mt-2 max-w-lg text-sm leading-6 text-muted">
-          {hint} Sourced learn / repair / teach-back / recall — no quizzes yet.
+          {hint} Sourced learn / repair / teach-back / recall — practice is on the
+          Practice route.
           {status?.nextSittingLabel ? (
             <>
               {" "}
@@ -59,6 +63,9 @@ export function TeachMeSessionControls() {
             </>
           ) : null}
         </p>
+        {status?.adaptiveHint ? (
+          <p className="mt-3 text-sm leading-6 text-ink/80">{status.adaptiveHint}</p>
+        ) : null}
         {status && !status.databaseConnected ? (
           <p className="mt-3 text-sm text-ink/80">
             Postgres is not connected, so a session cannot be saved. See the README.

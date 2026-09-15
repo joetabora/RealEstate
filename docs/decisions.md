@@ -50,7 +50,7 @@ This file records the Architecture Lock. It is binding for implementation.
 
 ## Phase 6 in progress (adaptive planner)
 
-Deterministic SM-2 `ReviewSchedule` per concept, updated from practice attempts (correct + confidence → quality). New Teach Me sittings prepend up to three repair/review assets from open mistakes, overdue schedules, then overconfidence misses for the chapter. Planner and SRS never call an LLM. No XP. KnowledgeState and PerformanceState stay separate from ReviewSchedule.
+Deterministic SM-2 `ReviewSchedule` per concept, updated from practice attempts (correct + confidence → quality). New Teach Me sittings prepend up to three repair/review assets from open mistakes, overdue schedules, then overconfidence misses for the chapter. Progress shows overdue counts and concept links; Teach Me surfaces an adaptive hint from the same counts. Planner and SRS never call an LLM. No XP. KnowledgeState and PerformanceState stay separate from ReviewSchedule.
 
 ## Phase 6 boundaries (still in force)
 

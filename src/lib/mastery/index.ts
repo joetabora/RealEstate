@@ -14,3 +14,10 @@ export {
   type AdaptiveAssetCandidate,
   type AdaptiveSignal,
 } from "./adaptive";
+export {
+  adaptiveReviewHint,
+  emptyReviewQueueSummary,
+  getReviewQueueSummary,
+  type OverdueConceptSummary,
+  type ReviewQueueSummary,
+} from "./summary";

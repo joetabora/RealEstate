@@ -303,5 +303,26 @@ describe("database seed (integration)", () => {
     expect(await prisma.performanceState.count()).toBeGreaterThan(0);
     expect(await prisma.knowledgeState.count()).toBeGreaterThan(0);
     expect(await prisma.reviewSchedule.count()).toBeGreaterThan(0);
+
+    const learner = await prisma.learner.findFirstOrThrow({
+      where: { key: LOCAL_LEARNER_KEY },
+    });
+    const schedules = await prisma.reviewSchedule.findMany({
+      where: { learnerId: learner.id },
+    });
+    expect(schedules.length).toBeGreaterThan(0);
+    await prisma.reviewSchedule.updateMany({
+      where: { id: { in: schedules.map((row) => row.id) } },
+      data: { dueAt: new Date("2000-01-01T00:00:00.000Z") },
+    });
+    const { getReviewQueueSummary } = await import("@/lib/mastery");
+    const summary = await getReviewQueueSummary({
+      prisma,
+      learnerId: learner.id,
+      now: new Date("2026-09-15T12:00:00.000Z"),
+    });
+    expect(summary.overdueCount).toBeGreaterThan(0);
+    expect(summary.scheduledCount).toBeGreaterThan(0);
+    expect(summary.overdueConcepts.length).toBeGreaterThan(0);
   });
 });

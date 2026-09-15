@@ -1,6 +1,12 @@
 import { prisma } from "@/lib/db/prisma";
 import { COURSE_EDITION_SEED } from "@/lib/blueprint";
 import { formatPageCitation } from "@/lib/ingest/citation";
+import { getLocalLearner } from "@/lib/learner";
+import {
+  emptyReviewQueueSummary,
+  getReviewQueueSummary,
+  type ReviewQueueSummary,
+} from "@/lib/mastery";
 import { getLearningConceptIds, studyStateFor } from "@/lib/teach-me/queries";
 import {
   CONCEPT_GROUP_LABELS,
@@ -38,6 +44,7 @@ export type ProgressData = {
   conceptCount: number;
   pairCount: number;
   learningCount: number;
+  review: ReviewQueueSummary;
   chapters: ProgressChapter[];
 };
 
@@ -107,6 +114,11 @@ export async function getProgressData(): Promise<ProgressData> {
       where: { edition: { slug: COURSE_EDITION_SEED.slug }, active: true },
     });
     const learningIds = await getLearningConceptIds();
+    const learner = await getLocalLearner(prisma);
+    const review = await getReviewQueueSummary({
+      prisma,
+      learnerId: learner.id,
+    });
 
     const items: ConceptListItem[] = concepts.map((concept) => {
       const citation = concept.citations[0];
@@ -153,6 +165,7 @@ export async function getProgressData(): Promise<ProgressData> {
       conceptCount: items.length,
       pairCount,
       learningCount: items.filter((item) => item.state === "learning").length,
+      review,
       chapters,
     };
   } catch {
@@ -162,6 +175,7 @@ export async function getProgressData(): Promise<ProgressData> {
       conceptCount: 0,
       pairCount: 0,
       learningCount: 0,
+      review: emptyReviewQueueSummary(),
       chapters: [],
     };
   }

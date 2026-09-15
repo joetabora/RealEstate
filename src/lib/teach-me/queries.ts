@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db/prisma";
 import { COURSE_EDITION_SEED } from "@/lib/blueprint";
 import { formatPageCitation } from "@/lib/ingest/citation";
 import { getLocalLearner } from "@/lib/learner";
+import { adaptiveReviewHint, getReviewQueueSummary } from "@/lib/mastery";
 import { selectTeachMeSitting } from "./planner";
 import {
   PLANNER_VERSION_CH1,
@@ -24,6 +25,9 @@ export type TeachMeLiveStatus = {
   nextSittingLabel: string;
   nextSittingHint: string;
   nextSittingShort: string;
+  overdueCount: number;
+  openMistakeCount: number;
+  adaptiveHint: string | null;
 };
 
 export type SessionView = {
@@ -104,6 +108,10 @@ export async function getTeachMeLiveStatus(): Promise<TeachMeLiveStatus> {
           completedPlannerVersions: new Set(completedPlannerVersions),
         });
     const nextMeta = sittingById(nextSitting);
+    const review = await getReviewQueueSummary({
+      prisma,
+      learnerId: learner.id,
+    });
 
     return {
       databaseConnected: true,
@@ -119,6 +127,9 @@ export async function getTeachMeLiveStatus(): Promise<TeachMeLiveStatus> {
         : completedPlannerVersions.length === 0
           ? `Start with ${nextMeta.label}.`
           : `Next: ${nextMeta.shortNext}.`,
+      overdueCount: review.overdueCount,
+      openMistakeCount: review.openMistakeCount,
+      adaptiveHint: adaptiveReviewHint(review),
     };
   } catch {
     return emptyStatus(false);
@@ -224,6 +235,9 @@ function emptyStatus(databaseConnected: boolean): TeachMeLiveStatus {
     nextSittingLabel: first.label,
     nextSittingShort: first.shortNext,
     nextSittingHint: `Start with ${first.label}.`,
+    overdueCount: 0,
+    openMistakeCount: 0,
+    adaptiveHint: null,
   };
 }
 

@@ -11,14 +11,15 @@ import type { TutorMode, TutorStatus } from "@/lib/tutor/types";
 
 const MODE_HELP: Record<TutorMode, string> = {
   off: "Tutor is fully off. Teach Me, Practice, and Library still work.",
-  mock: "No API spend. Socratic coaching only — never invents Wisconsin facts.",
-  live: "Uses OPENAI_API_KEY when set. Soft daily spend cap applies.",
+  mock: "No API spend. Socratic coaching with local course pointers — never invents Wisconsin facts.",
+  live: "Uses OPENAI_API_KEY when set and online. Soft daily spend cap applies.",
 };
 
 export function TutorHome({ initial }: { initial: TutorStatus }) {
   const [status, setStatus] = useState(initial);
   const [draft, setDraft] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [online, setOnline] = useState(true);
   const [pending, startTransition] = useTransition();
 
   useEffect(() => {
@@ -32,6 +33,17 @@ export function TutorHome({ initial }: { initial: TutorStatus }) {
       });
     return () => {
       cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    const sync = () => setOnline(typeof navigator !== "undefined" ? navigator.onLine : true);
+    sync();
+    window.addEventListener("online", sync);
+    window.addEventListener("offline", sync);
+    return () => {
+      window.removeEventListener("online", sync);
+      window.removeEventListener("offline", sync);
     };
   }, []);
 
@@ -54,7 +66,7 @@ export function TutorHome({ initial }: { initial: TutorStatus }) {
     setError(null);
     startTransition(async () => {
       try {
-        const next = await sendTutorMessageAction(text);
+        const next = await sendTutorMessageAction(text, online);
         setStatus(next);
         setDraft("");
       } catch (err) {
@@ -63,7 +75,10 @@ export function TutorHome({ initial }: { initial: TutorStatus }) {
     });
   }
 
-  const chatEnabled = status.mode === "mock" || (status.mode === "live" && status.liveAvailable);
+  const liveBlockedOffline = status.mode === "live" && !online;
+  const chatEnabled =
+    status.mode === "mock" ||
+    (status.mode === "live" && status.liveAvailable && online);
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -73,8 +88,16 @@ export function TutorHome({ initial }: { initial: TutorStatus }) {
       <h1 className="mt-3 font-display text-4xl tracking-tight text-ink">Tutor</h1>
       <p className="mt-4 max-w-2xl text-base leading-7 text-muted">
         Socratic help you can turn off. Core study never depends on an API key.
-        Wisconsin facts still need Library / Teach Me citations — the tutor must not invent them.
+        Replies can point at matching concepts and Library headings — they still must not invent
+        Wisconsin facts.
       </p>
+
+      {!online ? (
+        <p className="mt-4 text-sm text-ink/80">
+          You are offline. Live mode is disabled — use Mock, or continue Teach Me / Practice /
+          Library.
+        </p>
+      ) : null}
 
       {!status.databaseConnected ? (
         <div className="card mt-8 p-8">
@@ -89,13 +112,13 @@ export function TutorHome({ initial }: { initial: TutorStatus }) {
             <p className="mt-2 text-sm text-muted">{MODE_HELP[status.mode]}</p>
             <div className="mt-5 flex flex-wrap gap-2">
               {(["off", "mock", "live"] as const).map((mode) => {
-                const disabled = mode === "live" && !status.liveConfigured;
+                const disabled = (mode === "live" && !status.liveConfigured) || pending;
                 const active = status.mode === mode;
                 return (
                   <button
                     key={mode}
                     type="button"
-                    disabled={disabled || pending}
+                    disabled={disabled}
                     onClick={() => changeMode(mode)}
                     className={`rounded-lg px-4 py-2 text-sm capitalize transition ${
                       active
@@ -123,6 +146,10 @@ export function TutorHome({ initial }: { initial: TutorStatus }) {
                 ) : null}
               </li>
               <li>
+                Network:{" "}
+                <span className="text-ink">{online ? "online" : "offline"}</span>
+              </li>
+              <li>
                 Model: <span className="text-ink">{status.model}</span>
               </li>
               <li>
@@ -138,22 +165,25 @@ export function TutorHome({ initial }: { initial: TutorStatus }) {
             <h2 className="font-display text-2xl text-ink">Chat</h2>
             {status.mode === "off" ? (
               <p className="mt-3 text-sm text-muted">
-                Switch to Mock (free) or Live (needs API key) to open the chat.
+                Switch to Mock (free / works offline) or Live (needs API key + network) to open the
+                chat.
               </p>
             ) : (
               <>
                 <div className="mt-5 max-h-[28rem] space-y-4 overflow-y-auto">
                   {status.messages.length === 0 ? (
                     <p className="text-sm text-muted">
-                      Ask about a concept you already studied. Prefer citing what Teach Me or
-                      Library showed you.
+                      Ask about a concept you already studied. Matching course links may appear as
+                      citations under the reply.
                     </p>
                   ) : (
                     status.messages.map((message) => (
                       <article
                         key={message.id}
                         className={`rounded-lg px-4 py-3 text-sm leading-6 ring-1 ring-line ${
-                          message.role === "user" ? "bg-paper text-ink" : "bg-accent-soft text-ink"
+                          message.role === "user"
+                            ? "bg-paper text-ink"
+                            : "bg-accent-soft text-ink"
                         }`}
                       >
                         <p className="text-xs uppercase tracking-[0.14em] text-muted">
@@ -166,14 +196,16 @@ export function TutorHome({ initial }: { initial: TutorStatus }) {
                             {message.citations.map((citation) =>
                               citation.href ? (
                                 <Link
-                                  key={`${message.id}-${citation.label}`}
+                                  key={`${message.id}-${citation.label}-${citation.href}`}
                                   href={citation.href}
                                   className="text-accent underline-offset-2 hover:underline"
                                 >
                                   {citation.label}
                                 </Link>
                               ) : (
-                                <span key={`${message.id}-${citation.label}`}>{citation.label}</span>
+                                <span key={`${message.id}-${citation.label}`}>
+                                  {citation.label}
+                                </span>
                               ),
                             )}
                           </p>
@@ -203,7 +235,12 @@ export function TutorHome({ initial }: { initial: TutorStatus }) {
                   >
                     {pending ? "Sending…" : "Send"}
                   </button>
-                  {status.mode === "live" && !status.liveAvailable ? (
+                  {liveBlockedOffline ? (
+                    <p className="text-sm text-muted">
+                      Live chat is paused offline. Switch to Mock to keep coaching without the API.
+                    </p>
+                  ) : null}
+                  {status.mode === "live" && online && !status.liveAvailable ? (
                     <p className="text-sm text-muted">
                       Live chat is unavailable (missing key or daily spend cap reached). Use Mock.
                     </p>

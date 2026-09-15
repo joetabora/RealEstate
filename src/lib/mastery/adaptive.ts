@@ -66,7 +66,7 @@ export async function collectAdaptiveSignals(input: {
       row.conceptId,
       row.pair?.conceptAId,
       row.pair?.conceptBId,
-    ].filter((id): id is string => Boolean(id) && chapterConceptIds.has(id));
+    ].filter((id): id is string => typeof id === "string" && chapterConceptIds.has(id));
     const conceptId = candidates.find((id) => !seenConcepts.has(id));
     if (!conceptId) continue;
     seenConcepts.add(conceptId);
@@ -127,7 +127,7 @@ export async function collectAdaptiveSignals(input: {
       row.question.conceptId,
       row.question.pair?.conceptAId,
       row.question.pair?.conceptBId,
-    ].filter((id): id is string => Boolean(id) && chapterConceptIds.has(id));
+    ].filter((id): id is string => typeof id === "string" && chapterConceptIds.has(id));
     const conceptId = candidates.find((id) => !seenConcepts.has(id));
     if (!conceptId) continue;
     seenConcepts.add(conceptId);

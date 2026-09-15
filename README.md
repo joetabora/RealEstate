@@ -36,13 +36,14 @@ If Docker Desktop is not running, the Teach Me shell still renders from the in-c
 
 - Everything in Phase 1–6
 - Tutor modes: **Off** (default), **Mock** (no API spend), **Live** (needs `OPENAI_API_KEY`)
-- Soft daily spend cap for live mode
+- Soft daily spend cap for live mode; Live disabled while offline
+- Keyword retrieval to matching concepts / assets / Library headings (no embeddings yet)
 - Mock and live prompts refuse to invent Wisconsin statutes / fees / deadlines / form lines
 - Chat persistence for the local learner
 
 ## What Phase 7 does not include yet
 
-Five-lane retrieval/RAG, voice, unconstrained PDF chat, LLM narration of the study plan.
+Embedding/RAG lanes, voice, unconstrained PDF chat, LLM narration of the study plan.
 
 ## What Phase 6 includes
 

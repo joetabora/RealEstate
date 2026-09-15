@@ -2,6 +2,7 @@ import type { PrismaClient } from "@prisma/client";
 import { getTutorEnvConfig, utcDayKey } from "./config";
 import { replyWithMockTutor } from "./mock";
 import { replyWithOpenAiTutor } from "./openai";
+import { retrieveTutorContext } from "./retrieve";
 import {
   isTutorMode,
   type TutorChatMessage,
@@ -11,16 +12,16 @@ import {
 
 function parseCitations(value: unknown): TutorChatMessage["citations"] {
   if (!Array.isArray(value)) return [];
-  return value
-    .map((row) => {
-      if (!row || typeof row !== "object") return null;
-      const label = "label" in row && typeof row.label === "string" ? row.label : null;
-      if (!label) return null;
-      const href =
-        "href" in row && typeof row.href === "string" ? row.href : undefined;
-      return { label, href };
-    })
-    .filter((row): row is TutorChatMessage["citations"][number] => Boolean(row));
+  const citations: TutorChatMessage["citations"] = [];
+  for (const row of value) {
+    if (!row || typeof row !== "object") continue;
+    const label = "label" in row && typeof row.label === "string" ? row.label : null;
+    if (!label) continue;
+    const href =
+      "href" in row && typeof row.href === "string" ? row.href : undefined;
+    citations.push({ label, href });
+  }
+  return citations;
 }
 
 export async function getTutorStatus(input: {
@@ -97,6 +98,8 @@ export async function sendTutorMessage(input: {
   prisma: PrismaClient;
   learnerId: string;
   message: string;
+  /** Client connectivity — live mode requires online. */
+  online?: boolean;
 }): Promise<TutorStatus> {
   const text = input.message.trim();
   if (!text) {
@@ -110,6 +113,10 @@ export async function sendTutorMessage(input: {
 
   if (status.mode === "off") {
     throw new Error("Tutor is off. Switch to Mock or Live first.");
+  }
+
+  if (status.mode === "live" && input.online === false) {
+    throw new Error("Live tutor needs a network connection. Switch to Mock while offline.");
   }
 
   let threadId = status.threadId;
@@ -137,9 +144,14 @@ export async function sendTutorMessage(input: {
     body: message.body,
   }));
 
+  const contextHits = await retrieveTutorContext({
+    prisma: input.prisma,
+    query: text,
+  });
+
   let reply;
   if (status.mode === "mock") {
-    reply = replyWithMockTutor(text);
+    reply = replyWithMockTutor(text, contextHits);
   } else {
     if (!status.liveConfigured) {
       throw new Error("Live tutor needs OPENAI_API_KEY in .env.");
@@ -147,7 +159,11 @@ export async function sendTutorMessage(input: {
     if (status.remainingTodayUsd <= 0) {
       throw new Error("Daily live tutor spend cap reached. Switch to Mock or wait until tomorrow.");
     }
-    reply = await replyWithOpenAiTutor({ userMessage: text, history });
+    reply = await replyWithOpenAiTutor({
+      userMessage: text,
+      history,
+      contextHits,
+    });
     if (reply.tokenEstimate && reply.tokenEstimate > 0) {
       await recordUsage({
         prisma: input.prisma,

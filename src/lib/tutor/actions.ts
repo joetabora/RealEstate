@@ -36,12 +36,16 @@ export async function setTutorModeAction(mode: string): Promise<TutorStatus> {
   return getTutorStatus({ prisma, learnerId: learner.id });
 }
 
-export async function sendTutorMessageAction(message: string): Promise<TutorStatus> {
+export async function sendTutorMessageAction(
+  message: string,
+  online: boolean = true,
+): Promise<TutorStatus> {
   const learner = await getLocalLearner(prisma);
   const status = await sendTutorMessage({
     prisma,
     learnerId: learner.id,
     message,
+    online,
   });
   revalidatePath("/tutor");
   return status;

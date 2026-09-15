@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applySm2, qualityFromAttempt } from "@/lib/mastery/sm2";
+import { applySm2, qualityFromAttempt, TEACH_ME_REVIEW_QUALITY } from "@/lib/mastery/sm2";
 
 describe("qualityFromAttempt", () => {
   it("maps overconfident misses to quality 1", () => {
@@ -60,5 +60,12 @@ describe("applySm2", () => {
       now,
     );
     expect(next.easeFactor).toBeGreaterThanOrEqual(1.3);
+  });
+});
+
+describe("TEACH_ME_REVIEW_QUALITY", () => {
+  it("is a successful review quality (not a lapse)", () => {
+    expect(TEACH_ME_REVIEW_QUALITY).toBeGreaterThanOrEqual(3);
+    expect(TEACH_ME_REVIEW_QUALITY).toBeLessThanOrEqual(5);
   });
 });

@@ -1,18 +1,23 @@
 import type { PrismaClient } from "@prisma/client";
 import { applySm2, qualityFromAttempt, type Sm2State } from "./sm2";
 
-export async function updateReviewSchedulesForConcepts(input: {
+/** Advance SM-2 schedules with an explicit quality (0–5). */
+export async function advanceReviewSchedulesForConcepts(input: {
   prisma: PrismaClient;
   learnerId: string;
   conceptIds: Iterable<string>;
-  correct: boolean;
-  confidence: number;
+  quality: number;
   now?: Date;
 }) {
   const now = input.now ?? new Date();
-  const quality = qualityFromAttempt(input.correct, input.confidence);
+  const conceptIds = [...new Set(input.conceptIds)];
+  if (conceptIds.length === 0) {
+    return { quality: Math.min(5, Math.max(0, Math.round(input.quality))) };
+  }
 
-  for (const conceptId of input.conceptIds) {
+  const quality = Math.min(5, Math.max(0, Math.round(input.quality)));
+
+  for (const conceptId of conceptIds) {
     const existing = await input.prisma.reviewSchedule.findUnique({
       where: {
         learnerId_conceptId: {
@@ -64,4 +69,22 @@ export async function updateReviewSchedulesForConcepts(input: {
   }
 
   return { quality };
+}
+
+/** Practice attempts: map correct + confidence → quality, then advance. */
+export async function updateReviewSchedulesForConcepts(input: {
+  prisma: PrismaClient;
+  learnerId: string;
+  conceptIds: Iterable<string>;
+  correct: boolean;
+  confidence: number;
+  now?: Date;
+}) {
+  return advanceReviewSchedulesForConcepts({
+    prisma: input.prisma,
+    learnerId: input.learnerId,
+    conceptIds: input.conceptIds,
+    quality: qualityFromAttempt(input.correct, input.confidence),
+    now: input.now,
+  });
 }

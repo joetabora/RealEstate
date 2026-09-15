@@ -1,7 +1,11 @@
 import { prisma } from "@/lib/db/prisma";
 import { COURSE_EDITION_SEED } from "@/lib/blueprint";
 import { getLocalLearner } from "@/lib/learner";
-import { buildAdaptiveTeachMeDraft } from "@/lib/mastery";
+import {
+  advanceReviewSchedulesForConcepts,
+  buildAdaptiveTeachMeDraft,
+  TEACH_ME_REVIEW_QUALITY,
+} from "@/lib/mastery";
 import { planTeachMeSitting } from "./planner";
 import {
   PLANNER_VERSION_CH1,
@@ -112,15 +116,43 @@ export const startOrResumeAgencySession = startOrResumeTeachMeSession;
 export async function completeSessionItem(sessionId: string, itemId: string) {
   const item = await prisma.sessionItem.findFirst({
     where: { id: itemId, sessionId },
+    include: {
+      asset: {
+        select: {
+          conceptId: true,
+          pair: { select: { conceptAId: true, conceptBId: true } },
+        },
+      },
+      session: { select: { learnerId: true } },
+    },
   });
   if (!item) {
     throw new Error("Session item not found.");
   }
-  if (!item.completedAt) {
+
+  const firstCompletion = !item.completedAt;
+  if (firstCompletion) {
     await prisma.sessionItem.update({
       where: { id: itemId },
       data: { completedAt: new Date() },
     });
+
+    if (item.kind === "review" || item.kind === "repair") {
+      const conceptIds = new Set<string>();
+      if (item.conceptId) conceptIds.add(item.conceptId);
+      if (item.asset?.conceptId) conceptIds.add(item.asset.conceptId);
+      if (item.asset?.pair?.conceptAId) conceptIds.add(item.asset.pair.conceptAId);
+      if (item.asset?.pair?.conceptBId) conceptIds.add(item.asset.pair.conceptBId);
+
+      if (conceptIds.size > 0) {
+        await advanceReviewSchedulesForConcepts({
+          prisma,
+          learnerId: item.session.learnerId,
+          conceptIds,
+          quality: TEACH_ME_REVIEW_QUALITY,
+        });
+      }
+    }
   }
 
   const remaining = await prisma.sessionItem.count({

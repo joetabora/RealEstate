@@ -31,6 +31,12 @@ export function qualityFromAttempt(correct: boolean, confidence: number): number
   return 4;
 }
 
+/**
+ * Teach Me review/repair completion has no confidence UI yet.
+ * Quality 4 = successful recall/repair without graded confidence (not a failure, not max ease).
+ */
+export const TEACH_ME_REVIEW_QUALITY = 4;
+
 export function applySm2(
   prior: Sm2State | null,
   quality: number,

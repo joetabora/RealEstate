@@ -1,10 +1,14 @@
 export {
   applySm2,
   qualityFromAttempt,
+  TEACH_ME_REVIEW_QUALITY,
   type Sm2Result,
   type Sm2State,
 } from "./sm2";
-export { updateReviewSchedulesForConcepts } from "./schedule";
+export {
+  advanceReviewSchedulesForConcepts,
+  updateReviewSchedulesForConcepts,
+} from "./schedule";
 export {
   ADAPTIVE_PREFIX_CAP,
   buildAdaptiveTeachMeDraft,

@@ -47,7 +47,7 @@ import {
   TEACH_ME_PLANNER_VERSIONS,
   seedPhase4,
 } from "@/lib/teach-me";
-import { startOrResumeTeachMeSession } from "@/lib/teach-me/session";
+import { startOrResumeTeachMeSession, completeSessionItem } from "@/lib/teach-me/session";
 import {
   PHASE5_CH1_QUESTIONS,
   PHASE5_CH2_QUESTIONS,
@@ -67,6 +67,7 @@ import {
   startOrResumeChapterPractice,
 } from "@/lib/questions";
 import { submitPracticeAnswer } from "@/lib/questions/session";
+import { TEACH_ME_REVIEW_QUALITY } from "@/lib/mastery";
 
 const prisma = new PrismaClient();
 
@@ -324,5 +325,80 @@ describe("database seed (integration)", () => {
     expect(summary.overdueCount).toBeGreaterThan(0);
     expect(summary.scheduledCount).toBeGreaterThan(0);
     expect(summary.overdueConcepts.length).toBeGreaterThan(0);
+  });
+
+  it("advances ReviewSchedule when a Teach Me repair item is completed", async ({ skip }) => {
+    if (!(await databaseIsReachable())) {
+      skip();
+      return;
+    }
+
+    const { edition } = await seedPhase1(prisma);
+    await ensureLocalLearner(prisma);
+    await seedPhase3(prisma, edition.id);
+    await seedPhase4(prisma, edition.id);
+
+    const learner = await prisma.learner.findFirstOrThrow({
+      where: { key: LOCAL_LEARNER_KEY },
+    });
+    const asset = await prisma.learningAsset.findFirstOrThrow({
+      where: {
+        editionId: edition.id,
+        lifecycle: "active",
+        conceptId: { not: null },
+      },
+    });
+    const conceptId = asset.conceptId!;
+
+    await prisma.reviewSchedule.deleteMany({ where: { learnerId: learner.id } });
+    await prisma.reviewSchedule.create({
+      data: {
+        learnerId: learner.id,
+        conceptId,
+        dueAt: new Date("2000-01-01T00:00:00.000Z"),
+        intervalDays: 1,
+        easeFactor: 2.5,
+        repetitions: 0,
+        lapses: 1,
+        lastQuality: 1,
+      },
+    });
+
+    await prisma.sessionItem.deleteMany({});
+    await prisma.learningSession.deleteMany({});
+
+    const session = await prisma.learningSession.create({
+      data: {
+        learnerId: learner.id,
+        editionId: edition.id,
+        objective: "Phase 6 repair schedule test",
+        targetMinutes: 5,
+        plannerVersion: PLANNER_VERSION_CH1,
+        items: {
+          create: [
+            {
+              sortOrder: 0,
+              kind: "repair",
+              reasonCodes: ["adaptive_mistake", "repair"],
+              conceptId,
+              assetId: asset.id,
+            },
+          ],
+        },
+      },
+      include: { items: true },
+    });
+
+    const before = new Date("2026-09-15T12:00:00.000Z");
+    await completeSessionItem(session.id, session.items[0]!.id);
+
+    const schedule = await prisma.reviewSchedule.findUniqueOrThrow({
+      where: {
+        learnerId_conceptId: { learnerId: learner.id, conceptId },
+      },
+    });
+    expect(schedule.lastQuality).toBe(TEACH_ME_REVIEW_QUALITY);
+    expect(schedule.dueAt.getTime()).toBeGreaterThan(before.getTime());
+    expect(schedule.repetitions).toBeGreaterThan(0);
   });
 });

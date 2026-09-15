@@ -17,7 +17,7 @@ async function main() {
   console.log(`Seeded ${knowledge.conceptCount} concepts (Chapters 1–14)`);
   console.log(`Seeded ${knowledge.pairCount} active confusion pairs`);
   console.log(`Seeded ${assets.assetCount} Teach Me assets (Ch1–Ch14 sittings)`);
-  console.log(`Seeded ${questions.questionCount} Phase 5 questions (Chapters 1–7 practice)`);
+  console.log(`Seeded ${questions.questionCount} Phase 5 questions (Chapters 1–8 practice)`);
 }
 
 main()

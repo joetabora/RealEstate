@@ -19,7 +19,7 @@ This file records the Architecture Lock. It is binding for implementation.
 - **KnowledgeState and PerformanceState stay separate** (entities in a later phase). Understanding a concept is not the same as surviving exam conditions. Do not collapse them into a single mastery percentage.
 - **ConfusionPair is an entity.** Seeded pairs are active only when both concept slugs exist. Evidence starts as `seed`; later misses can add more.
 - **LearningAsset is the content model.** Extensible types: explanation, simple language, analogy, scenario, comparison, visual, recall, teach-back, application, calculation, form-line, trap, exam recognition, remediation. Do not freeze `Lesson.mode` as the schema. Phase 4 seeds explanation, simple language, scenario, comparison, teach-back, and recall for Chapters 1–14.
-- **Question is a separate scored-item model.** Stem, options, citations, remediation. Phase 5 seeds Chapter 1–7 MCQs from confusion-pair distinctions. Do not import the 140-item course practice exam into git.
+- **Question is a separate scored-item model.** Stem, options, citations, remediation. Phase 5 seeds Chapter 1–8 MCQs from confusion-pair distinctions. Do not import the 140-item course practice exam into git.
 - **VisualAnchor** stores page-number placeholders now. OCR, bounding boxes, and rasterized page images are Phase 10.
 - **Confidence 1–5** is a learning signal. Overconfident errors get repair priority.
 - **Remediation = why missed + core distinction + immediate retest.**
@@ -48,9 +48,9 @@ This file records the Architecture Lock. It is binding for implementation.
 - **Practice-exam stems stay in the local DB** and are not rendered in Library or committed to git.
 - **Video transcription and OCR are deferred** (Phase 10). Image-heavy form pages are stored as `needsOcr` placeholders.
 
-## Phase 5 in progress (Chapters 1–7 questions)
+## Phase 5 in progress (Chapters 1–8 questions)
 
-Hand-authored Chapter 1–7 MCQs with heading citations, confidence prompts, why-missed + distinction remediation, immediate retest queue, `QuestionAttempt`, and separate knowledge vs performance state rows. Mistakes lists open/resolved misses. No generated items, no practice-exam import, no class-miss photos yet.
+Hand-authored Chapter 1–8 MCQs with heading citations, confidence prompts, why-missed + distinction remediation, immediate retest queue, `QuestionAttempt`, and separate knowledge vs performance state rows. Mistakes lists open/resolved misses. No generated items, no practice-exam import, no class-miss photos yet.
 
 ## Phase 5 boundaries (still in force)
 

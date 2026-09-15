@@ -14,6 +14,8 @@ export default async function LibraryPage() {
         ingested={data.ingested}
         conceptCount={data.conceptCount}
         ocrPendingCount={data.ocrPendingCount}
+        transcriptPendingCount={data.transcriptPendingCount}
+        videoCount={data.videoCount}
         documents={data.documents}
       />
     </AppShell>

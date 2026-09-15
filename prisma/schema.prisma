@@ -25,6 +25,7 @@ model CourseEdition {
   confusionPairs   ConfusionPair[]
   learningAssets   LearningAsset[]
   questions        Question[]
+  videoSources     VideoSource[]
 }
 
 /// Official Wisconsin salesperson exam weighting structure (Pearson outline).
@@ -777,4 +778,40 @@ model ContentGateEvent {
 
   @@index([targetKind, targetId, createdAt])
   @@index([gate, createdAt])
+}
+
+/// Local course lecture / update video inventory (Phase 14).
+/// Transcript dumps are always needs_verification — never Teach Me or Wisconsin course truth.
+model VideoSource {
+  id        String        @id @default(cuid())
+  editionId String
+  edition   CourseEdition @relation(fields: [editionId], references: [id], onDelete: Cascade)
+
+  /// Path relative to SOURCE_MATERIAL_PATH (never commit the binary).
+  relativePath String
+  fileName     String
+  title        String
+  chapterNumber Int?
+  /// True when filename looks like a Spl_/Lawsuit/Update dated lecture.
+  isDatedUpdate Boolean @default(false)
+
+  /// pending | complete | unavailable | skipped_no_tool
+  transcriptStatus String @default("pending")
+  transcriptNote   String?
+  /// Raw local ASR dump — always needs_verification
+  transcriptText     String?  @db.Text
+  transcriptVerified Boolean  @default(false)
+  /// Optional sidecar under LOCAL_TRANSCRIPT_PATH
+  transcriptFilePath String?
+
+  durationSec Int?
+  byteSize    BigInt?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([editionId, relativePath])
+  @@index([editionId, transcriptStatus])
+  @@index([editionId, chapterNumber])
+  @@index([isDatedUpdate])
 }

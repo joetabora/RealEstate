@@ -1,6 +1,6 @@
 # Architecture decisions
 
-Phase: 13 — Draft MCQ generation  
+Phase: 14 — Local video transcripts  
 Status: locked unless a concrete technical contradiction appears.
 
 This file records the Architecture Lock. It is binding for implementation.
@@ -47,6 +47,14 @@ This file records the Architecture Lock. It is binding for implementation.
 - **Canonical book is PUB725.** Chapter-folder PDFs are aligned notes with different pagination.
 - **Practice-exam stems stay in the local DB** and are not rendered in Library or committed to git.
 - **Video transcription and OCR are deferred** (Phase 10). Image-heavy form pages are stored as `needsOcr` placeholders.
+
+## Phase 14 complete (local video transcripts)
+
+`VideoSource` catalogs lecture files under `SOURCE_MATERIAL_PATH` (including Spl_/Lawsuit dated updates). Optional local Whisper writes unverified transcript text + gitignored sidecars under `LOCAL_TRANSCRIPT_PATH`. Default CLI limit is 1 — full 17h transcription is not a product gate. Dumps stay `needs_verification` and are never Teach Me / Practice / Exam truth. No cloud upload of course video.
+
+## Phase 14 boundaries (still in force)
+
+Do not upload course videos to a vendor. Do not invent Wisconsin facts from ASR. Do not auto-create LearningAssets or Questions from transcripts. Do not require Whisper for core study. Do not commit video binaries or transcript dumps.
 
 ## Phase 13 complete (draft MCQ generation)
 

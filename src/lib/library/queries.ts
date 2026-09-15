@@ -4,6 +4,10 @@ import { formatPageCitation } from "@/lib/ingest/citation";
 import type { SourceLayer } from "@/lib/ingest/types";
 import { OCR_STATUS_LABELS, type OcrStatus } from "./ocr";
 import {
+  TRANSCRIPT_STATUS_LABELS,
+  type TranscriptStatus,
+} from "./video";
+import {
   courseChapterIndex,
   layerLabel,
   sortDocuments,
@@ -19,6 +23,8 @@ export type LibraryHomeData = {
   ingested: boolean;
   conceptCount: number;
   ocrPendingCount: number;
+  transcriptPendingCount: number;
+  videoCount: number;
   documents: LibraryDocumentCard[];
 };
 
@@ -52,6 +58,26 @@ export type OcrQueueData = {
   items: OcrQueueItem[];
 };
 
+export type TranscriptQueueItem = {
+  id: string;
+  title: string;
+  relativePath: string;
+  chapterNumber: number | null;
+  isDatedUpdate: boolean;
+  transcriptStatus: string;
+  transcriptStatusLabel: string;
+  hasTranscriptText: boolean;
+  preview: string | null;
+};
+
+export type TranscriptQueueData = {
+  databaseConnected: boolean;
+  videoCount: number;
+  pendingCount: number;
+  completeCount: number;
+  items: TranscriptQueueItem[];
+};
+
 export async function getLibraryHome(): Promise<LibraryHomeData> {
   try {
     const documents = await prisma.sourceDocument.findMany({
@@ -67,12 +93,25 @@ export async function getLibraryHome(): Promise<LibraryHomeData> {
         document: { edition: { slug: COURSE_EDITION_SEED.slug } },
       },
     });
+    const [transcriptPendingCount, videoCount] = await Promise.all([
+      prisma.videoSource.count({
+        where: {
+          edition: { slug: COURSE_EDITION_SEED.slug },
+          transcriptStatus: { in: ["pending", "skipped_no_tool"] },
+        },
+      }),
+      prisma.videoSource.count({
+        where: { edition: { slug: COURSE_EDITION_SEED.slug } },
+      }),
+    ]);
 
     return {
       databaseConnected: true,
       ingested: documents.length > 0,
       conceptCount,
       ocrPendingCount,
+      transcriptPendingCount,
+      videoCount,
       documents: sortDocuments(
         documents.map((document) => ({
           slug: document.slug,
@@ -97,6 +136,8 @@ export async function getLibraryHome(): Promise<LibraryHomeData> {
       ingested: false,
       conceptCount: 0,
       ocrPendingCount: 0,
+      transcriptPendingCount: 0,
+      videoCount: 0,
       documents: [],
     };
   }
@@ -308,5 +349,63 @@ export async function getOcrQueue(): Promise<OcrQueueData> {
     };
   } catch {
     return { databaseConnected: false, pendingCount: 0, items: [] };
+  }
+}
+
+export async function getTranscriptQueue(): Promise<TranscriptQueueData> {
+  try {
+    const videos = await prisma.videoSource.findMany({
+      where: { edition: { slug: COURSE_EDITION_SEED.slug } },
+      orderBy: [
+        { transcriptStatus: "asc" },
+        { isDatedUpdate: "desc" },
+        { chapterNumber: "asc" },
+        { relativePath: "asc" },
+      ],
+      take: 100,
+      select: {
+        id: true,
+        title: true,
+        relativePath: true,
+        chapterNumber: true,
+        isDatedUpdate: true,
+        transcriptStatus: true,
+        transcriptText: true,
+      },
+    });
+
+    const items: TranscriptQueueItem[] = videos.map((row) => {
+      const status = row.transcriptStatus as TranscriptStatus;
+      const text = row.transcriptText?.trim() ?? "";
+      return {
+        id: row.id,
+        title: row.title,
+        relativePath: row.relativePath,
+        chapterNumber: row.chapterNumber,
+        isDatedUpdate: row.isDatedUpdate,
+        transcriptStatus: status,
+        transcriptStatusLabel: TRANSCRIPT_STATUS_LABELS[status] ?? status,
+        hasTranscriptText: text.length > 0,
+        preview: text ? text.slice(0, 180) : null,
+      };
+    });
+
+    return {
+      databaseConnected: true,
+      videoCount: items.length,
+      pendingCount: items.filter((i) =>
+        i.transcriptStatus === "pending" || i.transcriptStatus === "skipped_no_tool",
+      ).length,
+      completeCount: items.filter((i) => i.transcriptStatus === "complete").length,
+      items,
+    };
+  } catch {
+    return {
+      databaseConnected: false,
+      videoCount: 0,
+      pendingCount: 0,
+      completeCount: 0,
+      items: [],
+    };
   }
 }

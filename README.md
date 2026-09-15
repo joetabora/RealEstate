@@ -2,7 +2,7 @@
 
 Personal learning system for the Wisconsin real estate **salesperson** exam. Teach Me is the home loop.
 
-This repository is **Phase 13 (complete)**: optional draft MCQ generation into `lifecycle: generated`, on top of Phase 12 gates. Mock works offline; live is optional and shares the tutor spend cap. Drafts never auto-activate. Video transcription and embeddings are not in yet.
+This repository is **Phase 14 (complete)**: local video inventory + optional Whisper transcripts on top of Phase 13. Transcript dumps stay needs_verification and never become Teach Me truth. Embeddings are not in yet.
 
 ## Requirements
 
@@ -32,6 +32,18 @@ The database listens on **localhost:5433** so it does not collide with a local P
 
 If Docker Desktop is not running, the Teach Me shell still renders from the in-code exam blueprint. Persistence and ingested sections require the database.
 
+## What Phase 14 includes
+
+- Everything in Phase 1–13
+- `VideoSource` inventory from local `source-material/` lectures (never committed)
+- `/library/transcripts` queue + Library home strip
+- `npm run catalog:videos` and optional `npm run transcript:videos` (local Whisper, default limit 1)
+- Transcript dumps always `transcriptVerified=false` / needs_verification — not Teach Me content
+
+## What Phase 14 does not include yet
+
+Full 17-hour transcription as a gate, cloud Whisper upload, embeddings/RAG, promoting transcripts into Teach Me assets.
+
 ## What Phase 13 includes
 
 - Everything in Phase 1–12
@@ -43,7 +55,7 @@ If Docker Desktop is not running, the Teach Me shell still renders from the in-c
 
 ## What Phase 13 does not include yet
 
-Auto-activation without review, video transcription, embeddings, photo→MCQ automation.
+Auto-activation without review, embeddings, photo→MCQ automation, promoting video transcripts into Teach Me.
 
 ## What Phase 12 includes
 

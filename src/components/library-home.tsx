@@ -6,12 +6,16 @@ export function LibraryHome({
   ingested,
   conceptCount,
   ocrPendingCount,
+  transcriptPendingCount,
+  videoCount,
   documents,
 }: {
   databaseConnected: boolean;
   ingested: boolean;
   conceptCount: number;
   ocrPendingCount: number;
+  transcriptPendingCount: number;
+  videoCount: number;
   documents: LibraryDocumentCard[];
 }) {
   return (
@@ -66,6 +70,29 @@ export function LibraryHome({
           <p className="mt-4">
             <Link href="/library/ocr" className="font-medium text-accent underline-offset-2 hover:underline">
               Open OCR queue
+            </Link>
+          </p>
+        </section>
+      ) : null}
+
+      {databaseConnected ? (
+        <section className="card mt-8 p-6 sm:p-8">
+          <h2 className="font-display text-2xl text-ink">Video transcripts</h2>
+          <p className="mt-2 text-sm leading-6 text-muted">
+            Local Whisper only — no cloud upload of course video. Catalog with{" "}
+            <code className="text-ink">npm run catalog:videos</code>, then optional{" "}
+            <code className="text-ink">npm run transcript:videos</code> (default limit 1).
+            Dumps stay needs_verification and are never Teach Me content.
+          </p>
+          <p className="mt-3 text-sm text-ink">
+            {videoCount} cataloged · {transcriptPendingCount} pending transcription
+          </p>
+          <p className="mt-4">
+            <Link
+              href="/library/transcripts"
+              className="font-medium text-accent underline-offset-2 hover:underline"
+            >
+              Open transcript queue
             </Link>
           </p>
         </section>

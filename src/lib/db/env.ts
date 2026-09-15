@@ -18,6 +18,13 @@ export function getLocalClassMissPath(): string {
   );
 }
 
+/** Local Whisper transcript sidecars. Never commit this directory. */
+export function getLocalTranscriptPath(): string {
+  return (
+    process.env.LOCAL_TRANSCRIPT_PATH ?? path.resolve(process.cwd(), "data", "video-transcripts")
+  );
+}
+
 export function getDatabaseUrl(): string {
   const url = process.env.DATABASE_URL;
   if (!url) {

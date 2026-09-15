@@ -2,7 +2,7 @@
 
 Personal learning system for the Wisconsin real estate **salesperson** exam. Teach Me is the home loop.
 
-This repository is **Phase 5**: sourced Chapter 1 practice questions on top of Teach Me sittings for **all 14 chapters**. Class-miss photos and generated items are not in yet.
+This repository is **Phase 5**: sourced Chapter 1–14 practice questions on top of Teach Me sittings for **all 14 chapters**. Class-miss photos and generated items are not in yet.
 
 ## Requirements
 
@@ -26,7 +26,7 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000). Library is at [http://localhost:3000/library](http://localhost:3000/library). Progress is at [http://localhost:3000/progress](http://localhost:3000/progress).
 
-The second `npx prisma db seed` attaches Chapter 1–14 concepts, Teach Me assets, and Chapter 1 practice questions to ingested section IDs. `npm run ingest` also re-seeds knowledge and Teach Me assets after writing sections (PUB725 + Chapter 1–11 notes; Chapters 12–14 are book-sourced).
+The second `npx prisma db seed` attaches Chapter 1–14 concepts, Teach Me assets, and Chapter 1–14 practice questions to ingested section IDs. `npm run ingest` also re-seeds knowledge and Teach Me assets after writing sections (PUB725 + Chapter 1–11 notes; Chapters 12–14 are book-sourced).
 
 The database listens on **localhost:5433** so it does not collide with a local Postgres on 5432.
 
@@ -35,14 +35,14 @@ If Docker Desktop is not running, the Teach Me shell still renders from the in-c
 ## What Phase 5 includes
 
 - Everything in Phase 1–4
-- Hand-authored Chapter 1–13 MCQs from seeded confusion pairs, with heading citations
+- Hand-authored Chapter 1–14 MCQs from seeded confusion pairs, with heading citations
 - Practice runner with confidence (1–5), remediation on miss, and immediate retest queue
 - `QuestionAttempt`, separate `KnowledgeState` / `PerformanceState`, and Mistakes list
 - Architecture lock in [docs/decisions.md](docs/decisions.md)
 
 ## What Phase 5 does not include
 
-Generated MCQs through validation gates, class-miss photo intake, tutor, math solver, exam simulator, embeddings, OpenAI, OCR, video, XP, authentication, questions for chapter 14 (same loop comes next).
+Generated MCQs through validation gates, class-miss photo intake, tutor, math solver, exam simulator, embeddings, OpenAI, OCR, video, XP, authentication.
 
 ## What Phase 4 includes
 
@@ -55,7 +55,7 @@ Generated MCQs through validation gates, class-miss photo intake, tutor, math so
 
 ## What Phase 4 does not include
 
-Quizzes beyond the Phase 5 Chapter 1 slice, class-miss photo intake, tutor, math solver, exam simulator, embeddings, OpenAI, OCR, video, XP, authentication.
+Quizzes beyond Phase 5 chapter practice, class-miss photo intake, tutor, math solver, exam simulator, embeddings, OpenAI, OCR, video, XP, authentication.
 
 ## What Phase 3 includes
 

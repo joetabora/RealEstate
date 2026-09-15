@@ -11,6 +11,7 @@ import { PHASE5_CH7_QUESTIONS } from "./chapter7";
 import { PHASE5_CH8_QUESTIONS } from "./chapter8";
 import { PHASE5_CH9_QUESTIONS } from "./chapter9";
 import { PHASE5_CH10_QUESTIONS } from "./chapter10";
+import { PHASE5_CH11_QUESTIONS } from "./chapter11";
 import {
   citationsForQuestion,
   pairKeyForQuestion,
@@ -28,6 +29,7 @@ const ALL_QUESTIONS: readonly QuestionSeed[] = [
   ...PHASE5_CH8_QUESTIONS,
   ...PHASE5_CH9_QUESTIONS,
   ...PHASE5_CH10_QUESTIONS,
+  ...PHASE5_CH11_QUESTIONS,
 ];
 
 export async function seedPhase5(prisma: PrismaClient, editionId: string) {
@@ -168,6 +170,7 @@ export { PHASE5_CH7_QUESTIONS } from "./chapter7";
 export { PHASE5_CH8_QUESTIONS } from "./chapter8";
 export { PHASE5_CH9_QUESTIONS } from "./chapter9";
 export { PHASE5_CH10_QUESTIONS } from "./chapter10";
+export { PHASE5_CH11_QUESTIONS } from "./chapter11";
 export {
   citationsForQuestion,
   pairKeyForQuestion,

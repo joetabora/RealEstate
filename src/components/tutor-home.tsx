@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState, useTransition, type FormEvent } from "react";
 import {
+  clearTutorThreadAction,
   loadTutorStatusAction,
   sendTutorMessageAction,
   setTutorModeAction,
@@ -55,6 +56,19 @@ export function TutorHome({ initial }: { initial: TutorStatus }) {
         setStatus(next);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Could not change tutor mode.");
+      }
+    });
+  }
+
+  function clearThread() {
+    setError(null);
+    startTransition(async () => {
+      try {
+        const next = await clearTutorThreadAction();
+        setStatus(next);
+        setDraft("");
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Could not clear conversation.");
       }
     });
   }
@@ -162,7 +176,19 @@ export function TutorHome({ initial }: { initial: TutorStatus }) {
           </section>
 
           <section className="card mt-6 p-6 sm:p-8">
-            <h2 className="font-display text-2xl text-ink">Chat</h2>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <h2 className="font-display text-2xl text-ink">Chat</h2>
+              {status.messages.length > 0 ? (
+                <button
+                  type="button"
+                  onClick={clearThread}
+                  disabled={pending}
+                  className="text-sm text-muted underline-offset-2 hover:underline disabled:opacity-50"
+                >
+                  New conversation
+                </button>
+              ) : null}
+            </div>
             {status.mode === "off" ? (
               <p className="mt-3 text-sm text-muted">
                 Switch to Mock (free / works offline) or Live (needs API key + network) to open the

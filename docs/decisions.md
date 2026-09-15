@@ -50,7 +50,7 @@ This file records the Architecture Lock. It is binding for implementation.
 
 ## Phase 7 in progress (optional tutor)
 
-Socratic tutor overlay with learner-toggleable modes: `off` (default), `mock` (no API key / no spend), `live` (requires `OPENAI_API_KEY` and network). Soft daily spend cap for live. Keyword retrieval points at matching concepts, Teach Me assets, and Library sections (not embeddings). Tutor never invents Wisconsin statutes, fees, deadlines, or form-line text. Live is blocked offline; Mock still works. Planner and SRS still never call the LLM. Core study works with Tutor fully off.
+Socratic tutor overlay with learner-toggleable modes: `off` (default), `mock` (no API key / no spend), `live` (requires `OPENAI_API_KEY` and network). Soft daily spend cap for live. Keyword retrieval points at matching concepts, Teach Me assets, and Library sections (not embeddings). Learner-state lane adds open mistakes and overdue review pointers. Tutor never invents Wisconsin statutes, fees, deadlines, or form-line text. Live is blocked offline; Mock still works. Threads can be cleared for a new conversation. Planner and SRS still never call the LLM. Core study works with Tutor fully off.
 
 ## Phase 7 boundaries (still in force)
 

@@ -4,7 +4,7 @@ import { formatPageCitation } from "@/lib/ingest/citation";
 import type { TutorCitation } from "./types";
 
 export type TutorContextHit = {
-  kind: "concept" | "asset" | "section";
+  kind: "concept" | "asset" | "section" | "learner";
   title: string;
   snippet: string;
   href: string;
@@ -187,4 +187,89 @@ export async function retrieveTutorContext(input: {
   }
 
   return hits.slice(0, limit);
+}
+
+/**
+ * Learner-state lane: open mistakes + overdue review concepts (no mastery %).
+ */
+export async function retrieveLearnerStateContext(input: {
+  prisma: PrismaClient;
+  learnerId: string;
+  now?: Date;
+  limit?: number;
+}): Promise<TutorContextHit[]> {
+  const now = input.now ?? new Date();
+  const limit = input.limit ?? 4;
+  const hits: TutorContextHit[] = [];
+
+  const openMistakes = await input.prisma.mistake.count({
+    where: { learnerId: input.learnerId, resolvedAt: null },
+  });
+  if (openMistakes > 0) {
+    hits.push({
+      kind: "learner",
+      title: `${openMistakes} open mistake${openMistakes === 1 ? "" : "s"}`,
+      snippet: "Practice repair queue — open Mistakes for why-missed notes",
+      href: "/mistakes",
+    });
+  }
+
+  const overdue = await input.prisma.reviewSchedule.findMany({
+    where: { learnerId: input.learnerId, dueAt: { lte: now } },
+    orderBy: { dueAt: "asc" },
+    take: Math.max(limit - hits.length, 0),
+    include: { concept: { select: { name: true, slug: true, chapterNumber: true } } },
+  });
+
+  for (const row of overdue) {
+    if (hits.length >= limit) break;
+    hits.push({
+      kind: "learner",
+      title: `Overdue: ${row.concept.name}`,
+      snippet: `Chapter ${row.concept.chapterNumber} · due ${row.dueAt.toISOString().slice(0, 10)}`,
+      href: `/concepts/${row.concept.slug}`,
+    });
+  }
+
+  if (overdue.length > 0 && hits.length < limit) {
+    hits.push({
+      kind: "learner",
+      title: "Due review practice",
+      snippet: "Cross-chapter MCQs for overdue SM-2 concepts",
+      href: "/practice",
+    });
+  }
+
+  return hits.slice(0, limit);
+}
+
+/** Merge learner-state hits ahead of keyword content hits. */
+export async function buildTutorContext(input: {
+  prisma: PrismaClient;
+  learnerId: string;
+  query: string;
+}): Promise<TutorContextHit[]> {
+  const [learnerHits, contentHits] = await Promise.all([
+    retrieveLearnerStateContext({
+      prisma: input.prisma,
+      learnerId: input.learnerId,
+      limit: 3,
+    }),
+    retrieveTutorContext({
+      prisma: input.prisma,
+      query: input.query,
+      limit: 4,
+    }),
+  ]);
+
+  const merged: TutorContextHit[] = [];
+  const seen = new Set<string>();
+  for (const hit of [...learnerHits, ...contentHits]) {
+    const key = `${hit.kind}:${hit.href}:${hit.title}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    merged.push(hit);
+    if (merged.length >= 7) break;
+  }
+  return merged;
 }

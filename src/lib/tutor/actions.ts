@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
 import { getLocalLearner } from "@/lib/learner";
-import { getTutorStatus, sendTutorMessage, setTutorMode } from "./service";
+import { getTutorStatus, sendTutorMessage, setTutorMode, clearTutorThread } from "./service";
 import { isTutorMode, type TutorMode, type TutorStatus } from "./types";
 
 export async function loadTutorStatusAction(): Promise<TutorStatus> {
@@ -46,6 +46,16 @@ export async function sendTutorMessageAction(
     learnerId: learner.id,
     message,
     online,
+  });
+  revalidatePath("/tutor");
+  return status;
+}
+
+export async function clearTutorThreadAction(): Promise<TutorStatus> {
+  const learner = await getLocalLearner(prisma);
+  const status = await clearTutorThread({
+    prisma,
+    learnerId: learner.id,
   });
   revalidatePath("/tutor");
   return status;

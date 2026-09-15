@@ -38,6 +38,8 @@ If Docker Desktop is not running, the Teach Me shell still renders from the in-c
 - Tutor modes: **Off** (default), **Mock** (no API spend), **Live** (needs `OPENAI_API_KEY`)
 - Soft daily spend cap for live mode; Live disabled while offline
 - Keyword retrieval to matching concepts / assets / Library headings (no embeddings yet)
+- Learner-state pointers for open mistakes and overdue reviews
+- New conversation control to clear the local thread
 - Mock and live prompts refuse to invent Wisconsin statutes / fees / deadlines / form lines
 - Chat persistence for the local learner
 

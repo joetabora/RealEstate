@@ -2,7 +2,7 @@ import type { PrismaClient } from "@prisma/client";
 import { getTutorEnvConfig, utcDayKey } from "./config";
 import { replyWithMockTutor } from "./mock";
 import { replyWithOpenAiTutor } from "./openai";
-import { retrieveTutorContext } from "./retrieve";
+import { buildTutorContext } from "./retrieve";
 import {
   isTutorMode,
   type TutorChatMessage,
@@ -144,8 +144,9 @@ export async function sendTutorMessage(input: {
     body: message.body,
   }));
 
-  const contextHits = await retrieveTutorContext({
+  const contextHits = await buildTutorContext({
     prisma: input.prisma,
+    learnerId: input.learnerId,
     query: text,
   });
 
@@ -222,5 +223,19 @@ async function recordUsage(input: {
       estimatedCents: { increment: cents },
       tokenEstimate: { increment: input.tokenEstimate },
     },
+  });
+}
+
+/** Delete all tutor threads for the learner and return a fresh empty status. */
+export async function clearTutorThread(input: {
+  prisma: PrismaClient;
+  learnerId: string;
+}): Promise<TutorStatus> {
+  await input.prisma.tutorThread.deleteMany({
+    where: { learnerId: input.learnerId },
+  });
+  return getTutorStatus({
+    prisma: input.prisma,
+    learnerId: input.learnerId,
   });
 }

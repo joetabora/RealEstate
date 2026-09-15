@@ -24,9 +24,17 @@ describe("mock tutor", () => {
     expect(reply.citations.some((c) => c.href === "/concepts/nature-of-agency")).toBe(true);
   });
 
-  it("asks for the learner's distinction on confusion prompts", () => {
-    const reply = replyWithMockTutor("I'm confused about client vs customer");
-    expect(reply.body.toLowerCase()).toContain("two ideas");
+  it("surfaces learner-state hits as study pointers", () => {
+    const reply = replyWithMockTutor("What should I review?", [
+      {
+        kind: "learner",
+        title: "2 open mistakes",
+        snippet: "Practice repair queue",
+        href: "/mistakes",
+      },
+    ]);
+    expect(reply.body).toContain("2 open mistakes");
+    expect(reply.citations.some((c) => c.href === "/mistakes")).toBe(true);
   });
 });
 

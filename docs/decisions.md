@@ -1,6 +1,6 @@
 # Architecture decisions
 
-Phase: 5 — Questions (Chapter 1 practice first)  
+Phase: 6 — Adaptive planner (SM-2 + due review)  
 Status: locked unless a concrete technical contradiction appears.
 
 This file records the Architecture Lock. It is binding for implementation.
@@ -48,13 +48,13 @@ This file records the Architecture Lock. It is binding for implementation.
 - **Practice-exam stems stay in the local DB** and are not rendered in Library or committed to git.
 - **Video transcription and OCR are deferred** (Phase 10). Image-heavy form pages are stored as `needsOcr` placeholders.
 
-## Phase 6 in progress (adaptive planner)
+## Phase 6 complete (adaptive planner)
 
-Deterministic SM-2 `ReviewSchedule` per concept, updated from practice attempts (correct + confidence → quality) and from Teach Me review/repair item completion (fixed quality 4 until a confidence UI exists). New Teach Me sittings prepend up to three repair/review assets from open mistakes, overdue schedules, then overconfidence misses for the chapter. Progress shows overdue counts and concept links; Teach Me surfaces an adaptive hint from the same counts. Due-review practice (`phase6-due-review-v1`) picks existing MCQs for overdue concepts across chapters (cap 8). Planner and SRS never call an LLM. No XP. KnowledgeState and PerformanceState stay separate from ReviewSchedule.
+Deterministic SM-2 `ReviewSchedule` per concept, updated from practice attempts (correct + confidence → quality) and from Teach Me review/repair item completion (fixed quality 4 until a confidence UI exists). New Teach Me sittings prepend up to three repair/review assets from open mistakes, overdue schedules, then overconfidence misses for the chapter. Progress shows overdue counts and concept links; concept detail shows the schedule fields; Teach Me surfaces an adaptive hint from the same counts. Due-review practice (`phase6-due-review-v1`) picks existing MCQs for overdue concepts across chapters (cap 8). Planner and SRS never call an LLM. No XP. KnowledgeState and PerformanceState stay separate from ReviewSchedule.
 
 ## Phase 6 boundaries (still in force)
 
-Do not invent Wisconsin facts. Do not add photo miss intake, the live tutor, embeddings, or LLM narration to the planner. Do not replace sequential chapter sittings with a free-form queue.
+Do not invent Wisconsin facts. Do not add photo miss intake, the live tutor, embeddings, or LLM narration to the planner. Do not replace sequential chapter sittings with a free-form queue. Do not show fake mastery percentages.
 
 ## Phase 5 complete (Chapters 1–14 questions)
 

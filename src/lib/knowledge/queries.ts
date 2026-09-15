@@ -56,6 +56,15 @@ export type ConceptDetailData = {
   examCategoryCodes: string[];
   chapterNumber: number;
   state: ConceptStudyState;
+  reviewSchedule: {
+    dueAt: string;
+    intervalDays: number;
+    repetitions: number;
+    lapses: number;
+    lastQuality: number | null;
+    lastReviewedAt: string | null;
+    overdue: boolean;
+  } | null;
   citations: Array<{
     documentSlug: string;
     heading: string;
@@ -212,6 +221,16 @@ export async function getConceptDetail(slug: string): Promise<ConceptDetailData 
     ];
 
     const learningIds = await getLearningConceptIds();
+    const learner = await getLocalLearner(prisma);
+    const schedule = await prisma.reviewSchedule.findUnique({
+      where: {
+        learnerId_conceptId: {
+          learnerId: learner.id,
+          conceptId: concept.id,
+        },
+      },
+    });
+    const now = new Date();
 
     return {
       slug: concept.slug,
@@ -221,6 +240,17 @@ export async function getConceptDetail(slug: string): Promise<ConceptDetailData 
       examCategoryCodes: concept.examCategories.map((join) => join.examCategory.code),
       chapterNumber: concept.chapterNumber,
       state: studyStateFor(concept.id, learningIds),
+      reviewSchedule: schedule
+        ? {
+            dueAt: schedule.dueAt.toISOString(),
+            intervalDays: schedule.intervalDays,
+            repetitions: schedule.repetitions,
+            lapses: schedule.lapses,
+            lastQuality: schedule.lastQuality,
+            lastReviewedAt: schedule.lastReviewedAt?.toISOString() ?? null,
+            overdue: schedule.dueAt.getTime() <= now.getTime(),
+          }
+        : null,
       citations: concept.citations.map((citation) => ({
         documentSlug: citation.documentSlug,
         heading: citation.heading,

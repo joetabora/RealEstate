@@ -38,6 +38,51 @@ export function ConceptDetail({ concept }: { concept: ConceptDetailData | null }
       </p>
 
       <section className="card mt-8 p-6">
+        <h2 className="font-display text-xl text-ink">Review schedule</h2>
+        {concept.reviewSchedule ? (
+          <div className="mt-4 space-y-2 text-sm leading-6 text-muted">
+            <p>
+              <span className="text-ink">
+                {concept.reviewSchedule.overdue ? "Overdue" : "Next due"}
+              </span>
+              {" · "}
+              {new Date(concept.reviewSchedule.dueAt).toLocaleString()}
+            </p>
+            <p>
+              Interval {concept.reviewSchedule.intervalDays} day
+              {concept.reviewSchedule.intervalDays === 1 ? "" : "s"}
+              {" · "}
+              {concept.reviewSchedule.repetitions} successful repetition
+              {concept.reviewSchedule.repetitions === 1 ? "" : "s"}
+              {concept.reviewSchedule.lapses > 0
+                ? ` · ${concept.reviewSchedule.lapses} lapse${concept.reviewSchedule.lapses === 1 ? "" : "s"}`
+                : ""}
+            </p>
+            {concept.reviewSchedule.lastReviewedAt ? (
+              <p>
+                Last reviewed {new Date(concept.reviewSchedule.lastReviewedAt).toLocaleString()}
+                {concept.reviewSchedule.lastQuality != null
+                  ? ` · quality ${concept.reviewSchedule.lastQuality}`
+                  : ""}
+              </p>
+            ) : null}
+            {concept.reviewSchedule.overdue ? (
+              <p className="pt-2">
+                <Link href="/practice" className="font-medium text-accent underline-offset-2 hover:underline">
+                  Open Practice for due review
+                </Link>
+              </p>
+            ) : null}
+          </div>
+        ) : (
+          <p className="mt-4 text-sm leading-6 text-muted">
+            No SM-2 schedule yet. Answering a practice question on this concept creates one.
+            This is not a mastery percentage.
+          </p>
+        )}
+      </section>
+
+      <section className="card mt-8 p-6">
         <h2 className="font-display text-xl text-ink">Citations</h2>
         <ul className="mt-4 space-y-3">
           {concept.citations.map((citation) => (

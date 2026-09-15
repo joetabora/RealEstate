@@ -2,7 +2,7 @@
 
 Personal learning system for the Wisconsin real estate **salesperson** exam. Teach Me is the home loop.
 
-This repository is **Phase 6 (in progress)**: deterministic SM-2 review schedules plus an adaptive Teach Me repair prefix on top of Phase 5 chapter practice. Class-miss photos and generated items are not in yet.
+This repository is **Phase 6 complete**: deterministic SM-2 review schedules, adaptive Teach Me repair prefixes, Progress due-recall surface, and due-review practice on top of Phase 5 chapter MCQs. Class-miss photos and generated items are not in yet.
 
 ## Requirements
 
@@ -32,7 +32,7 @@ The database listens on **localhost:5433** so it does not collide with a local P
 
 If Docker Desktop is not running, the Teach Me shell still renders from the in-code exam blueprint. Persistence and ingested sections require the database.
 
-## What Phase 6 includes (in progress)
+## What Phase 6 includes
 
 - Everything in Phase 1–5
 - `ReviewSchedule` rows updated from practice attempts via deterministic SM-2 (no LLM)
@@ -41,8 +41,9 @@ If Docker Desktop is not running, the Teach Me shell still renders from the in-c
 - Progress review queue (overdue + open mistakes counts) and Teach Me adaptive hint
 - Completing Teach Me review/repair items advances the SM-2 schedule (quality 4)
 - Due-review practice sitting from overdue concepts (existing MCQs, cross-chapter, cap 8)
+- Concept detail shows due date / interval / last quality (still no mastery %)
 
-## What Phase 6 does not include yet
+## What Phase 6 does not include
 
 Full FSRS package, exam-weighted mastery %, LLM narration, class-miss photo intake, live tutor, XP.
 

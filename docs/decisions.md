@@ -1,6 +1,6 @@
 # Architecture decisions
 
-Phase: 6 — Adaptive planner (SM-2 + due review)  
+Phase: 7 — Optional AI Tutor  
 Status: locked unless a concrete technical contradiction appears.
 
 This file records the Architecture Lock. It is binding for implementation.
@@ -47,6 +47,14 @@ This file records the Architecture Lock. It is binding for implementation.
 - **Canonical book is PUB725.** Chapter-folder PDFs are aligned notes with different pagination.
 - **Practice-exam stems stay in the local DB** and are not rendered in Library or committed to git.
 - **Video transcription and OCR are deferred** (Phase 10). Image-heavy form pages are stored as `needsOcr` placeholders.
+
+## Phase 7 in progress (optional tutor)
+
+Socratic tutor overlay with learner-toggleable modes: `off` (default), `mock` (no API key / no spend), `live` (requires `OPENAI_API_KEY`). Soft daily spend cap for live. Tutor never invents Wisconsin statutes, fees, deadlines, or form-line text; it points back to Library / Teach Me / Practice. Planner and SRS still never call the LLM. Core study works with Tutor fully off.
+
+## Phase 7 boundaries (still in force)
+
+Do not build unconstrained PDF chat or voice. Do not let the tutor invent the study plan or mastery percentages. Do not require an API key for Teach Me, Practice, Progress, or Library.
 
 ## Phase 6 complete (adaptive planner)
 

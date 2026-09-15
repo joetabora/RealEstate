@@ -1,14 +1,15 @@
 import { AppShell } from "@/components/app-shell";
-import { PlaceholderPage } from "@/components/placeholder-page";
+import { TutorHome } from "@/components/tutor-home";
+import { loadTutorStatusAction } from "@/lib/tutor/actions";
 
-export default function TutorPage() {
+export const dynamic = "force-dynamic";
+
+export default async function TutorPage() {
+  const initial = await loadTutorStatusAction();
+
   return (
     <AppShell>
-      <PlaceholderPage
-        title="Tutor"
-        summary="The tutor will be a Socratic overlay on the current lesson or question. It requires source citations for Wisconsin facts and will hide itself when you are offline."
-        next="No language-model client is installed in Phase 1."
-      />
+      <TutorHome initial={initial} />
     </AppShell>
   );
 }

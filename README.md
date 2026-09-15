@@ -2,7 +2,7 @@
 
 Personal learning system for the Wisconsin real estate **salesperson** exam. Teach Me is the home loop.
 
-This repository is **Phase 6 complete**: deterministic SM-2 review schedules, adaptive Teach Me repair prefixes, Progress due-recall surface, and due-review practice on top of Phase 5 chapter MCQs. Class-miss photos and generated items are not in yet.
+This repository is **Phase 7 (in progress)**: optional Socratic Tutor overlay (Off / Mock / Live) on top of Phase 6 adaptive review. Live mode needs an API key; core study works with Tutor off. Class-miss photos and generated items are not in yet.
 
 ## Requirements
 
@@ -31,6 +31,18 @@ The second `npx prisma db seed` attaches Chapter 1–14 concepts, Teach Me asset
 The database listens on **localhost:5433** so it does not collide with a local Postgres on 5432.
 
 If Docker Desktop is not running, the Teach Me shell still renders from the in-code exam blueprint. Persistence and ingested sections require the database.
+
+## What Phase 7 includes (in progress)
+
+- Everything in Phase 1–6
+- Tutor modes: **Off** (default), **Mock** (no API spend), **Live** (needs `OPENAI_API_KEY`)
+- Soft daily spend cap for live mode
+- Mock and live prompts refuse to invent Wisconsin statutes / fees / deadlines / form lines
+- Chat persistence for the local learner
+
+## What Phase 7 does not include yet
+
+Five-lane retrieval/RAG, voice, unconstrained PDF chat, LLM narration of the study plan.
 
 ## What Phase 6 includes
 

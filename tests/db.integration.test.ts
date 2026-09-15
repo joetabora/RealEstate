@@ -463,4 +463,39 @@ describe("database seed (integration)", () => {
     const resumed = await startOrResumeDueReviewPractice();
     expect(resumed.id).toBe(session.id);
   });
+
+  it("supports mock tutor chat without an API key", async ({ skip }) => {
+    if (!(await databaseIsReachable())) {
+      skip();
+      return;
+    }
+
+    await seedPhase1(prisma);
+    await ensureLocalLearner(prisma);
+    const learner = await prisma.learner.findFirstOrThrow({
+      where: { key: LOCAL_LEARNER_KEY },
+    });
+
+    await prisma.tutorMessage.deleteMany({});
+    await prisma.tutorThread.deleteMany({ where: { learnerId: learner.id } });
+    await prisma.learner.update({
+      where: { id: learner.id },
+      data: { tutorMode: "off" },
+    });
+
+    const { setTutorMode, sendTutorMessage, getTutorStatus } = await import("@/lib/tutor");
+    await setTutorMode({ prisma, learnerId: learner.id, mode: "mock" });
+    const afterSend = await sendTutorMessage({
+      prisma,
+      learnerId: learner.id,
+      message: "What is the Wisconsin earnest money deposit deadline?",
+    });
+    expect(afterSend.mode).toBe("mock");
+    expect(afterSend.messages.length).toBeGreaterThanOrEqual(2);
+    expect(afterSend.messages.at(-1)?.body.toLowerCase()).toContain("cannot invent");
+
+    const status = await getTutorStatus({ prisma, learnerId: learner.id });
+    expect(status.mode).toBe("mock");
+    expect(status.liveConfigured).toBe(Boolean(process.env.OPENAI_API_KEY?.trim()));
+  });
 });

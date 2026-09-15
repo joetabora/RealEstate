@@ -61,15 +61,19 @@ model Learner {
   id        String   @id @default(cuid())
   /// Stable application key. The Phase 1 singleton is "local".
   key       String   @unique
+  /// Phase 7 tutor overlay: off | mock | live
+  tutorMode String   @default("off")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  sessions LearningSession[]
-  attempts QuestionAttempt[]
-  knowledgeStates KnowledgeState[]
+  sessions          LearningSession[]
+  attempts          QuestionAttempt[]
+  knowledgeStates   KnowledgeState[]
   performanceStates PerformanceState[]
-  reviewSchedules ReviewSchedule[]
-  mistakes Mistake[]
+  reviewSchedules   ReviewSchedule[]
+  mistakes          Mistake[]
+  tutorThreads      TutorThread[]
+  tutorUsageDays    TutorUsageDay[]
 }
 
 /// A Teach Me (or future) study session. Planner fills items in later phases.
@@ -660,4 +664,52 @@ model Mistake {
 
   @@index([learnerId, resolvedAt, createdAt])
   @@index([questionId])
+}
+
+/// Optional Socratic tutor thread (Phase 7). Never invents the study plan.
+model TutorThread {
+  id        String   @id @default(cuid())
+  learnerId String
+  learner   Learner  @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+  title     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  messages TutorMessage[]
+
+  @@index([learnerId, updatedAt])
+}
+
+model TutorMessage {
+  id       String      @id @default(cuid())
+  threadId String
+  thread   TutorThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  /// user | assistant
+  role     String
+  body     String      @db.Text
+  /// off | mock | openai
+  provider String
+  /// Optional citation labels / library hrefs returned with the reply
+  citations Json?
+  /// Estimated prompt+completion tokens for spend tracking (live only)
+  tokenEstimate Int?
+  createdAt DateTime @default(now())
+
+  @@index([threadId, createdAt])
+}
+
+/// Soft daily spend tracking for live tutor (Phase 7). Cap is env-configured.
+model TutorUsageDay {
+  id              String   @id @default(cuid())
+  learnerId       String
+  learner         Learner  @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+  /// UTC calendar date YYYY-MM-DD
+  day             String
+  estimatedCents  Int      @default(0)
+  tokenEstimate   Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([learnerId, day])
+  @@index([learnerId, day])
 }

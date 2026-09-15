@@ -1,6 +1,6 @@
 # Architecture decisions
 
-Phase: 8 — Deterministic math  
+Phase: 9 — Exam simulation  
 Status: locked unless a concrete technical contradiction appears.
 
 This file records the Architecture Lock. It is binding for implementation.
@@ -47,6 +47,14 @@ This file records the Architecture Lock. It is binding for implementation.
 - **Canonical book is PUB725.** Chapter-folder PDFs are aligned notes with different pagination.
 - **Practice-exam stems stay in the local DB** and are not rendered in Library or committed to git.
 - **Video transcription and OCR are deferred** (Phase 10). Image-heavy form pages are stored as `needsOcr` placeholders.
+
+## Phase 9 in progress (exam simulation)
+
+Timed blueprint-balanced sitting on `/exam` using existing `active` MCQs only. Seat counts follow Pearson salesperson outline weights via largest-remainder allocation, never inventing stems or importing the course 140-item practice exam. Mid-exam: no remediation banner and no immediate retest queue. Attempts update PerformanceState and Mistakes; they do not advance SM-2. Results show overall and primary-category scores. Always labeled as a study simulation — never as a live licensing exam.
+
+## Phase 9 boundaries (still in force)
+
+Do not import the 140-item course practice exam into git. Do not label generated or simulated items as live licensing questions. Do not invent Wisconsin facts to pad inventory. Do not let an LLM write exam keys.
 
 ## Phase 8 complete (deterministic math)
 

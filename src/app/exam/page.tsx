@@ -1,14 +1,14 @@
 import { AppShell } from "@/components/app-shell";
-import { PlaceholderPage } from "@/components/placeholder-page";
+import { ExamHome } from "@/components/exam-home";
+import { getExamHomeData } from "@/lib/exam";
 
-export default function ExamPage() {
+export const dynamic = "force-dynamic";
+
+export default async function ExamPage() {
+  const data = await getExamHomeData();
   return (
     <AppShell>
-      <PlaceholderPage
-        title="Exam"
-        summary="A later phase will offer a timed 140-item session balanced to the official outline. Generated items will never be labeled as live licensing questions."
-        next="The simulator is not available yet."
-      />
+      <ExamHome data={data} />
     </AppShell>
   );
 }

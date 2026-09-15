@@ -1,6 +1,6 @@
 # Architecture decisions
 
-Phase: 11 — Class-miss photo intake  
+Phase: 12 — Content validation gates  
 Status: locked unless a concrete technical contradiction appears.
 
 This file records the Architecture Lock. It is binding for implementation.
@@ -47,6 +47,14 @@ This file records the Architecture Lock. It is binding for implementation.
 - **Canonical book is PUB725.** Chapter-folder PDFs are aligned notes with different pagination.
 - **Practice-exam stems stay in the local DB** and are not rendered in Library or committed to git.
 - **Video transcription and OCR are deferred** (Phase 10). Image-heavy form pages are stored as `needsOcr` placeholders.
+
+## Phase 12 complete (content validation gates)
+
+Deterministic gates enforce the Architecture Lock lifecycle for questions and learning assets. Teach Me / Practice / Exam continue to load `active` only. WI-like claims without citations fail `wi_fact_check` — gates never invent statutes, fees, or form lines. `validated` items require an explicit activate step before becoming `active`. Gate outcomes are audited in `ContentGateEvent`.
+
+## Phase 12 boundaries (still in force)
+
+Do not let an LLM skip gates or invent Wisconsin cites to pass wi_fact_check. Do not auto-activate rejected or unverified items. Do not feed needs_verification OCR/photo dumps into the active catalog.
 
 ## Phase 11 complete (class-miss photos)
 

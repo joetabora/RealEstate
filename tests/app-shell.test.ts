@@ -14,6 +14,7 @@ describe("product shell", () => {
       "Exam",
       "Tutor",
       "Library",
+      "Validation",
     ]);
   });
 
@@ -25,6 +26,8 @@ describe("product shell", () => {
       "teachback",
       "practice",
       "recall",
+      "calculation",
+      "exam",
     ]);
   });
 });

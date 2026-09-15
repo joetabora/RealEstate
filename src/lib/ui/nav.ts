@@ -7,6 +7,7 @@ export const PRIMARY_NAV = [
   { href: "/exam", label: "Exam", description: "Timed simulation" },
   { href: "/tutor", label: "Tutor", description: "Socratic help" },
   { href: "/library", label: "Library", description: "Sourced course material" },
+  { href: "/validation", label: "Validation", description: "Content gate queue" },
 ] as const;
 
 export type NavItem = (typeof PRIMARY_NAV)[number];

@@ -2,7 +2,7 @@
 
 Personal learning system for the Wisconsin real estate **salesperson** exam. Teach Me is the home loop.
 
-This repository is **Phase 11 (complete)**: class-miss photo intake on Mistakes, on top of Phase 10 visual/OCR. Photos stay local; optional OCR is needs_verification only. Photos can link to open practice mistakes or be discarded. Generated items and video transcription are not in yet.
+This repository is **Phase 12 (complete)**: deterministic content validation gates on top of Phase 11. Generated drafts must pass source → structural → answer → ambiguity → WI-fact before activation. Teach Me still uses active only. Video transcription is not in yet.
 
 ## Requirements
 
@@ -31,6 +31,19 @@ The second `npx prisma db seed` attaches Chapter 1–14 concepts, Teach Me asset
 The database listens on **localhost:5433** so it does not collide with a local Postgres on 5432.
 
 If Docker Desktop is not running, the Teach Me shell still renders from the in-code exam blueprint. Persistence and ingested sections require the database.
+
+## What Phase 12 includes
+
+- Everything in Phase 1–11
+- Content lifecycle gates: generated → source_check → structural_check → answer_check → ambiguity_check → wi_fact_check → validated → active (or rejected)
+- `/validation` review queue + `npm run validate:content`
+- `ContentGateEvent` audit trail
+- WI-like language without citations fails wi_fact_check (never invents cites)
+- Explicit activate step from validated → active
+
+## What Phase 12 does not include yet
+
+LLM batch generation of MCQs, auto-activation without review, video transcription, embeddings.
 
 ## What Phase 11 includes
 

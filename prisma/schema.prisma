@@ -427,7 +427,7 @@ model LearningAsset {
   kind String
   /// course_sourced | general_explanation | needs_verification
   informationClass String
-  /// generated | extracted | active | rejected — Phase 4 seed is active
+  /// generated | source_check | structural_check | answer_check | ambiguity_check | wi_fact_check | validated | active | rejected
   lifecycle String @default("active")
 
   conceptId String?
@@ -481,7 +481,7 @@ model Question {
   kind String @default("mcq")
   /// course_sourced | general_explanation | needs_verification
   informationClass String
-  /// generated | extracted | active | rejected — Phase 5 seed is active
+  /// generated | source_check | structural_check | answer_check | ambiguity_check | wi_fact_check | validated | active | rejected
   lifecycle String @default("active")
 
   chapterNumber Int
@@ -757,4 +757,24 @@ model TutorUsageDay {
 
   @@unique([learnerId, day])
   @@index([learnerId, day])
+}
+
+/// Audit trail for Phase 12 content validation gates (questions / learning assets).
+model ContentGateEvent {
+  id       String @id @default(cuid())
+  /// question | learning_asset
+  targetKind String
+  targetId   String
+  /// Gate that was evaluated (source_check, structural_check, …)
+  gate     String
+  /// Lifecycle value before this evaluation
+  fromLifecycle String
+  /// Lifecycle value after this evaluation (may equal from on failure)
+  toLifecycle   String
+  passed   Boolean
+  reasons  String[] @default([])
+  createdAt DateTime @default(now())
+
+  @@index([targetKind, targetId, createdAt])
+  @@index([gate, createdAt])
 }

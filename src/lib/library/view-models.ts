@@ -69,6 +69,8 @@ export type LibrarySectionDetail = LibrarySectionRow & {
   ocrStatusLabel: string | null;
   formNumber: string | null;
   hasLocalRender: boolean;
+  renderAssetId: string | null;
+  renderImageHref: string | null;
 };
 
 export function layerLabel(layer: string): string {

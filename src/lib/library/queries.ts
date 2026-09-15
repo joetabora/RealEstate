@@ -41,6 +41,7 @@ export type OcrQueueItem = {
   formNumber: string | null;
   visualAnchorLabel: string | null;
   hasLocalRender: boolean;
+  renderImageHref: string | null;
   href: string;
 };
 
@@ -238,6 +239,12 @@ export async function getLibrarySection(
       ocrStatusLabel: ocrStatus ? OCR_STATUS_LABELS[ocrStatus] ?? ocrStatus : null,
       formNumber: anchor?.formNumber ?? null,
       hasLocalRender: Boolean(anchor?.asset?.filePath),
+      renderAssetId:
+        anchor?.asset?.filePath && anchor.assetId ? anchor.assetId : null,
+      renderImageHref:
+        anchor?.asset?.filePath && anchor.assetId
+          ? `/api/library/page-render/${anchor.assetId}`
+          : null,
     };
   } catch {
     return null;
@@ -282,6 +289,10 @@ export async function getOcrQueue(): Promise<OcrQueueData> {
         formNumber: anchor?.formNumber ?? null,
         visualAnchorLabel: anchor?.label ?? null,
         hasLocalRender: Boolean(anchor?.asset?.filePath),
+        renderImageHref:
+          anchor?.asset?.filePath && anchor.assetId
+            ? `/api/library/page-render/${anchor.assetId}`
+            : null,
         href: `/library/${section.document.slug}/${section.id}`,
       };
     });

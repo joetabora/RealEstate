@@ -54,7 +54,9 @@ export function LibraryHome({
           <h2 className="font-display text-2xl text-ink">OCR queue</h2>
           <p className="mt-2 text-sm leading-6 text-muted">
             Image-heavy pages stay labeled until a local render exists. This app
-            does not invent form text or upload PDFs to a vendor.
+            does not invent form text or upload PDFs to a vendor. Optional:{" "}
+            <code className="text-ink">npm run render:ocr-pages</code> (needs{" "}
+            <code className="text-ink">pdftoppm</code>).
           </p>
           <p className="mt-3 text-sm text-ink">
             {ocrPendingCount} section{ocrPendingCount === 1 ? "" : "s"} marked needs OCR

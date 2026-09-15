@@ -11,7 +11,7 @@ export type OcrStatus = (typeof OCR_STATUSES)[number];
 export const OCR_STATUS_LABELS: Record<OcrStatus, string> = {
   not_needed: "Text extractable — OCR not required",
   pending: "Pending local page render / OCR",
-  render_queued: "Local render queued",
+  render_queued: "Local page render on disk (OCR text not extracted)",
   complete: "Local OCR complete",
   unavailable: "Unavailable on this machine",
 };

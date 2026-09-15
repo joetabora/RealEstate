@@ -18,3 +18,9 @@ export {
   visualAnchorLabel,
 } from "./ocr";
 export type { OcrStatus } from "./ocr";
+export {
+  absoluteRenderPath,
+  relativeRenderPath,
+  resolveSafeRenderFile,
+  renderPendingOcrPages,
+} from "./page-render";

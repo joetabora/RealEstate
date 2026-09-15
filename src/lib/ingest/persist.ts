@@ -97,29 +97,11 @@ export async function persistDocuments(
           },
         });
 
-        await tx.visualAnchor.create({
-          data: {
-            sectionId: row.id,
-            assetId: pdfAsset.id,
-            pdfPage: section.pdfPageStart,
-            printedPage: section.printedPageStart,
-            formNumber: inferFormNumberFromHeading(section.heading),
-            label: visualAnchorLabel({
-              needsOcr: section.needsOcr,
-              pdfPage: section.pdfPageStart,
-              printedPage: section.printedPageStart,
-              formNumber: inferFormNumberFromHeading(section.heading),
-            }),
-            ocrStatus: ocrStatusForNeedsOcr(section.needsOcr),
-            ocrNote: section.needsOcr
-              ? "Image-heavy extract. Local page render / OCR not run yet — no invented form text."
-              : null,
-          },
-        });
-
+        const formNumber = inferFormNumberFromHeading(section.heading);
+        let anchorAssetId = pdfAsset.id;
         if (section.needsOcr) {
           ocrPlaceholders += 1;
-          await tx.sourceAsset.create({
+          const renderAsset = await tx.sourceAsset.create({
             data: {
               documentId: saved.id,
               kind: document.layer === "forms" ? "form_pdf_page" : "page_render",
@@ -129,7 +111,28 @@ export async function persistDocuments(
               mimeType: null,
             },
           });
+          anchorAssetId = renderAsset.id;
         }
+
+        await tx.visualAnchor.create({
+          data: {
+            sectionId: row.id,
+            assetId: anchorAssetId,
+            pdfPage: section.pdfPageStart,
+            printedPage: section.printedPageStart,
+            formNumber,
+            label: visualAnchorLabel({
+              needsOcr: section.needsOcr,
+              pdfPage: section.pdfPageStart,
+              printedPage: section.printedPageStart,
+              formNumber,
+            }),
+            ocrStatus: ocrStatusForNeedsOcr(section.needsOcr),
+            ocrNote: section.needsOcr
+              ? "Image-heavy extract. Local page render / OCR not run yet — no invented form text."
+              : null,
+          },
+        });
 
         sections += 1;
         if (section.chapterNumber != null) {

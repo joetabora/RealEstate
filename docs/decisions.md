@@ -50,7 +50,7 @@ This file records the Architecture Lock. It is binding for implementation.
 
 ## Phase 10 in progress (visual / OCR queue)
 
-`VisualAnchor` grows `ocrStatus` and `ocrNote`. Ingest sets `pending` for `needsOcr` sections and may copy a form token from the extracted heading only. Library lists a local OCR queue; section pages show status without inventing form/page text. Source PDFs stay on disk (`filePath` gitignored); no vendor upload. Raster OCR and video transcription remain out until a later Phase 10 slice.
+`VisualAnchor` grows `ocrStatus` and `ocrNote`. Ingest sets `pending` for `needsOcr` sections and may copy a form token from the extracted heading only. Library lists a local OCR queue; section pages show status without inventing form/page text. Optional `npm run render:ocr-pages` uses local `pdftoppm` to write gitignored PNGs under `LOCAL_PAGE_RENDER_PATH` and marks anchors `render_queued` (image on disk, OCR text still not extracted). Source PDFs stay on disk; no vendor upload. Tesseract/cloud OCR text and video transcription remain out.
 
 ## Phase 10 boundaries (still in force)
 

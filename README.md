@@ -38,11 +38,13 @@ If Docker Desktop is not running, the Teach Me shell still renders from the in-c
 - `VisualAnchor.ocrStatus` / `ocrNote` with ingest backfill for `needsOcr` sections
 - Form numbers inferred only from extracted headings (e.g. WB-11)
 - Library OCR queue at `/library/ocr` plus section visual/OCR status strip
+- Optional local page PNG renders via `npm run render:ocr-pages` (`pdftoppm`) into gitignored `data/page-renders/`
+- Safe `/api/library/page-render/[assetId]` for those PNGs only
 - Explicit rule: no invented OCR text; PDFs stay local / never uploaded to a vendor
 
 ## What Phase 10 does not include yet
 
-Actual local page rasterization, Tesseract/cloud OCR output, bounding-box capture UI, video transcription, class-miss photo intake.
+Tesseract/cloud OCR text extraction, bounding-box capture UI, video transcription, class-miss photo intake.
 
 ## What Phase 9 includes
 

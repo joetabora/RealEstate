@@ -45,7 +45,7 @@ export function LibraryOcrQueue({ data }: { data: OcrQueueData }) {
                 <h2 className="mt-2 font-display text-xl text-ink">{item.heading}</h2>
                 <p className="mt-2 text-sm text-muted">
                   {item.citation} · {item.ocrStatusLabel}
-                  {item.hasLocalRender ? " · local render path set" : " · no local render yet"}
+                  {item.hasLocalRender ? " · local render on disk" : " · no local render yet"}
                 </p>
               </Link>
             </li>

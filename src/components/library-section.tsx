@@ -52,6 +52,14 @@ export function LibrarySectionView({
             {section.formNumber ? ` · form ${section.formNumber}` : ""}
             {section.hasLocalRender ? " · local render path recorded" : ""}
           </p>
+          {section.renderImageHref ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={section.renderImageHref}
+              alt={`Local page render for ${section.heading}`}
+              className="mt-4 max-h-[28rem] w-full rounded-lg object-contain ring-1 ring-line bg-paper"
+            />
+          ) : null}
           <p className="mt-3 text-sm">
             <Link href="/library/ocr" className="text-accent underline">
               OCR queue

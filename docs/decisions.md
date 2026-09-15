@@ -1,6 +1,6 @@
 # Architecture decisions
 
-Phase: 7 — Optional AI Tutor  
+Phase: 8 — Deterministic math  
 Status: locked unless a concrete technical contradiction appears.
 
 This file records the Architecture Lock. It is binding for implementation.
@@ -48,7 +48,15 @@ This file records the Architecture Lock. It is binding for implementation.
 - **Practice-exam stems stay in the local DB** and are not rendered in Library or committed to git.
 - **Video transcription and OCR are deferred** (Phase 10). Image-heavy form pages are stored as `needsOcr` placeholders.
 
-## Phase 7 in progress (optional tutor)
+## Phase 8 in progress (deterministic math)
+
+In-code math templates with fixed solvers for commission, seller net, LTV, discount points, and simple interest. Guided steps and optional attempt checking. The tutor / any LLM never computes the numeric key. No prorations or WI transfer-fee tables invented beyond formula templates already listed.
+
+## Phase 8 boundaries (still in force)
+
+Do not let an LLM calculate answers. Do not invent Wisconsin fee schedules or statutory rates without a citation. Do not build timed exam-math mode yet.
+
+## Phase 7 complete (optional tutor)
 
 Socratic tutor overlay with learner-toggleable modes: `off` (default), `mock` (no API key / no spend), `live` (requires `OPENAI_API_KEY` and network). Soft daily spend cap for live. Keyword retrieval points at matching concepts, Teach Me assets, and Library sections (not embeddings). Learner-state lane adds open mistakes and overdue review pointers. Tutor never invents Wisconsin statutes, fees, deadlines, or form-line text. Live is blocked offline; Mock still works. Threads can be cleared for a new conversation. Planner and SRS still never call the LLM. Core study works with Tutor fully off.
 

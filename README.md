@@ -2,7 +2,7 @@
 
 Personal learning system for the Wisconsin real estate **salesperson** exam. Teach Me is the home loop.
 
-This repository is **Phase 7 (in progress)**: optional Socratic Tutor overlay (Off / Mock / Live) on top of Phase 6 adaptive review. Live mode needs an API key; core study works with Tutor off. Class-miss photos and generated items are not in yet.
+This repository is **Phase 8 (in progress)**: deterministic real-estate math solvers on top of Phase 7’s optional Tutor. Language models never own numeric answers. Class-miss photos and generated items are not in yet.
 
 ## Requirements
 
@@ -32,7 +32,17 @@ The database listens on **localhost:5433** so it does not collide with a local P
 
 If Docker Desktop is not running, the Teach Me shell still renders from the in-code exam blueprint. Persistence and ingested sections require the database.
 
-## What Phase 7 includes (in progress)
+## What Phase 8 includes (in progress)
+
+- Everything in Phase 1–7
+- Deterministic solvers: gross commission, seller net, LTV, discount points, simple interest
+- Guided steps + optional attempt-check with error-kind hints (no AI keys)
+
+## What Phase 8 does not include yet
+
+Prorations / tax / transfer-fee templates, timed drills, Teach Me math-repair insertion, AI-calculated keys (never).
+
+## What Phase 7 includes
 
 - Everything in Phase 1–6
 - Tutor modes: **Off** (default), **Mock** (no API spend), **Live** (needs `OPENAI_API_KEY`)
@@ -43,7 +53,7 @@ If Docker Desktop is not running, the Teach Me shell still renders from the in-c
 - Mock and live prompts refuse to invent Wisconsin statutes / fees / deadlines / form lines
 - Chat persistence for the local learner
 
-## What Phase 7 does not include yet
+## What Phase 7 does not include
 
 Embedding/RAG lanes, voice, unconstrained PDF chat, LLM narration of the study plan.
 

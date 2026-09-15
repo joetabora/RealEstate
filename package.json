@@ -18,7 +18,8 @@
     "db:setup": "docker compose up -d && prisma migrate deploy && prisma db seed",
     "db:studio": "prisma studio",
     "ingest": "tsx --env-file=.env src/lib/ingest/cli.ts",
-    "render:ocr-pages": "tsx --env-file=.env src/lib/library/render-cli.ts"
+    "render:ocr-pages": "tsx --env-file=.env src/lib/library/render-cli.ts",
+    "ocr:pages": "tsx --env-file=.env src/lib/library/ocr-cli.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

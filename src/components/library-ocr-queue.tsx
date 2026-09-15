@@ -46,6 +46,7 @@ export function LibraryOcrQueue({ data }: { data: OcrQueueData }) {
                 <p className="mt-2 text-sm text-muted">
                   {item.citation} · {item.ocrStatusLabel}
                   {item.hasLocalRender ? " · local render on disk" : " · no local render yet"}
+                  {item.hasOcrText ? " · OCR text (unverified)" : ""}
                 </p>
               </Link>
             </li>

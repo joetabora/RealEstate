@@ -60,6 +60,17 @@ export function LibrarySectionView({
               className="mt-4 max-h-[28rem] w-full rounded-lg object-contain ring-1 ring-line bg-paper"
             />
           ) : null}
+          {section.ocrText ? (
+            <div className="mt-4 rounded-lg bg-paper px-4 py-3 ring-1 ring-line">
+              <p className="text-xs font-medium uppercase tracking-[0.14em] text-accent">
+                Local OCR · needs verification
+                {section.ocrVerified ? "" : " · not course truth"}
+              </p>
+              <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-muted">
+                {section.ocrText}
+              </p>
+            </div>
+          ) : null}
           <p className="mt-3 text-sm">
             <Link href="/library/ocr" className="text-accent underline">
               OCR queue

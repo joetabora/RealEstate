@@ -48,13 +48,13 @@ This file records the Architecture Lock. It is binding for implementation.
 - **Practice-exam stems stay in the local DB** and are not rendered in Library or committed to git.
 - **Video transcription and OCR are deferred** (Phase 10). Image-heavy form pages are stored as `needsOcr` placeholders.
 
-## Phase 10 in progress (visual / OCR queue)
+## Phase 10 complete (visual / OCR queue)
 
-`VisualAnchor` grows `ocrStatus` and `ocrNote`. Ingest sets `pending` for `needsOcr` sections and may copy a form token from the extracted heading only. Library lists a local OCR queue; section pages show status without inventing form/page text. Optional `npm run render:ocr-pages` uses local `pdftoppm` to write gitignored PNGs under `LOCAL_PAGE_RENDER_PATH` and marks anchors `render_queued` (image on disk, OCR text still not extracted). Source PDFs stay on disk; no vendor upload. Tesseract/cloud OCR text and video transcription remain out.
+`VisualAnchor` carries `ocrStatus`, `ocrNote`, and unverified `ocrText`. Ingest sets `pending` for `needsOcr` sections and may copy a form token from the extracted heading only. Library lists a local OCR queue; section pages show status and optional local PNG / Tesseract dump. `npm run render:ocr-pages` (`pdftoppm`) and `npm run ocr:pages` (`tesseract`) are optional local tools. OCR dumps stay `ocrVerified=false` / needs_verification and are never Teach Me truth. Source PDFs stay on disk; no vendor upload. Video transcription and class-miss photo intake remain out.
 
 ## Phase 10 boundaries (still in force)
 
-Do not invent OCR text for image-heavy pages. Do not upload PDFs to a vendor. Do not treat pending placeholders as verified Wisconsin form lines. Do not commit rendered page images.
+Do not invent OCR text for image-heavy pages. Do not upload PDFs to a vendor. Do not treat OCR dumps as verified Wisconsin form lines. Do not commit rendered page images. Do not feed unverified OCR into Teach Me planners.
 
 ## Phase 9 complete (exam simulation)
 

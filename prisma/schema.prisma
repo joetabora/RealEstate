@@ -281,6 +281,9 @@ model VisualAnchor {
   ocrStatus String @default("not_needed")
   /// Operator note only — never invented statute/form text.
   ocrNote String?
+  /// Raw local OCR dump. Always treated as needs_verification — never Teach Me truth.
+  ocrText String? @db.Text
+  ocrVerified Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

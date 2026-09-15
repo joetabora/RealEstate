@@ -2,7 +2,7 @@
 
 Personal learning system for the Wisconsin real estate **salesperson** exam. Teach Me is the home loop.
 
-This repository is **Phase 10 (in progress)**: visual / OCR queue on Library anchors on top of Phase 9 exam simulation. No invented form text and no vendor PDF upload. Class-miss photos and generated items are not in yet.
+This repository is **Phase 10 (complete)**: visual / OCR queue with optional local page renders and Tesseract dumps on Library anchors. OCR text is needs_verification only — never Teach Me truth. No vendor PDF upload. Class-miss photos, generated items, and video transcription are not in yet.
 
 ## Requirements
 
@@ -32,19 +32,20 @@ The database listens on **localhost:5433** so it does not collide with a local P
 
 If Docker Desktop is not running, the Teach Me shell still renders from the in-code exam blueprint. Persistence and ingested sections require the database.
 
-## What Phase 10 includes (in progress)
+## What Phase 10 includes
 
 - Everything in Phase 1–9
-- `VisualAnchor.ocrStatus` / `ocrNote` with ingest backfill for `needsOcr` sections
+- `VisualAnchor.ocrStatus` / `ocrNote` / `ocrText` (unverified) with ingest backfill for `needsOcr` sections
 - Form numbers inferred only from extracted headings (e.g. WB-11)
 - Library OCR queue at `/library/ocr` plus section visual/OCR status strip
 - Optional local page PNG renders via `npm run render:ocr-pages` (`pdftoppm`) into gitignored `data/page-renders/`
+- Optional local Tesseract via `npm run ocr:pages` — dumps marked needs_verification, never Teach Me truth
 - Safe `/api/library/page-render/[assetId]` for those PNGs only
-- Explicit rule: no invented OCR text; PDFs stay local / never uploaded to a vendor
+- Explicit rule: no invented OCR as course fact; PDFs stay local / never uploaded to a vendor
 
-## What Phase 10 does not include yet
+## What Phase 10 does not include
 
-Tesseract/cloud OCR text extraction, bounding-box capture UI, video transcription, class-miss photo intake.
+Cloud OCR, bounding-box capture UI, video transcription, class-miss photo intake, promoting OCR dumps into Teach Me assets.
 
 ## What Phase 9 includes
 

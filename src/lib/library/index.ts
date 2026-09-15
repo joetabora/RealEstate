@@ -24,3 +24,4 @@ export {
   resolveSafeRenderFile,
   renderPendingOcrPages,
 } from "./page-render";
+export { normalizeOcrText, ocrRenderedPages, findTesseract } from "./tesseract";

@@ -71,6 +71,8 @@ export type LibrarySectionDetail = LibrarySectionRow & {
   hasLocalRender: boolean;
   renderAssetId: string | null;
   renderImageHref: string | null;
+  ocrText: string | null;
+  ocrVerified: boolean;
 };
 
 export function layerLabel(layer: string): string {

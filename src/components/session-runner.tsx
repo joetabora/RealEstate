@@ -56,6 +56,13 @@ export function SessionRunner({ session }: { session: SessionView }) {
 
       <section className="card mt-8 p-6 sm:p-8">
         <p className="text-base leading-7 text-ink">{item.body}</p>
+        {item.mathHref ? (
+          <p className="mt-5">
+            <Link href={item.mathHref} className="btn-primary inline-flex">
+              Practice on Math
+            </Link>
+          </p>
+        ) : null}
       </section>
 
       {item.citations.length > 0 ? (
@@ -83,7 +90,11 @@ export function SessionRunner({ session }: { session: SessionView }) {
         <input type="hidden" name="sessionId" value={session.id} />
         <input type="hidden" name="itemId" value={item.id} />
         <button type="submit" className="btn-primary">
-          {item.kind === "teachback" || item.kind === "recall" ? "I said it — continue" : "Continue"}
+          {item.kind === "teachback" || item.kind === "recall"
+            ? "I said it — continue"
+            : item.kind === "calculation"
+              ? "Solved on Math — continue"
+              : "Continue"}
         </button>
       </form>
     </div>

@@ -137,7 +137,7 @@ export async function completeSessionItem(sessionId: string, itemId: string) {
       data: { completedAt: new Date() },
     });
 
-    if (item.kind === "review" || item.kind === "repair") {
+    if (item.kind === "review" || item.kind === "repair" || item.kind === "calculation") {
       const conceptIds = new Set<string>();
       if (item.conceptId) conceptIds.add(item.conceptId);
       if (item.asset?.conceptId) conceptIds.add(item.asset.conceptId);

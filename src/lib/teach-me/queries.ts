@@ -3,6 +3,11 @@ import { COURSE_EDITION_SEED } from "@/lib/blueprint";
 import { formatPageCitation } from "@/lib/ingest/citation";
 import { getLocalLearner } from "@/lib/learner";
 import { adaptiveReviewHint, getReviewQueueSummary } from "@/lib/mastery";
+import {
+  mathTemplateById,
+  mathTemplateIdForConceptSlug,
+  mathTemplateIdFromReasonCodes,
+} from "@/lib/math";
 import { selectTeachMeSitting } from "./planner";
 import {
   PLANNER_VERSION_CH1,
@@ -53,6 +58,8 @@ export type SessionItemView = {
   assetKind: string;
   conceptName: string | null;
   conceptSlug: string | null;
+  mathTemplateId: string | null;
+  mathHref: string | null;
   citations: Array<{
     heading: string;
     citation: string;
@@ -162,6 +169,26 @@ export async function getSessionView(sessionId: string): Promise<SessionView | n
       : session.items.length;
     const currentAsset = current?.asset ?? null;
 
+    let item: SessionItemView | null = null;
+    if (current) {
+      if (currentAsset) {
+        item = toItemView({
+          id: current.id,
+          kind: current.kind,
+          reasonCodes: current.reasonCodes,
+          concept: current.concept,
+          asset: currentAsset,
+        });
+      } else if (current.kind === "calculation") {
+        item = toCalculationItemView({
+          id: current.id,
+          kind: current.kind,
+          reasonCodes: current.reasonCodes,
+          concept: current.concept,
+        });
+      }
+    }
+
     return {
       id: session.id,
       objective: session.objective ?? "Teach Me session",
@@ -172,16 +199,7 @@ export async function getSessionView(sessionId: string): Promise<SessionView | n
       recommendedNext: session.recommendedNext,
       currentIndex,
       total: session.items.length,
-      item:
-        current && currentAsset
-          ? toItemView({
-              id: current.id,
-              kind: current.kind,
-              reasonCodes: current.reasonCodes,
-              concept: current.concept,
-              asset: currentAsset,
-            })
-          : null,
+      item,
     };
   } catch {
     return null;
@@ -260,6 +278,10 @@ function toItemView(item: {
     }>;
   };
 }): SessionItemView {
+  const mathTemplateId =
+    mathTemplateIdFromReasonCodes(item.reasonCodes) ??
+    (item.concept ? mathTemplateIdForConceptSlug(item.concept.slug) : null);
+
   return {
     id: item.id,
     kind: item.kind,
@@ -270,6 +292,8 @@ function toItemView(item: {
     assetKind: item.asset.kind,
     conceptName: item.concept?.name ?? null,
     conceptSlug: item.concept?.slug ?? null,
+    mathTemplateId,
+    mathHref: mathTemplateId ? `/math?template=${encodeURIComponent(mathTemplateId)}` : null,
     citations: item.asset.citations.map((citation) => ({
       heading: citation.heading,
       citation: formatPageCitation({
@@ -282,5 +306,38 @@ function toItemView(item: {
         ? `/library/${citation.documentSlug}/${citation.sectionId}`
         : `/library/${citation.documentSlug}`,
     })),
+  };
+}
+
+function toCalculationItemView(item: {
+  id: string;
+  kind: string;
+  reasonCodes: string[];
+  concept: { name: string; slug: string } | null;
+}): SessionItemView {
+  const mathTemplateId =
+    mathTemplateIdFromReasonCodes(item.reasonCodes) ??
+    (item.concept ? mathTemplateIdForConceptSlug(item.concept.slug) : null);
+  const template = mathTemplateId ? mathTemplateById(mathTemplateId) : null;
+  const title = template
+    ? `Math repair · ${template.title}`
+    : "Math repair · Deterministic solver";
+  const body = template
+    ? `${template.summary} Open Math, enter cited rates yourself, and check your attempt against the fixed solver. Language models never own the numeric key.`
+    : "Open Math and practice the mapped formula. Language models never own the numeric key.";
+
+  return {
+    id: item.id,
+    kind: item.kind,
+    reasonCodes: item.reasonCodes,
+    title,
+    body,
+    informationClass: "general_explanation",
+    assetKind: "calculation",
+    conceptName: item.concept?.name ?? null,
+    conceptSlug: item.concept?.slug ?? null,
+    mathTemplateId,
+    mathHref: mathTemplateId ? `/math?template=${encodeURIComponent(mathTemplateId)}` : "/math",
+    citations: [],
   };
 }

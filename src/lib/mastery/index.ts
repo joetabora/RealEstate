@@ -11,10 +11,12 @@ export {
 } from "./schedule";
 export {
   ADAPTIVE_PREFIX_CAP,
+  buildAdaptivePrefixItems,
   buildAdaptiveTeachMeDraft,
   collectAdaptiveSignals,
   pickAdaptiveRepairAssets,
   prependAdaptiveItems,
+  prependSessionPrefix,
   type AdaptiveAssetCandidate,
   type AdaptiveSignal,
 } from "./adaptive";

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   ADAPTIVE_PREFIX_CAP,
+  buildAdaptivePrefixItems,
   pickAdaptiveRepairAssets,
   prependAdaptiveItems,
   type AdaptiveAssetCandidate,
@@ -102,5 +103,28 @@ describe("prependAdaptiveItems", () => {
     ]);
     expect(next.items).toHaveLength(1);
     expect(next.objective).toBe(draft.objective);
+  });
+});
+
+describe("buildAdaptivePrefixItems", () => {
+  it("inserts calculation items for math-mapped concept slugs", () => {
+    const signals: AdaptiveSignal[] = [
+      { kind: "mistake", conceptId: "c-commission", pairId: null },
+      { kind: "overdue", conceptId: "c2" },
+    ];
+    const prefix = buildAdaptivePrefixItems({
+      signals,
+      assets,
+      conceptSlugsById: new Map([
+        ["c-commission", "calculating-commissions"],
+        ["c2", "client"],
+      ]),
+    });
+
+    expect(prefix[0]?.kind).toBe("calculation");
+    expect(prefix[0]?.reasonCodes).toContain("math_repair");
+    expect(prefix[0]?.reasonCodes.some((code) => code.startsWith("math_template:"))).toBe(true);
+    expect(prefix[1]?.kind).toBe("review");
+    expect(prefix[1]?.assetId).toBe("a-c2");
   });
 });

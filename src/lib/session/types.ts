@@ -5,6 +5,8 @@ export const SESSION_ITEM_KINDS = [
   "teachback",
   "practice",
   "recall",
+  /** Deterministic math drill inserted by adaptive Teach Me (no LearningAsset). */
+  "calculation",
 ] as const;
 
 export type SessionItemKind = (typeof SESSION_ITEM_KINDS)[number];

@@ -1,4 +1,8 @@
 import type { PrismaClient } from "@prisma/client";
+import {
+  mathTemplateIdForConceptSlug,
+  mathTemplateReasonCode,
+} from "@/lib/math";
 import type { SessionDraft, SessionItemDraft } from "@/lib/session";
 
 export const ADAPTIVE_PREFIX_CAP = 3;
@@ -163,6 +167,53 @@ export function pickAdaptiveRepairAssets(
   return picks;
 }
 
+/**
+ * Build adaptive prefix drafts. Math-mapped concepts become `calculation`
+ * items (no LearningAsset); other signals keep comparison/repair assets.
+ */
+export function buildAdaptivePrefixItems(input: {
+  signals: readonly AdaptiveSignal[];
+  assets: readonly AdaptiveAssetCandidate[];
+  conceptSlugsById: ReadonlyMap<string, string>;
+  cap?: number;
+}): SessionItemDraft[] {
+  const cap = input.cap ?? ADAPTIVE_PREFIX_CAP;
+  const prefix: SessionItemDraft[] = [];
+  const usedAssetIds = new Set<string>();
+  const usedMathConcepts = new Set<string>();
+
+  for (const signal of input.signals) {
+    if (prefix.length >= cap) break;
+
+    const slug = input.conceptSlugsById.get(signal.conceptId);
+    const templateId = slug ? mathTemplateIdForConceptSlug(slug) : null;
+
+    if (templateId && !usedMathConcepts.has(signal.conceptId)) {
+      usedMathConcepts.add(signal.conceptId);
+      prefix.push({
+        sortOrder: prefix.length,
+        kind: "calculation",
+        reasonCodes: [...reasonCodesFor(signal), "math_repair", mathTemplateReasonCode(templateId)],
+        conceptId: signal.conceptId,
+      });
+      continue;
+    }
+
+    const asset = matchAssetForSignal(signal, input.assets, usedAssetIds);
+    if (!asset) continue;
+    usedAssetIds.add(asset.id);
+    prefix.push({
+      sortOrder: prefix.length,
+      kind: signal.kind === "overdue" ? "review" : "repair",
+      reasonCodes: reasonCodesFor(signal),
+      conceptId: asset.conceptId ?? signal.conceptId,
+      assetId: asset.id,
+    });
+  }
+
+  return prefix;
+}
+
 function reasonCodesFor(signal: AdaptiveSignal): string[] {
   if (signal.kind === "mistake") return ["adaptive_mistake", "repair"];
   if (signal.kind === "overdue") return ["adaptive_overdue", "review"];
@@ -220,19 +271,37 @@ export function prependAdaptiveItems(
     });
   }
 
+  return prependSessionPrefix(draft, prefix);
+}
+
+/** Prepend arbitrary adaptive SessionItem drafts (assets and/or math calculation). */
+export function prependSessionPrefix(
+  draft: SessionDraft,
+  prefix: SessionItemDraft[],
+): SessionDraft {
   if (prefix.length === 0) return draft;
 
+  const existingAssetIds = new Set(
+    draft.items.map((item) => item.assetId).filter((id): id is string => Boolean(id)),
+  );
+
+  const filtered = prefix.filter(
+    (item) => !item.assetId || !existingAssetIds.has(item.assetId),
+  );
+  if (filtered.length === 0) return draft;
+
+  const renumbered = filtered.map((item, index) => ({ ...item, sortOrder: index }));
   const items = [
-    ...prefix,
+    ...renumbered,
     ...draft.items.map((item, index) => ({
       ...item,
-      sortOrder: prefix.length + index,
+      sortOrder: renumbered.length + index,
     })),
   ];
 
   return {
     ...draft,
-    objective: `${draft.objective} · adaptive repair prefix (${prefix.length})`,
+    objective: `${draft.objective} · adaptive repair prefix (${renumbered.length})`,
     items,
   };
 }
@@ -251,6 +320,19 @@ export async function buildAdaptiveTeachMeDraft(input: {
     chapterNumber: input.chapterNumber,
     now: input.now,
   });
-  const picks = pickAdaptiveRepairAssets(signals, input.assets);
-  return prependAdaptiveItems(input.draft, picks);
+  const conceptIds = [...new Set(signals.map((signal) => signal.conceptId))];
+  const concepts =
+    conceptIds.length === 0
+      ? []
+      : await input.prisma.concept.findMany({
+          where: { id: { in: conceptIds } },
+          select: { id: true, slug: true },
+        });
+  const conceptSlugsById = new Map(concepts.map((row) => [row.id, row.slug]));
+  const prefix = buildAdaptivePrefixItems({
+    signals,
+    assets: input.assets,
+    conceptSlugsById,
+  });
+  return prependSessionPrefix(input.draft, prefix);
 }

@@ -82,6 +82,21 @@ export function ConceptDetail({ concept }: { concept: ConceptDetailData | null }
         )}
       </section>
 
+      {concept.mathHref ? (
+        <section className="card mt-6 p-6">
+          <h2 className="font-display text-xl text-ink">Math repair</h2>
+          <p className="mt-3 text-sm leading-6 text-muted">
+            Practice the mapped deterministic solver. Enter cited rates yourself — no invented
+            Wisconsin fee schedules.
+          </p>
+          <p className="mt-4">
+            <Link href={concept.mathHref} className="font-medium text-accent underline-offset-2 hover:underline">
+              Open Math template
+            </Link>
+          </p>
+        </section>
+      ) : null}
+
       <section className="card mt-8 p-6">
         <h2 className="font-display text-xl text-ink">Citations</h2>
         <ul className="mt-4 space-y-3">

@@ -2,7 +2,7 @@
 
 Personal learning system for the Wisconsin real estate **salesperson** exam. Teach Me is the home loop.
 
-This repository is **Phase 8 (in progress)**: deterministic real-estate math solvers on top of Phase 7’s optional Tutor. Language models never own numeric answers. Class-miss photos and generated items are not in yet.
+This repository is **Phase 8 (complete)**: deterministic real-estate math solvers on top of Phase 7’s optional Tutor. Language models never own numeric answers. Class-miss photos and generated items are not in yet.
 
 ## Requirements
 
@@ -32,15 +32,17 @@ The database listens on **localhost:5433** so it does not collide with a local P
 
 If Docker Desktop is not running, the Teach Me shell still renders from the in-code exam blueprint. Persistence and ingested sections require the database.
 
-## What Phase 8 includes (in progress)
+## What Phase 8 includes
 
 - Everything in Phase 1–7
 - Deterministic solvers: commission, seller net, LTV, loan-from-LTV, down payment, points, simple interest, 365/360 prorations, transfer fee (rate as input)
 - Guided steps + optional attempt-check with error-kind hints (no AI keys)
+- Teach Me adaptive math-repair insertion for mapped concepts (`calculation` items → `/math?template=…`)
+- Concept detail Math repair links for mapped slugs
 
-## What Phase 8 does not include yet
+## What Phase 8 does not include
 
-Timed drills, Teach Me math-repair insertion, hardcoded Wisconsin statutory fee tables, AI-calculated keys (never).
+Timed exam-math drills, hardcoded Wisconsin statutory fee tables, AI-calculated keys (never).
 
 ## What Phase 7 includes
 

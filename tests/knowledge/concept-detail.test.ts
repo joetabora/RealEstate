@@ -18,6 +18,8 @@ const baseConcept: ConceptDetailData = {
   requiredBy: [],
   partOf: [],
   confusionPairs: [],
+  mathTemplateId: null,
+  mathHref: null,
 };
 
 describe("ConceptDetail review schedule", () => {

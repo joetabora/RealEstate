@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   PHASE8_MATH_TEMPLATES,
   classifyMathMiss,
@@ -19,14 +20,32 @@ function formatAnswer(value: number, unit: "dollar" | "percent" | "number" | "ye
   return String(value);
 }
 
+function initialTemplateId(param: string | null): string {
+  if (param && mathTemplateById(param)) return param;
+  return PHASE8_MATH_TEMPLATES[0]!.id;
+}
+
 export function MathHome() {
-  const [templateId, setTemplateId] = useState(PHASE8_MATH_TEMPLATES[0]!.id);
+  const searchParams = useSearchParams();
+  const templateParam = searchParams.get("template");
+  const [templateId, setTemplateId] = useState(() => initialTemplateId(templateParam));
   const template = mathTemplateById(templateId) ?? PHASE8_MATH_TEMPLATES[0]!;
   const [draft, setDraft] = useState<Record<string, string>>({});
   const [solved, setSolved] = useState<MathSolveResult | null>(null);
   const [attempt, setAttempt] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (templateParam && mathTemplateById(templateParam) && templateParam !== templateId) {
+      setTemplateId(templateParam);
+      setDraft({});
+      setSolved(null);
+      setAttempt("");
+      setFeedback(null);
+      setError(null);
+    }
+  }, [templateParam, templateId]);
 
   const inputValues = useMemo(() => {
     const values: Record<string, number> = {};

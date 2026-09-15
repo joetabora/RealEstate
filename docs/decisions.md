@@ -48,9 +48,9 @@ This file records the Architecture Lock. It is binding for implementation.
 - **Practice-exam stems stay in the local DB** and are not rendered in Library or committed to git.
 - **Video transcription and OCR are deferred** (Phase 10). Image-heavy form pages are stored as `needsOcr` placeholders.
 
-## Phase 8 in progress (deterministic math)
+## Phase 8 complete (deterministic math)
 
-In-code math templates with fixed solvers for commission, seller net, LTV, loan-from-LTV, down payment, discount points, simple interest, 365- and 360-day prorations, and transfer fee with an explicit rate input (no hardcoded Wisconsin statutory schedule). Guided steps and optional attempt checking. The tutor / any LLM never computes the numeric key.
+In-code math templates with fixed solvers for commission, seller net, LTV, loan-from-LTV, down payment, discount points, simple interest, 365- and 360-day prorations, and transfer fee with an explicit rate input (no hardcoded Wisconsin statutory schedule). Guided steps and optional attempt checking. The tutor / any LLM never computes the numeric key. Adaptive Teach Me prefixes insert `calculation` items for mapped math concepts (deep-link to `/math?template=…`); concept detail surfaces the same link. Completing a calculation item advances SM-2 like other repair/review steps.
 
 ## Phase 8 boundaries (still in force)
 

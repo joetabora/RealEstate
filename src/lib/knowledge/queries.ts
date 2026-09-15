@@ -7,6 +7,7 @@ import {
   getReviewQueueSummary,
   type ReviewQueueSummary,
 } from "@/lib/mastery";
+import { mathTemplateIdForConceptSlug } from "@/lib/math";
 import { getLearningConceptIds, studyStateFor } from "@/lib/teach-me/queries";
 import {
   CONCEPT_GROUP_LABELS,
@@ -80,6 +81,8 @@ export type ConceptDetailData = {
     otherName: string;
     reason: string;
   }>;
+  mathTemplateId: string | null;
+  mathHref: string | null;
 };
 
 const GROUP_ORDER: ConceptGroup[] = [
@@ -275,6 +278,11 @@ export async function getConceptDetail(slug: string): Promise<ConceptDetailData 
         .filter((rel) => rel.kind === "part_of")
         .map((rel) => ({ slug: rel.toConcept.slug, name: rel.toConcept.name })),
       confusionPairs,
+      mathTemplateId: mathTemplateIdForConceptSlug(concept.slug),
+      mathHref: (() => {
+        const id = mathTemplateIdForConceptSlug(concept.slug);
+        return id ? `/math?template=${encodeURIComponent(id)}` : null;
+      })(),
     };
   } catch {
     return null;
